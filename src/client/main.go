@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	socket, err := goczmq.NewPub("tcp://*:12345")
+	socket, err := goczmq.NewSub("tcp://localhost:12345", "")
 	if err != nil {
 		fmt.Println("Error creating socket:", err)
 		return
@@ -14,11 +14,11 @@ func main() {
 	defer socket.Destroy()
 
 	for {
-		message := "Hello, World!"
-		err = socket.SendMessage([][]byte{[]byte(message)})
+		msg, err := socket.RecvMessage()
 		if err != nil {
-			fmt.Println("Error sending message:", err)
+			fmt.Println("Error receiving message:", err)
 			return
 		}
+		fmt.Println("Received message:", string(msg[0]))
 	}
 }

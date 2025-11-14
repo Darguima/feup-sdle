@@ -1,4 +1,4 @@
-module sdle-server
+module sdle-client
 
 go 1.25.4
 
