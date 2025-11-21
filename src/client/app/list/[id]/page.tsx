@@ -49,7 +49,7 @@ export default function ShoppingListPage({
 		e.preventDefault();
 		if (!itemName.trim() || !itemQuantity) return;
 
-		const quantity = Number.parseInt(itemQuantity);
+		const quantity = Number.parseInt(itemQuantity, 10);
 		if (quantity <= 0) return;
 
 		store.addItem(id, itemName, quantity);
@@ -64,6 +64,7 @@ export default function ShoppingListPage({
 	};
 
 	const handleUpdateTotalQuantity = (itemId: string, change: number) => {
+		if (!list) return;
 		const item = list.items.find((i) => i.id === itemId);
 		if (!item) return;
 
@@ -96,7 +97,7 @@ export default function ShoppingListPage({
 	const progress = totalItems > 0 ? (acquiredItems / totalItems) * 100 : 0;
 
 	return (
-		<main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
+		<main className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
 			<div className="max-w-3xl mx-auto">
 				<Button
 					variant="ghost"
@@ -192,7 +193,7 @@ export default function ShoppingListPage({
 
 										<div className="flex flex-col gap-2">
 											<div className="flex items-center gap-1">
-												<span className="text-xs text-muted-foreground min-w-[3rem]">
+												<span className="text-xs text-muted-foreground min-w-12">
 													Total:
 												</span>
 												<Button
@@ -204,7 +205,7 @@ export default function ShoppingListPage({
 												>
 													<Minus className="w-3 h-3" />
 												</Button>
-												<span className="text-sm font-medium min-w-[2rem] text-center">
+												<span className="text-sm font-medium min-w-8 text-center">
 													{item.totalQuantity}
 												</span>
 												<Button
@@ -218,7 +219,7 @@ export default function ShoppingListPage({
 											</div>
 
 											<div className="flex items-center gap-1">
-												<span className="text-xs text-muted-foreground min-w-[3rem]">
+												<span className="text-xs text-muted-foreground min-w-12">
 													Got:
 												</span>
 												<Button
@@ -230,7 +231,7 @@ export default function ShoppingListPage({
 												>
 													<Minus className="w-3 h-3" />
 												</Button>
-												<span className="text-sm font-medium min-w-[2rem] text-center">
+												<span className="text-sm font-medium min-w-8 text-center">
 													{item.acquiredQuantity}
 												</span>
 												<Button

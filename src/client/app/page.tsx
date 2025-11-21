@@ -30,7 +30,7 @@ export default function HomePage() {
 	};
 
 	return (
-		<main className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
+		<main className="min-h-screen bg-linear-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 p-4 md:p-8">
 			<div className="max-w-2xl mx-auto">
 				<div className="text-center mb-8">
 					<div className="flex items-center justify-center gap-3 mb-4">
@@ -81,6 +81,7 @@ export default function HomePage() {
 								{recentLists.map((list) => (
 									<button
 										key={list.id}
+										type="button"
 										onClick={() => router.push(`/list/${list.id}`)}
 										className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent transition-colors"
 									>
