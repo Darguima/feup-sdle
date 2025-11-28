@@ -1,24 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"github.com/zeromq/goczmq"
+	"log"
+	"net/http"
+	"sdle-server/communication/websocket"
 )
 
 func main() {
-	socket, err := goczmq.NewPub("tcp://*:12345")
-	if err != nil {
-		fmt.Println("Error creating socket:", err)
-		return
-	}
-	defer socket.Destroy()
+	wsHandler := websocket.NewWebSocketHandler()
 
-	for {
-		message := "Hello, World!"
-		err = socket.SendMessage([][]byte{[]byte(message)})
-		if err != nil {
-			fmt.Println("Error sending message:", err)
-			return
-		}
+	// Register handlers
+	http.Handle("/ws", wsHandler)
+
+	log.Println("Starting server on :8080")
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal("Failed to start server on port 8080: ", err)
 	}
 }
