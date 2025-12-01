@@ -1,6 +1,10 @@
-.PHONY: server proxy
+.PHONY: client server proxy
+
+client:
+	cd client && npm run dev
 server:
 	cd server && go run main.go
 
-proxy:
-	cd proxy && go run main.go
+all:
+	make -j2 client server
+

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { type ShoppingList, store } from "@/lib/store";
+import { useWebSocket } from "./provider/websocket";
 import { ShoppingListDetailSkeleton } from "./shopping-list-detail-skeleton";
 
 interface ShoppingListDetailProps {
@@ -30,6 +31,7 @@ export function ShoppingListDetail({
 	const [notFound, setNotFound] = useState(false);
 	const [itemName, setItemName] = useState("");
 	const [itemQuantity, setItemQuantity] = useState("1");
+	const webSocket = useWebSocket();
 
 	const refreshList = useCallback(async () => {
 		const updated = await store.getList(listId);
@@ -59,6 +61,16 @@ export function ShoppingListDetail({
 		setItemName("");
 		setItemQuantity("1");
 		await refreshList();
+
+		// TODO(Process-ing): Remove this
+		webSocket.send(JSON.stringify({
+			type: "new_item",
+			listId: list.id,
+			item: {
+				name: itemName,
+				quantity: quantity,
+			},
+		}));
 	};
 
 	const handleAcquireItem = async (itemId: string, quantity: number) => {
