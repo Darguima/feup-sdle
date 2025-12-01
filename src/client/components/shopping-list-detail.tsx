@@ -13,10 +13,11 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { type ShoppingList, store } from "@/lib/store";
+import { store } from "@/lib/store";
 import { useWebSocket } from "./provider/websocket";
 import { ShoppingListDetailSkeleton } from "./shopping-list-detail-skeleton";
 import { ShoppingList as ShoppingListProto, ShoppingListItem as ShoppingListItemProto } from "@/lib/proto/shopping-list";
+import { ShoppingList } from "@/types";
 
 interface ShoppingListDetailProps {
 	listId: string;

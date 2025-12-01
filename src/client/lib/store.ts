@@ -1,18 +1,5 @@
+import { ShoppingItem, ShoppingList } from "@/types";
 import { db } from "./db";
-
-export interface ShoppingItem {
-	id: string;
-	name: string;
-	totalQuantity: number;
-	acquiredQuantity: number;
-}
-
-export interface ShoppingList {
-	id: string;
-	name: string;
-	items: ShoppingItem[];
-	createdAt: Date;
-}
 
 const lists = new Map<string, ShoppingList>();
 

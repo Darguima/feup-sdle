@@ -12,7 +12,8 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { type ShoppingList, store } from "@/lib/store";
+import { store } from "@/lib/store";
+import { ShoppingList } from "@/types";
 
 interface ShoppingListHomeProps {
 	onSelect: (list: ShoppingList) => void;
