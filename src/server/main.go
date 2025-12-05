@@ -48,7 +48,7 @@ func main() {
 
 		nd.SendFetchRing(nodes[0].GetAddress())
 		nd.SendGetHashSpace(nodes[0].GetAddress(), 0, 100)
-		nd.SendJoinGossip(nodes[0].GetAddress(), nd.GetAddress(), []int32{101})
+		nd.SendJoinGossip(nodes[0].GetAddress(), nd.GetAddress(), []uint64{101})
 
 	}
 }

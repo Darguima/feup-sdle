@@ -160,15 +160,15 @@ func (n *Node) SendGetHashSpace(peerAddr string, startHashSpace int, endHashSpac
 		Origin: n.addr,
 		RequestType: &pb.Request_GetHashSpace{
 			GetHashSpace: &pb.RequestGetHashSpace{
-				StartHashSpace: int32(startHashSpace),
-				EndHashSpace:   int32(endHashSpace),
+				StartHashSpace: uint64(startHashSpace),
+				EndHashSpace:   uint64(endHashSpace),
 			},
 		},
 	}
 	return n.SendRequest(peerAddr, req, 0)
 }
 
-func (n *Node) SendJoinGossip(peerAddr string, newNodeAddr string, tokens []int32) (*pb.Reply, error) {
+func (n *Node) SendJoinGossip(peerAddr string, newNodeAddr string, tokens []uint64) (*pb.Reply, error) {
 	req := &pb.Request{
 		Origin: n.addr,
 		RequestType: &pb.Request_GossipJoin{
