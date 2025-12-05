@@ -1,6 +1,6 @@
 import { ShoppingItem, ShoppingList } from "@/types";
 
-interface ProtocolListener<T> {
-    on(shoppingList: ShoppingList): T;
-    on(shoppingItem: ShoppingItem): T;
+export default interface ProtocolListener {
+    onShoppingList(shoppingList: ShoppingList): void;
+    onShoppingItem(shoppingItem: ShoppingItem): void;
 }
