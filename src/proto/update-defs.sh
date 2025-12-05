@@ -1,7 +1,6 @@
 #!/bin/sh
 
 ROOT_DIR=$(dirname $(dirname $(realpath "$0")))
-echo "Root directory: $ROOT_DIR"
 
 # Generate JavaScript/TypeScript code from the proto files
 pbjs -t static-module -w es6 -o "$ROOT_DIR/client/lib/proto/global.js" "$ROOT_DIR/proto/global.proto"
