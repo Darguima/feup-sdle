@@ -11,7 +11,7 @@ type DotContext[T comparable] struct {
 }
 
 func NewDotContext[T comparable]() *DotContext[T] {
-	return &DotContext[T]{
+	return &DotContext[T] {
 		compactContext: make(map[T]int),
 		dots:           utils.NewSet[Dot[T]](),
 	}
@@ -37,7 +37,7 @@ func (dc *DotContext[T]) MakeDot(replicaID T) Dot[T] {
 }
 
 func (dc *DotContext[T]) InsertDot(dot Dot[T]) {
-	dc.InsertDotCompact(dot, false)
+	dc.InsertDotCompact(dot, true)
 }
 
 func (dc *DotContext[T]) InsertDotCompact(dot Dot[T], compact bool) {
