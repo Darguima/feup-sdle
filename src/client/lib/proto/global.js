@@ -1,15 +1,277 @@
 /*eslint-disable block-scoped-var, id-length, no-control-regex, no-magic-numbers, no-prototype-builtins, no-redeclare, no-shadow, no-var, sort-vars*/
-"use strict";
-
-var $protobuf = require("protobufjs/minimal");
+import * as $protobuf from "protobufjs/minimal";
 
 // Common aliases
-var $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
+const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.util;
 
 // Exported root namespace
-var $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
+const $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
 
-$root.ShoppingListItem = (function() {
+export const Entity = $root.Entity = (() => {
+
+    /**
+     * Properties of an Entity.
+     * @exports IEntity
+     * @interface IEntity
+     * @property {IShoppingList|null} [shoppingList] Entity shoppingList
+     * @property {IShoppingListItem|null} [shoppingListItem] Entity shoppingListItem
+     */
+
+    /**
+     * Constructs a new Entity.
+     * @exports Entity
+     * @classdesc Represents an Entity.
+     * @implements IEntity
+     * @constructor
+     * @param {IEntity=} [properties] Properties to set
+     */
+    function Entity(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * Entity shoppingList.
+     * @member {IShoppingList|null|undefined} shoppingList
+     * @memberof Entity
+     * @instance
+     */
+    Entity.prototype.shoppingList = null;
+
+    /**
+     * Entity shoppingListItem.
+     * @member {IShoppingListItem|null|undefined} shoppingListItem
+     * @memberof Entity
+     * @instance
+     */
+    Entity.prototype.shoppingListItem = null;
+
+    // OneOf field names bound to virtual getters and setters
+    let $oneOfFields;
+
+    /**
+     * Entity payload.
+     * @member {"shoppingList"|"shoppingListItem"|undefined} payload
+     * @memberof Entity
+     * @instance
+     */
+    Object.defineProperty(Entity.prototype, "payload", {
+        get: $util.oneOfGetter($oneOfFields = ["shoppingList", "shoppingListItem"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Creates a new Entity instance using the specified properties.
+     * @function create
+     * @memberof Entity
+     * @static
+     * @param {IEntity=} [properties] Properties to set
+     * @returns {Entity} Entity instance
+     */
+    Entity.create = function create(properties) {
+        return new Entity(properties);
+    };
+
+    /**
+     * Encodes the specified Entity message. Does not implicitly {@link Entity.verify|verify} messages.
+     * @function encode
+     * @memberof Entity
+     * @static
+     * @param {IEntity} message Entity message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Entity.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.shoppingList != null && Object.hasOwnProperty.call(message, "shoppingList"))
+            $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        if (message.shoppingListItem != null && Object.hasOwnProperty.call(message, "shoppingListItem"))
+            $root.ShoppingListItem.encode(message.shoppingListItem, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified Entity message, length delimited. Does not implicitly {@link Entity.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof Entity
+     * @static
+     * @param {IEntity} message Entity message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Entity.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an Entity message from the specified reader or buffer.
+     * @function decode
+     * @memberof Entity
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {Entity} Entity
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Entity.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.Entity();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.shoppingList = $root.ShoppingList.decode(reader, reader.uint32());
+                    break;
+                }
+            case 2: {
+                    message.shoppingListItem = $root.ShoppingListItem.decode(reader, reader.uint32());
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an Entity message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof Entity
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {Entity} Entity
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Entity.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an Entity message.
+     * @function verify
+     * @memberof Entity
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    Entity.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        let properties = {};
+        if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
+            properties.payload = 1;
+            {
+                let error = $root.ShoppingList.verify(message.shoppingList);
+                if (error)
+                    return "shoppingList." + error;
+            }
+        }
+        if (message.shoppingListItem != null && message.hasOwnProperty("shoppingListItem")) {
+            if (properties.payload === 1)
+                return "payload: multiple values";
+            properties.payload = 1;
+            {
+                let error = $root.ShoppingListItem.verify(message.shoppingListItem);
+                if (error)
+                    return "shoppingListItem." + error;
+            }
+        }
+        return null;
+    };
+
+    /**
+     * Creates an Entity message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof Entity
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {Entity} Entity
+     */
+    Entity.fromObject = function fromObject(object) {
+        if (object instanceof $root.Entity)
+            return object;
+        let message = new $root.Entity();
+        if (object.shoppingList != null) {
+            if (typeof object.shoppingList !== "object")
+                throw TypeError(".Entity.shoppingList: object expected");
+            message.shoppingList = $root.ShoppingList.fromObject(object.shoppingList);
+        }
+        if (object.shoppingListItem != null) {
+            if (typeof object.shoppingListItem !== "object")
+                throw TypeError(".Entity.shoppingListItem: object expected");
+            message.shoppingListItem = $root.ShoppingListItem.fromObject(object.shoppingListItem);
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an Entity message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof Entity
+     * @static
+     * @param {Entity} message Entity
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    Entity.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
+            object.shoppingList = $root.ShoppingList.toObject(message.shoppingList, options);
+            if (options.oneofs)
+                object.payload = "shoppingList";
+        }
+        if (message.shoppingListItem != null && message.hasOwnProperty("shoppingListItem")) {
+            object.shoppingListItem = $root.ShoppingListItem.toObject(message.shoppingListItem, options);
+            if (options.oneofs)
+                object.payload = "shoppingListItem";
+        }
+        return object;
+    };
+
+    /**
+     * Converts this Entity to JSON.
+     * @function toJSON
+     * @memberof Entity
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    Entity.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for Entity
+     * @function getTypeUrl
+     * @memberof Entity
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    Entity.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/Entity";
+    };
+
+    return Entity;
+})();
+
+export const ShoppingListItem = $root.ShoppingListItem = (() => {
 
     /**
      * Properties of a ShoppingListItem.
@@ -31,7 +293,7 @@ $root.ShoppingListItem = (function() {
      */
     function ShoppingListItem(properties) {
         if (properties)
-            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                 if (properties[keys[i]] != null)
                     this[keys[i]] = properties[keys[i]];
     }
@@ -130,9 +392,9 @@ $root.ShoppingListItem = (function() {
     ShoppingListItem.decode = function decode(reader, length, error) {
         if (!(reader instanceof $Reader))
             reader = $Reader.create(reader);
-        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.ShoppingListItem();
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.ShoppingListItem();
         while (reader.pos < end) {
-            var tag = reader.uint32();
+            let tag = reader.uint32();
             if (tag === error)
                 break;
             switch (tag >>> 3) {
@@ -213,7 +475,7 @@ $root.ShoppingListItem = (function() {
     ShoppingListItem.fromObject = function fromObject(object) {
         if (object instanceof $root.ShoppingListItem)
             return object;
-        var message = new $root.ShoppingListItem();
+        let message = new $root.ShoppingListItem();
         if (object.id != null)
             message.id = String(object.id);
         if (object.name != null)
@@ -237,7 +499,7 @@ $root.ShoppingListItem = (function() {
     ShoppingListItem.toObject = function toObject(message, options) {
         if (!options)
             options = {};
-        var object = {};
+        let object = {};
         if (options.defaults) {
             object.id = "";
             object.name = "";
@@ -284,7 +546,7 @@ $root.ShoppingListItem = (function() {
     return ShoppingListItem;
 })();
 
-$root.ShoppingList = (function() {
+export const ShoppingList = $root.ShoppingList = (() => {
 
     /**
      * Properties of a ShoppingList.
@@ -306,7 +568,7 @@ $root.ShoppingList = (function() {
     function ShoppingList(properties) {
         this.items = [];
         if (properties)
-            for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                 if (properties[keys[i]] != null)
                     this[keys[i]] = properties[keys[i]];
     }
@@ -364,7 +626,7 @@ $root.ShoppingList = (function() {
         if (message.name != null && Object.hasOwnProperty.call(message, "name"))
             writer.uint32(/* id 2, wireType 2 =*/18).string(message.name);
         if (message.items != null && message.items.length)
-            for (var i = 0; i < message.items.length; ++i)
+            for (let i = 0; i < message.items.length; ++i)
                 $root.ShoppingListItem.encode(message.items[i], writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
         return writer;
     };
@@ -396,9 +658,9 @@ $root.ShoppingList = (function() {
     ShoppingList.decode = function decode(reader, length, error) {
         if (!(reader instanceof $Reader))
             reader = $Reader.create(reader);
-        var end = length === undefined ? reader.len : reader.pos + length, message = new $root.ShoppingList();
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.ShoppingList();
         while (reader.pos < end) {
-            var tag = reader.uint32();
+            let tag = reader.uint32();
             if (tag === error)
                 break;
             switch (tag >>> 3) {
@@ -460,8 +722,8 @@ $root.ShoppingList = (function() {
         if (message.items != null && message.hasOwnProperty("items")) {
             if (!Array.isArray(message.items))
                 return "items: array expected";
-            for (var i = 0; i < message.items.length; ++i) {
-                var error = $root.ShoppingListItem.verify(message.items[i]);
+            for (let i = 0; i < message.items.length; ++i) {
+                let error = $root.ShoppingListItem.verify(message.items[i]);
                 if (error)
                     return "items." + error;
             }
@@ -480,7 +742,7 @@ $root.ShoppingList = (function() {
     ShoppingList.fromObject = function fromObject(object) {
         if (object instanceof $root.ShoppingList)
             return object;
-        var message = new $root.ShoppingList();
+        let message = new $root.ShoppingList();
         if (object.id != null)
             message.id = String(object.id);
         if (object.name != null)
@@ -489,7 +751,7 @@ $root.ShoppingList = (function() {
             if (!Array.isArray(object.items))
                 throw TypeError(".ShoppingList.items: array expected");
             message.items = [];
-            for (var i = 0; i < object.items.length; ++i) {
+            for (let i = 0; i < object.items.length; ++i) {
                 if (typeof object.items[i] !== "object")
                     throw TypeError(".ShoppingList.items: object expected");
                 message.items[i] = $root.ShoppingListItem.fromObject(object.items[i]);
@@ -510,7 +772,7 @@ $root.ShoppingList = (function() {
     ShoppingList.toObject = function toObject(message, options) {
         if (!options)
             options = {};
-        var object = {};
+        let object = {};
         if (options.arrays || options.defaults)
             object.items = [];
         if (options.defaults) {
@@ -523,7 +785,7 @@ $root.ShoppingList = (function() {
             object.name = message.name;
         if (message.items && message.items.length) {
             object.items = [];
-            for (var j = 0; j < message.items.length; ++j)
+            for (let j = 0; j < message.items.length; ++j)
                 object.items[j] = $root.ShoppingListItem.toObject(message.items[j], options);
         }
         return object;
@@ -558,4 +820,4 @@ $root.ShoppingList = (function() {
     return ShoppingList;
 })();
 
-module.exports = $root;
+export { $root as default };

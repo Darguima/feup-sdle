@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-import "src/client/proto/shopping-list.proto";
+import "shopping.proto";
 
 message Entity {
     oneof payload {

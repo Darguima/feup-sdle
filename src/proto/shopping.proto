@@ -12,3 +12,4 @@ message ShoppingList {
     string name = 2;
     repeated ShoppingListItem items = 3;
 }
+
