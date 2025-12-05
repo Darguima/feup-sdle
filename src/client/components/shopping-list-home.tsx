@@ -2,7 +2,7 @@
 
 import { Plus, ShoppingCart } from "lucide-react";
 import type React from "react";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
 	Card,

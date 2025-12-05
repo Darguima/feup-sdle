@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "gitlab.up.pt/classes/sdle/2025/t2/g01";
+
 import "shopping.proto";
 
 message Entity {
