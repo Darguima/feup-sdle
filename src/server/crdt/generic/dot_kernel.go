@@ -18,6 +18,10 @@ func (dk *DotKernel[V]) Context() *DotContext {
 	return dk.dotContext
 }
 
+func (dk *DotKernel[V]) SetContext(ctx *DotContext) {
+	dk.dotContext = ctx
+}
+
 func (dk *DotKernel[V]) DotAdd(id string, value V) Dot {
 	dot := dk.dotContext.MakeDot(id)
 	dk.dotValues[dot] = value

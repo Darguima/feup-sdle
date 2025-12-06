@@ -16,6 +16,14 @@ func NewORMap[K comparable, V DotContextCRDT[V]](id string) *ORMap[K, V] {
     }
 }
 
+func (ormap *ORMap[K, V]) Context() *DotContext {
+	return ormap.dotContext
+}
+
+func (ormap *ORMap[K, V]) SetContext(ctx *DotContext) {
+	ormap.dotContext = ctx
+}
+
 func (ormap *ORMap[K, V]) Get(key K) *V {
     if value, ok := ormap.valueMap[key]; ok {
         return &value
@@ -28,7 +36,7 @@ func (ormap *ORMap[K, V]) Remove(key K) *ORMap[K, V] {
 
     if value, ok := ormap.valueMap[key]; ok {
         valueDelta := value.Reset()
-		delta.dotContext = valueDelta.Context().Clone()
+		delta.SetContext(valueDelta.Context())
 		delete(ormap.valueMap, key)
     }
 
@@ -47,18 +55,27 @@ func (ormap *ORMap[K, V]) Reset() *ORMap[K, V] {
 }
 
 func (ormap *ORMap[K, V]) Join(other *ORMap[K, V]) {
+	originalContext := ormap.dotContext.Clone()
+
 	for _, value := range ormap.valueMap {
 		// Must invalidate local entries known by the other context
 		emptyValue := value.NewEmpty(ormap.id)
 		value.Join(emptyValue)
+		ormap.dotContext.Copy(originalContext)
 	}
 
 	for key, otherValue := range other.valueMap {
 		if localValue, ok := ormap.valueMap[key]; ok {
 			localValue.Join(otherValue)
+			ormap.dotContext.Copy(originalContext)
+
 		} else {
-			ormap.valueMap[key] = otherValue.NewEmpty(ormap.id)
-			ormap.valueMap[key].Join(otherValue)
+			newValue := otherValue.NewEmpty(ormap.id)
+			newValue.SetContext(ormap.dotContext)
+			newValue.Join(otherValue)
+
+			ormap.valueMap[key] = newValue
+			ormap.dotContext.Copy(originalContext)
 		}
 	}
 

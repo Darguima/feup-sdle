@@ -6,6 +6,7 @@ type CCounter struct {
 	id 	      string
 	dotKernel *DotKernel[uint64]
 }
+// Implements DotContextCRDT[uint64]
 
 func NewCCounter(id string) *CCounter {
 	return &CCounter{
@@ -16,6 +17,10 @@ func NewCCounter(id string) *CCounter {
 
 func (cc *CCounter) Context() *DotContext {
 	return cc.dotKernel.Context()
+}
+
+func (cc *CCounter) SetContext(ctx *DotContext) {
+	cc.dotKernel.SetContext(ctx)
 }
 
 func (cc *CCounter) Read() uint64 {
