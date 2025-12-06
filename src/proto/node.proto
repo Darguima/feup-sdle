@@ -54,11 +54,47 @@ message RequestHas {
   string key = 1;
 }
 
-// Replies
+// Responses
 
-message Reply {
-  bool ok = 1;
-  string error = 2;
-  bytes value = 3;
+message Response {
+  string origin = 1; // id of the node that sent the response
+  bool ok = 2;
+  string error = 3;
+  oneof response_type {
+    ResponsePing ping = 11;
+    ResponseFetchRing fetch_ring = 12;
+    ResponseGetHashSpace get_hash_space = 13;
+    ResponseGossipJoin gossip_join = 14;
+    ResponseGet get = 15;
+    ResponsePut put = 16;
+    ResponseDelete delete = 17;
+    ResponseHas has = 18;
+  }
+}
+
+message ResponsePing {
+  string pong_message = 1;
+}
+
+message ResponseFetchRing {
+  map<uint64, string> token_to_node = 1;
+}
+
+message ResponseGetHashSpace {
+}
+
+message ResponseGossipJoin {
+}
+
+message ResponseGet {
+}
+
+message ResponsePut {
+}
+
+message ResponseDelete {
+}
+
+message ResponseHas {
 }
 

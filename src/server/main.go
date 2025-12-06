@@ -35,7 +35,7 @@ func main() {
 	// Start nodes concurrently so Start() doesn't block the rest of main
 	for i, nd := range nodes {
 		go func(i int, n *node.Node) {
-			if err := n.Start(); err != nil {
+			if err := n.StartReceiving(); err != nil {
 				errCh <- err
 			}
 		}(i, nd)
@@ -46,9 +46,40 @@ func main() {
 			continue
 		}
 
-		nd.SendFetchRing(nodes[0].GetAddress())
+		nd.UpdateRingView(nodes[0].GetAddress())
 		nd.SendGetHashSpace(nodes[0].GetAddress(), 0, 100)
-		nd.SendJoinGossip(nodes[0].GetAddress(), nd.GetAddress(), []int32{101})
+		nd.JoinToRing(nodes[0].GetAddress())
 
 	}
+
+	// Ping loop in a separate goroutine
+	go func() {
+		for {
+			resp, err := nodes[0].SendPing(nodes[1].GetAddress())
+
+			if err != nil {
+				println("Error sending ping:", err.Error())
+			} else {
+				println("Ping response:", resp.GetPing().PongMessage)
+			}
+
+			time.Sleep(1 * time.Second)
+		}
+	}()
+
+	// Wait for shutdown signal
+	select {
+	case <-sigCh:
+		println("\nReceived interrupt signal, shutting down...")
+	case err := <-errCh:
+		println("Error occurred:", err.Error())
+	}
+
+	// Gracefully close all nodes
+	for _, nd := range nodes {
+		if err := nd.StopReceiving(); err != nil {
+			println("Error closing node:", err.Error())
+		}
+	}
+	println("All nodes closed successfully")
 }
