@@ -23,10 +23,9 @@ const (
 
 type ShoppingItem struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name             string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	TotalQuantity    int32                  `protobuf:"varint,3,opt,name=total_quantity,json=totalQuantity,proto3" json:"total_quantity,omitempty"`
-	AcquiredQuantity int32                  `protobuf:"varint,4,opt,name=acquired_quantity,json=acquiredQuantity,proto3" json:"acquired_quantity,omitempty"`
+	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	TotalQuantity    int32                  `protobuf:"varint,2,opt,name=total_quantity,json=totalQuantity,proto3" json:"total_quantity,omitempty"`
+	AcquiredQuantity int32                  `protobuf:"varint,3,opt,name=acquired_quantity,json=acquiredQuantity,proto3" json:"acquired_quantity,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -61,13 +60,6 @@ func (*ShoppingItem) Descriptor() ([]byte, []int) {
 	return file_shopping_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ShoppingItem) GetId() string {
-	if x != nil {
-		return x.Id
-	}
-	return ""
-}
-
 func (x *ShoppingItem) GetName() string {
 	if x != nil {
 		return x.Name
@@ -90,10 +82,10 @@ func (x *ShoppingItem) GetAcquiredQuantity() int32 {
 }
 
 type ShoppingList struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	ItemIds       []string               `protobuf:"bytes,3,rep,name=itemIds,proto3" json:"itemIds,omitempty"`
+	state         protoimpl.MessageState   `protogen:"open.v1"`
+	Id            string                   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Items         map[string]*ShoppingItem `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -142,9 +134,9 @@ func (x *ShoppingList) GetName() string {
 	return ""
 }
 
-func (x *ShoppingList) GetItemIds() []string {
+func (x *ShoppingList) GetItems() map[string]*ShoppingItem {
 	if x != nil {
-		return x.ItemIds
+		return x.Items
 	}
 	return nil
 }
@@ -153,16 +145,19 @@ var File_shopping_proto protoreflect.FileDescriptor
 
 const file_shopping_proto_rawDesc = "" +
 	"\n" +
-	"\x0eshopping.proto\"\x86\x01\n" +
-	"\fShoppingItem\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12%\n" +
-	"\x0etotal_quantity\x18\x03 \x01(\x05R\rtotalQuantity\x12+\n" +
-	"\x11acquired_quantity\x18\x04 \x01(\x05R\x10acquiredQuantity\"L\n" +
+	"\x0eshopping.proto\"v\n" +
+	"\fShoppingItem\x12\x12\n" +
+	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
+	"\x0etotal_quantity\x18\x02 \x01(\x05R\rtotalQuantity\x12+\n" +
+	"\x11acquired_quantity\x18\x03 \x01(\x05R\x10acquiredQuantity\"\xab\x01\n" +
 	"\fShoppingList\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12\x18\n" +
-	"\aitemIds\x18\x03 \x03(\tR\aitemIdsB'Z%gitlab.up.pt/classes/sdle/2025/t2/g01b\x06proto3"
+	"\x04name\x18\x02 \x01(\tR\x04name\x12.\n" +
+	"\x05items\x18\x03 \x03(\v2\x18.ShoppingList.ItemsEntryR\x05items\x1aG\n" +
+	"\n" +
+	"ItemsEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12#\n" +
+	"\x05value\x18\x02 \x01(\v2\r.ShoppingItemR\x05value:\x028\x01B'Z%gitlab.up.pt/classes/sdle/2025/t2/g01b\x06proto3"
 
 var (
 	file_shopping_proto_rawDescOnce sync.Once
@@ -176,17 +171,20 @@ func file_shopping_proto_rawDescGZIP() []byte {
 	return file_shopping_proto_rawDescData
 }
 
-var file_shopping_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_shopping_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_shopping_proto_goTypes = []any{
 	(*ShoppingItem)(nil), // 0: ShoppingItem
 	(*ShoppingList)(nil), // 1: ShoppingList
+	nil,                  // 2: ShoppingList.ItemsEntry
 }
 var file_shopping_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2, // 0: ShoppingList.items:type_name -> ShoppingList.ItemsEntry
+	0, // 1: ShoppingList.ItemsEntry.value:type_name -> ShoppingItem
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_shopping_proto_init() }
@@ -200,7 +198,7 @@ func file_shopping_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_shopping_proto_rawDesc), len(file_shopping_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

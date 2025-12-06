@@ -1,3 +1,7 @@
+import { Entity } from "../proto/global";
+import ProtocolEntity from "./protocol-entity";
+import ProtocolSocket from "./protocol-socket";
+
 class WebProtocolSocket implements ProtocolSocket {
     private socket: WebSocket;
 
@@ -26,7 +30,8 @@ class WebProtocolSocket implements ProtocolSocket {
     }
 
     send(entity: ProtocolEntity): void {
-        const buffer = entity.serialize();
+        const buffer = Entity.encode(entity.toProto()).finish();
+        console.log("Sending entity via WebSocket:", buffer);
         this.socket.send(buffer);
     }
 }

@@ -3,14 +3,13 @@ syntax = "proto3";
 option go_package = "gitlab.up.pt/classes/sdle/2025/t2/g01";
 
 message ShoppingItem {
-    string id = 1;
-    string name = 2;
-    int32 total_quantity = 3;
-    int32 acquired_quantity = 4;
+    string name = 1;
+    int32 total_quantity = 2;
+    int32 acquired_quantity = 3;
 }
 
 message ShoppingList {
     string id = 1;
     string name = 2;
-    repeated string itemIds = 3;
+    map<string, ShoppingItem> items = 3;
 }

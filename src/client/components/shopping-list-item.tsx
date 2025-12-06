@@ -2,10 +2,10 @@
 
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { ShoppingItem as ShoppingListItemType } from "@/types";
+import type { ShoppingItem } from "@/types";
 
 interface ShoppingListItemProps {
-	item: ShoppingListItemType;
+	item: ShoppingItem;
 	onUpdateTotalQuantity: (itemId: string, change: number) => void;
 	onAcquireItem: (itemId: string, quantity: number) => void;
 	onDelete: (itemId: string) => void;

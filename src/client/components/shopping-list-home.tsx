@@ -98,8 +98,8 @@ export function ShoppingListHome({ onSelect }: ShoppingListHomeProps) {
 												{list.name}
 											</h3>
 											<p className="text-sm text-muted-foreground">
-												{list.itemIds.length}{" "}
-												{list.itemIds.length === 1 ? "item" : "items"}
+												{list.items.size}{" "}
+												{list.items.size === 1 ? "item" : "items"}
 											</p>
 										</div>
 										<ShoppingCart className="w-5 h-5 text-muted-foreground" />

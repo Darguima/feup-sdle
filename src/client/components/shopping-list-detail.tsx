@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { useProtocolSocket } from "./provider/protocol-socket";
 import { ShoppingListDetailSkeleton } from "./shopping-list-detail-skeleton";
-import { ShoppingItem, ShoppingList } from "@/types";
+import { ShoppingList } from "@/types";
 import { db } from "@/lib/storage/db";
 
 interface ShoppingListDetailProps {
@@ -28,40 +28,32 @@ export function ShoppingListDetail({
 	onBack,
 }: ShoppingListDetailProps) {
 	const [list, setList] = useState<ShoppingList | null>(null);
-	const [items, setItems] = useState<ShoppingItem[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [notFound, setNotFound] = useState(false);
 	const [itemName, setItemName] = useState("");
 	const [itemQuantity, setItemQuantity] = useState("1");
 	const socket = useProtocolSocket();
 
-	const refreshItems = useCallback(async () => {
-		if (!list) return;
+	const refreshList = useCallback(async () => {
+		const list = await db.getList(listId);
 
-		const loadedItems = await Promise.all(
-			list.itemIds.map(async (itemId) => {
-				const item = await db.getItem(itemId);
-				return item;
-			}),
-		);
-
-		setItems(loadedItems.filter((item) => item !== undefined));
-	}, [list]);
+		if (list) {
+			setList(list);
+		} else {
+			setNotFound(true);
+		}
+		setLoading(false);
+	}, [listId]);
 
 	useEffect(() => {
-		const refreshList = async () => {
-			const list = await db.getList(listId);
-
-			if (list) {
-				setList(list);
-				await refreshItems();
-			} else {
-				setNotFound(true);
-			}
-			setLoading(false);
-		};
 		refreshList();
-	}, [refreshItems]);
+	}, [refreshList]);
+
+	const updateList = useCallback(async (updatedList: ShoppingList) => {
+		await db.updateList(updatedList);
+		socket.send(updatedList);
+		await refreshList();
+	}, [listId]);
 
 	const handleAddItem = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -70,59 +62,46 @@ export function ShoppingListDetail({
 		const quantity = Number.parseInt(itemQuantity, 10);
 		if (quantity <= 0) return;
 
-		const item = await db.createItem(itemName, quantity);
-		if (socket)
-			socket.send(item);
-
-		list.addItem(item.id);
-		await db.updateList(list);
-		socket.send(list);
-
+		list.addItem(itemName, quantity);
 		setItemName("");
 		setItemQuantity("1");
-		await refreshItems();
+
+		updateList(list);
 	};
 
 	const handleAcquireItem = async (itemId: string, quantity: number) => {
 		if (!list) return;
 
-		const item = await db.getItem(itemId);
+		const item = list.getItem(itemId);
 		if (!item) return;
 
 		const newAcquired = item.acquiredQuantity + quantity;
 		if (newAcquired < 0 || newAcquired > item.totalQuantity) return;
 
 		item.acquiredQuantity = newAcquired;
-		await db.updateItem(item);
-		socket.send(item)
 
-		await refreshItems();
+		updateList(list);
 	};
 
 	const handleUpdateTotalQuantity = async (itemId: string, change: number) => {
 		if (!list) return;
-		const item = await db.getItem(itemId);
+
+		const item = list.getItem(itemId);
 		if (!item) return;
 
 		const newTotal = item.totalQuantity + change;
 		if (newTotal < item.acquiredQuantity || newTotal < 1) return;
-
 		item.totalQuantity = newTotal;
-		await db.updateItem(item);
-		socket.send(item);
 
-		await refreshItems();
+		updateList(list);
 	};
 
 	const handleDeleteItem = async (itemId: string) => {
 		if (!list) return;
-		await db.deleteItem(itemId);
 
 		list.removeItem(itemId);
-		await db.updateList(list);
-		socket.send(list);
 
-		await refreshItems();
+		updateList(list);
 	};
 
 	if (loading) {
@@ -133,6 +112,7 @@ export function ShoppingListDetail({
 		return (
 			<div className="text-center">
 				<Frown className="mx-auto mb-4 h-24 w-24 text-gray-400 dark:text-gray-500" />
+
 				<h1 className="mb-2 text-3xl font-bold text-gray-800 dark:text-white">
 					List Not Found
 				</h1>
@@ -153,14 +133,15 @@ export function ShoppingListDetail({
 		return <div>Something went wrong.</div>;
 	}
 
-	const totalItems = items.reduce(
+	const totalItems = list.getAllItems().reduce(
 		(sum, item) => sum + item.totalQuantity,
 		0,
 	);
-	const acquiredItems = items.reduce(
+	const acquiredItems = list.getAllItems().reduce(
 		(sum, item) => sum + item.acquiredQuantity,
 		0,
 	);
+
 	const progress = totalItems > 0 ? (acquiredItems / totalItems) * 100 : 0;
 
 	return (
@@ -224,28 +205,30 @@ export function ShoppingListDetail({
 				<CardHeader>
 					<CardTitle>Items</CardTitle>
 					<CardDescription>
-						{items.length === 0
+						{list.items.size === 0
 							? "No items yet"
-							: `${items.length} ${items.length === 1 ? "item" : "items"
+							: `${list.items.size} ${list.items.size === 1 ? "item" : "items"
 							} in your list`}
 					</CardDescription>
 				</CardHeader>
 				<CardContent>
-					{items.length === 0 ? (
+					{list.items.size === 0 ? (
 						<p className="text-center text-muted-foreground py-8">
 							Add your first item to get started!
 						</p>
 					) : (
 						<div className="space-y-3">
-							{items.map((item) => (
-								<ShoppingListItem
-									key={item.id}
-									item={item}
-									onUpdateTotalQuantity={handleUpdateTotalQuantity}
-									onAcquireItem={handleAcquireItem}
-									onDelete={handleDeleteItem}
-								/>
-							))}
+							{Array.from(list.items.values())
+								.sort((a, b) => a.name.localeCompare(b.name))
+								.map((item) => (
+									<ShoppingListItem
+										key={item.id}
+										item={item}
+										onUpdateTotalQuantity={handleUpdateTotalQuantity}
+										onAcquireItem={handleAcquireItem}
+										onDelete={handleDeleteItem}
+									/>
+								))}
 						</div>
 					)}
 				</CardContent>
