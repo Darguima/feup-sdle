@@ -22,6 +22,10 @@ func (ormap *ORMap[K, V]) Context() *DotContext {
 
 func (ormap *ORMap[K, V]) SetContext(ctx *DotContext) {
 	ormap.dotContext = ctx
+
+	for _, value := range ormap.valueMap {
+		value.SetContext(ctx)
+	}
 }
 
 func (ormap *ORMap[K, V]) Get(key K) *V {
@@ -29,6 +33,14 @@ func (ormap *ORMap[K, V]) Get(key K) *V {
         return &value
     }
     return nil
+}
+
+func (ormap *ORMap[K, V]) Keys() []K {
+	keys := make([]K, 0, len(ormap.valueMap))
+	for key := range ormap.valueMap {
+		keys = append(keys, key)
+	}
+	return keys
 }
 
 func (ormap *ORMap[K, V]) Remove(key K) *ORMap[K, V] {
