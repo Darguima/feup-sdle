@@ -18,7 +18,7 @@ func NewDotContext[T comparable]() *DotContext[T] {
 }
 
 func (dc *DotContext[T]) Knows(dot Dot[T]) bool {
-	if localSeq, ok := dc.compactContext[dot.replicaID]; ok {
+	if localSeq, ok := dc.compactContext[dot.id]; ok {
 		return dot.seq <= localSeq
 	}
 
@@ -53,9 +53,9 @@ func (dc *DotContext[T]) Compact() {
 		dotAdded = false
 
 		for dot := range dc.dots {
-			if localSeq, ok := dc.compactContext[dot.replicaID]; ok { // Has entry in compact context
-				if dot.seq == localSeq+1 { // Dot is sequentially after, can compact
-					dc.compactContext[dot.replicaID] = dot.seq
+			if localSeq, ok := dc.compactContext[dot.id]; ok { // Has entry in compact context
+				if dot.seq == localSeq + 1 { // Dot is sequentially after, can compact
+					dc.compactContext[dot.id] = dot.seq
 					dc.dots.Remove(dot)
 					dotAdded = true
 
@@ -65,7 +65,7 @@ func (dc *DotContext[T]) Compact() {
 
 			} else { // No entry in compact context exists
 				if dot.seq == 1 { // Can compact
-					delete(dc.compactContext, dot.replicaID)
+					delete(dc.compactContext, dot.id)
 					dc.dots.Remove(dot)
 					dotAdded = true
 				}
