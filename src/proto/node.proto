@@ -26,13 +26,13 @@ message RequestFetchRing {
 }
 
 message RequestGetHashSpace {
-  int32 start_hash_space = 1;
-  int32 end_hash_space = 2;
+  uint64 start_hash_space = 1;
+  uint64 end_hash_space = 2;
 }
 
 message RequestGossipJoin {
   string new_node_addr = 1;
-  repeated int32 tokens = 2;
+  repeated uint64 tokens = 2;
 }
 
 // CRUD requests

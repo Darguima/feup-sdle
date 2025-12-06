@@ -281,8 +281,8 @@ func (*RequestFetchRing) Descriptor() ([]byte, []int) {
 
 type RequestGetHashSpace struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
-	StartHashSpace int32                  `protobuf:"varint,1,opt,name=start_hash_space,json=startHashSpace,proto3" json:"start_hash_space,omitempty"`
-	EndHashSpace   int32                  `protobuf:"varint,2,opt,name=end_hash_space,json=endHashSpace,proto3" json:"end_hash_space,omitempty"`
+	StartHashSpace uint64                 `protobuf:"varint,1,opt,name=start_hash_space,json=startHashSpace,proto3" json:"start_hash_space,omitempty"`
+	EndHashSpace   uint64                 `protobuf:"varint,2,opt,name=end_hash_space,json=endHashSpace,proto3" json:"end_hash_space,omitempty"`
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
@@ -317,14 +317,14 @@ func (*RequestGetHashSpace) Descriptor() ([]byte, []int) {
 	return file_node_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *RequestGetHashSpace) GetStartHashSpace() int32 {
+func (x *RequestGetHashSpace) GetStartHashSpace() uint64 {
 	if x != nil {
 		return x.StartHashSpace
 	}
 	return 0
 }
 
-func (x *RequestGetHashSpace) GetEndHashSpace() int32 {
+func (x *RequestGetHashSpace) GetEndHashSpace() uint64 {
 	if x != nil {
 		return x.EndHashSpace
 	}
@@ -334,7 +334,7 @@ func (x *RequestGetHashSpace) GetEndHashSpace() int32 {
 type RequestGossipJoin struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NewNodeAddr   string                 `protobuf:"bytes,1,opt,name=new_node_addr,json=newNodeAddr,proto3" json:"new_node_addr,omitempty"`
-	Tokens        []int32                `protobuf:"varint,2,rep,packed,name=tokens,proto3" json:"tokens,omitempty"`
+	Tokens        []uint64               `protobuf:"varint,2,rep,packed,name=tokens,proto3" json:"tokens,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -376,7 +376,7 @@ func (x *RequestGossipJoin) GetNewNodeAddr() string {
 	return ""
 }
 
-func (x *RequestGossipJoin) GetTokens() []int32 {
+func (x *RequestGossipJoin) GetTokens() []uint64 {
 	if x != nil {
 		return x.Tokens
 	}
@@ -1095,11 +1095,11 @@ const file_node_proto_rawDesc = "" +
 	"\vRequestPing\"\x12\n" +
 	"\x10RequestFetchRing\"e\n" +
 	"\x13RequestGetHashSpace\x12(\n" +
-	"\x10start_hash_space\x18\x01 \x01(\x05R\x0estartHashSpace\x12$\n" +
-	"\x0eend_hash_space\x18\x02 \x01(\x05R\fendHashSpace\"O\n" +
+	"\x10start_hash_space\x18\x01 \x01(\x04R\x0estartHashSpace\x12$\n" +
+	"\x0eend_hash_space\x18\x02 \x01(\x04R\fendHashSpace\"O\n" +
 	"\x11RequestGossipJoin\x12\"\n" +
 	"\rnew_node_addr\x18\x01 \x01(\tR\vnewNodeAddr\x12\x16\n" +
-	"\x06tokens\x18\x02 \x03(\x05R\x06tokens\"\x1e\n" +
+	"\x06tokens\x18\x02 \x03(\x04R\x06tokens\"\x1e\n" +
 	"\n" +
 	"RequestGet\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\"4\n" +

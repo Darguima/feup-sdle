@@ -46,26 +46,9 @@ func main() {
 			continue
 		}
 
-		nd.UpdateRingView(nodes[0].GetAddress())
-		nd.SendGetHashSpace(nodes[0].GetAddress(), 0, 100)
 		nd.JoinToRing(nodes[0].GetAddress())
 
 	}
-
-	// Ping loop in a separate goroutine
-	go func() {
-		for {
-			resp, err := nodes[0].SendPing(nodes[1].GetAddress())
-
-			if err != nil {
-				println("Error sending ping:", err.Error())
-			} else {
-				println("Ping response:", resp.GetPing().PongMessage)
-			}
-
-			time.Sleep(1 * time.Second)
-		}
-	}()
 
 	// Wait for shutdown signal
 	select {
