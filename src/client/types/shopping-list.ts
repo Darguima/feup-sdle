@@ -1,33 +1,51 @@
-import { ShoppingList as ShoppingListProto } from "@/lib/proto/global";
+import { ShoppingList as ShoppingListProto, ShoppingItem as ShoppingItemProto, Entity, IEntity } from "@/lib/proto/global";
+import ShoppingItem from "./shopping-item";
+import ProtocolEntity from "@/lib/protocol/protocol-entity";
 
 export default class ShoppingList implements ProtocolEntity {
     id: string;
     name: string;
-    itemIds: string[];
+    items: Map<string, ShoppingItem>;
 
-    constructor(id: string, name: string, itemIds: string[] = []) {
+    constructor(id: string, name: string, items: Map<string, ShoppingItem> = new Map()) {
         this.id = id;
         this.name = name;
-        this.itemIds = itemIds;
+        this.items = items;
     }
 
-    addItem(itemId: string): void {
-        if (!this.itemIds.includes(itemId)) {
-            this.itemIds.push(itemId);
-        }
-    }
+    toProto(): IEntity {
+        const protoItems: { [key: string]: ShoppingItemProto } = {};
 
-    removeItem(itemId: string): void {
-        this.itemIds = this.itemIds.filter((id) => id !== itemId);
-    }
-
-    serialize(): Uint8Array {
-        const proto = new ShoppingListProto({
-            id: this.id,
-            name: this.name,
-            itemIds: this.itemIds,
+        this.items.forEach((item, key) => {
+            protoItems[key] = item.toProto();
         });
 
-        return ShoppingListProto.encode(proto).finish();
+        const proto = Entity.create({
+            shoppingList: new ShoppingListProto({
+                id: this.id,
+                name: this.name,
+                items: protoItems,
+            })
+        });
+
+        return proto
+    }
+
+    addItem(name: string, quantity: number): ShoppingItem {
+        const item = new ShoppingItem(crypto.randomUUID(), name, quantity, 0);
+        this.items.set(item.id, item);
+        return item;
+    }
+
+    removeItem(itemId: string): boolean {
+        return this.items.delete(itemId);
+    }
+
+    getItem(itemId: string): ShoppingItem | undefined {
+        return this.items.get(itemId);
+    }
+
+    getAllItems(): ShoppingItem[] {
+        return Array.from(this.items.values());
     }
 }

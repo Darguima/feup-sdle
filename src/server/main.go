@@ -1,54 +1,64 @@
 package main
 
 import (
-	"os"
-	"os/signal"
-	"sdle-server/node"
-	"syscall"
-	"time"
+	"sdle-server/communication/websocket"
+	// "sdle-server/node"
+	"log"
+	"net/http"
 )
 
-func create_node(id string) *node.Node {
-	dataDir := "./data/" + id
+// func create_node(id string) *node.Node {
+// 	dataDir := "./data/" + id
 
-	node, err := node.New(id, dataDir)
+// 	node, err := node.New(id, dataDir)
 
-	if err != nil {
-		panic(err)
-	}
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	return node
-}
+// 	return node
+// }
 
 func main() {
-	nodes := []*node.Node{
-		create_node("localhost:5000"),
-		create_node("localhost:5001"),
-		create_node("localhost:5002"),
-		create_node("localhost:5003"),
+	wsHandler := websocket.NewWebSocketHandler()
+
+	// Register handlers
+	http.Handle("/ws", wsHandler)
+
+	log.Println("Starting server on :8080")
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal("Failed to start server on port 8080: ", err)
 	}
 
-	errCh := make(chan error, 2)
-	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
+	// nodes := []*node.Node{
+	// 	create_node("localhost:5000"),
+	// 	create_node("localhost:5001"),
+	// 	create_node("localhost:5002"),
+	// 	create_node("localhost:5003"),
+	// }
 
-	// Start nodes concurrently so Start() doesn't block the rest of main
-	for i, nd := range nodes {
-		go func(i int, n *node.Node) {
-			if err := n.Start(); err != nil {
-				errCh <- err
-			}
-		}(i, nd)
+	// errCh := make(chan error, 2)
+	// sigCh := make(chan os.Signal, 1)
+	// signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 
-		time.Sleep(1 * time.Second)
+	// // Start nodes concurrently so Start() doesn't block the rest of main
+	// for i, nd := range nodes {
+	// 	go func(i int, n *node.Node) {
+	// 		if err := n.Start(); err != nil {
+	// 			errCh <- err
+	// 		}
+	// 	}(i, nd)
 
-		if i == 0 {
-			continue
-		}
+	// 	time.Sleep(1 * time.Second)
 
-		nd.SendFetchRing(nodes[0].GetAddress())
-		nd.SendGetHashSpace(nodes[0].GetAddress(), 0, 100)
-		nd.SendJoinGossip(nodes[0].GetAddress(), nd.GetAddress(), []uint64{101})
+	// 	if i == 0 {
+	// 		continue
+	// 	}
 
-	}
+	// 	nd.SendFetchRing(nodes[0].GetAddress())
+	// 	nd.SendGetHashSpace(nodes[0].GetAddress(), 0, 100)
+	// 	nd.SendJoinGossip(nodes[0].GetAddress(), nd.GetAddress(), []uint64{101})
+
+	// }
 }

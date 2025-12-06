@@ -2,27 +2,25 @@ import { type DBSchema, type IDBPDatabase, openDB } from "idb";
 import { ShoppingItem, ShoppingList } from "@/types";
 
 const DB_NAME = "shopping-lists-db";
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const LIST_STORE_NAME = "shopping-lists";
-const ITEM_STORE_NAME = "shopping-items";
+
+interface DBItem {
+	name: string;
+	totalQuantity: number;
+	acquiredQuantity: number;
+}
+
+interface DBList {
+	id: string;
+	name: string;
+	items: Map<string, DBItem>;
+}
 
 interface ShoppingListDB extends DBSchema {
 	[LIST_STORE_NAME]: {
 		key: string;
-		value: {
-			id: string;
-			name: string;
-			itemIds: string[];
-		};
-	};
-	[ITEM_STORE_NAME]: {
-		key: string;
-		value: {
-			id: string;
-			name: string;
-			totalQuantity: number;
-			acquiredQuantity: number;
-		};
+		value: DBList;
 	};
 }
 
@@ -41,9 +39,6 @@ class DB {
 				if (!db.objectStoreNames.contains(LIST_STORE_NAME)) {
 					db.createObjectStore(LIST_STORE_NAME, { keyPath: "id" });
 				}
-				if (!db.objectStoreNames.contains(ITEM_STORE_NAME)) {
-					db.createObjectStore(ITEM_STORE_NAME, { keyPath: "id" });
-				}
 			},
 		});
 	}
@@ -60,7 +55,11 @@ class DB {
 		const lists = await db.getAll(LIST_STORE_NAME);
 
 		return lists.map(
-			(list) => new ShoppingList(list.id, list.name, list.itemIds)
+			(list) => new ShoppingList(
+				list.id,
+				list.name,
+				this.parseItems(list.items)
+			)
 		);
 	}
 
@@ -69,16 +68,30 @@ class DB {
 		const list = await db.get(LIST_STORE_NAME, id);
 		if (!list) return undefined;
 
-		return new ShoppingList(list.id, list.name, list.itemIds);
+		return new ShoppingList(
+			list.id,
+			list.name,
+			this.parseItems(list.items)
+		);
+	}
+
+	private parseItems(items: Map<string, DBItem>): Map<string, ShoppingItem> {
+		const parsedItems = new Map<string, ShoppingItem>();
+
+		items.forEach((item, key) => {
+			parsedItems.set(key, new ShoppingItem(key, item.name, item.totalQuantity, item.acquiredQuantity));
+		});
+
+		return parsedItems;
 	}
 
 	async createList(name: string): Promise<ShoppingList> {
 		const db = await this.getDB();
 
 		const list = new ShoppingList(
-			Math.random().toString(36).substring(2, 9),
+			crypto.randomUUID(),
 			name,
-			[],
+			new Map<string, ShoppingItem>()
 		);
 
 		await db.add(LIST_STORE_NAME, list);
@@ -93,44 +106,6 @@ class DB {
 	async deleteList(id: string): Promise<void> {
 		const db = await this.getDB();
 		await db.delete(LIST_STORE_NAME, id);
-	}
-
-	async getItem(id: string): Promise<ShoppingItem | undefined> {
-		const db = await this.getDB();
-
-		const item = await db.get(ITEM_STORE_NAME, id);
-		if (!item) return undefined;
-
-		return new ShoppingItem(
-			item.id,
-			item.name,
-			item.totalQuantity,
-			item.acquiredQuantity
-		);
-	}
-
-	async createItem(name: string, quantity: number): Promise<ShoppingItem> {
-		const db = await this.getDB();
-
-		const item = new ShoppingItem(
-			Math.random().toString(36).substring(2, 9),
-			name,
-			quantity,
-			0
-		);
-
-		db.add(ITEM_STORE_NAME, item);
-		return item;
-	}
-
-	async updateItem(item: ShoppingItem): Promise<void> {
-		const db = await this.getDB();
-		await db.put(ITEM_STORE_NAME, item);
-	}
-
-	async deleteItem(id: string): Promise<void> {
-		const db = await this.getDB();
-		await db.delete(ITEM_STORE_NAME, id);
 	}
 }
 

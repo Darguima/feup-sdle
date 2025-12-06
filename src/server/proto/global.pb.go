@@ -26,7 +26,6 @@ type Entity struct {
 	// Types that are valid to be assigned to Payload:
 	//
 	//	*Entity_ShoppingList
-	//	*Entity_ShoppingListItem
 	Payload       isEntity_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -78,15 +77,6 @@ func (x *Entity) GetShoppingList() *ShoppingList {
 	return nil
 }
 
-func (x *Entity) GetShoppingListItem() *ShoppingItem {
-	if x != nil {
-		if x, ok := x.Payload.(*Entity_ShoppingListItem); ok {
-			return x.ShoppingListItem
-		}
-	}
-	return nil
-}
-
 type isEntity_Payload interface {
 	isEntity_Payload()
 }
@@ -95,22 +85,15 @@ type Entity_ShoppingList struct {
 	ShoppingList *ShoppingList `protobuf:"bytes,1,opt,name=shopping_list,json=shoppingList,proto3,oneof"`
 }
 
-type Entity_ShoppingListItem struct {
-	ShoppingListItem *ShoppingItem `protobuf:"bytes,2,opt,name=shopping_list_item,json=shoppingListItem,proto3,oneof"`
-}
-
 func (*Entity_ShoppingList) isEntity_Payload() {}
-
-func (*Entity_ShoppingListItem) isEntity_Payload() {}
 
 var File_global_proto protoreflect.FileDescriptor
 
 const file_global_proto_rawDesc = "" +
 	"\n" +
-	"\fglobal.proto\x1a\x0eshopping.proto\"\x88\x01\n" +
+	"\fglobal.proto\x1a\x0eshopping.proto\"I\n" +
 	"\x06Entity\x124\n" +
-	"\rshopping_list\x18\x01 \x01(\v2\r.ShoppingListH\x00R\fshoppingList\x12=\n" +
-	"\x12shopping_list_item\x18\x02 \x01(\v2\r.ShoppingItemH\x00R\x10shoppingListItemB\t\n" +
+	"\rshopping_list\x18\x01 \x01(\v2\r.ShoppingListH\x00R\fshoppingListB\t\n" +
 	"\apayloadB'Z%gitlab.up.pt/classes/sdle/2025/t2/g01b\x06proto3"
 
 var (
@@ -129,16 +112,14 @@ var file_global_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_global_proto_goTypes = []any{
 	(*Entity)(nil),       // 0: Entity
 	(*ShoppingList)(nil), // 1: ShoppingList
-	(*ShoppingItem)(nil), // 2: ShoppingItem
 }
 var file_global_proto_depIdxs = []int32{
 	1, // 0: Entity.shopping_list:type_name -> ShoppingList
-	2, // 1: Entity.shopping_list_item:type_name -> ShoppingItem
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	1, // [1:1] is the sub-list for method output_type
+	1, // [1:1] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_global_proto_init() }
@@ -149,7 +130,6 @@ func file_global_proto_init() {
 	file_shopping_proto_init()
 	file_global_proto_msgTypes[0].OneofWrappers = []any{
 		(*Entity_ShoppingList)(nil),
-		(*Entity_ShoppingListItem)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

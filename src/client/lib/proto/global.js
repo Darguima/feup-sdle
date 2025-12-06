@@ -14,7 +14,6 @@ export const Entity = $root.Entity = (() => {
      * @exports IEntity
      * @interface IEntity
      * @property {IShoppingList|null} [shoppingList] Entity shoppingList
-     * @property {IShoppingItem|null} [shoppingListItem] Entity shoppingListItem
      */
 
     /**
@@ -40,25 +39,17 @@ export const Entity = $root.Entity = (() => {
      */
     Entity.prototype.shoppingList = null;
 
-    /**
-     * Entity shoppingListItem.
-     * @member {IShoppingItem|null|undefined} shoppingListItem
-     * @memberof Entity
-     * @instance
-     */
-    Entity.prototype.shoppingListItem = null;
-
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
     /**
      * Entity payload.
-     * @member {"shoppingList"|"shoppingListItem"|undefined} payload
+     * @member {"shoppingList"|undefined} payload
      * @memberof Entity
      * @instance
      */
     Object.defineProperty(Entity.prototype, "payload", {
-        get: $util.oneOfGetter($oneOfFields = ["shoppingList", "shoppingListItem"]),
+        get: $util.oneOfGetter($oneOfFields = ["shoppingList"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -88,8 +79,6 @@ export const Entity = $root.Entity = (() => {
             writer = $Writer.create();
         if (message.shoppingList != null && Object.hasOwnProperty.call(message, "shoppingList"))
             $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
-        if (message.shoppingListItem != null && Object.hasOwnProperty.call(message, "shoppingListItem"))
-            $root.ShoppingItem.encode(message.shoppingListItem, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
         return writer;
     };
 
@@ -128,10 +117,6 @@ export const Entity = $root.Entity = (() => {
             switch (tag >>> 3) {
             case 1: {
                     message.shoppingList = $root.ShoppingList.decode(reader, reader.uint32());
-                    break;
-                }
-            case 2: {
-                    message.shoppingListItem = $root.ShoppingItem.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -178,16 +163,6 @@ export const Entity = $root.Entity = (() => {
                     return "shoppingList." + error;
             }
         }
-        if (message.shoppingListItem != null && message.hasOwnProperty("shoppingListItem")) {
-            if (properties.payload === 1)
-                return "payload: multiple values";
-            properties.payload = 1;
-            {
-                let error = $root.ShoppingItem.verify(message.shoppingListItem);
-                if (error)
-                    return "shoppingListItem." + error;
-            }
-        }
         return null;
     };
 
@@ -207,11 +182,6 @@ export const Entity = $root.Entity = (() => {
             if (typeof object.shoppingList !== "object")
                 throw TypeError(".Entity.shoppingList: object expected");
             message.shoppingList = $root.ShoppingList.fromObject(object.shoppingList);
-        }
-        if (object.shoppingListItem != null) {
-            if (typeof object.shoppingListItem !== "object")
-                throw TypeError(".Entity.shoppingListItem: object expected");
-            message.shoppingListItem = $root.ShoppingItem.fromObject(object.shoppingListItem);
         }
         return message;
     };
@@ -233,11 +203,6 @@ export const Entity = $root.Entity = (() => {
             object.shoppingList = $root.ShoppingList.toObject(message.shoppingList, options);
             if (options.oneofs)
                 object.payload = "shoppingList";
-        }
-        if (message.shoppingListItem != null && message.hasOwnProperty("shoppingListItem")) {
-            object.shoppingListItem = $root.ShoppingItem.toObject(message.shoppingListItem, options);
-            if (options.oneofs)
-                object.payload = "shoppingListItem";
         }
         return object;
     };
@@ -277,7 +242,6 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
      * Properties of a ShoppingItem.
      * @exports IShoppingItem
      * @interface IShoppingItem
-     * @property {string|null} [id] ShoppingItem id
      * @property {string|null} [name] ShoppingItem name
      * @property {number|null} [totalQuantity] ShoppingItem totalQuantity
      * @property {number|null} [acquiredQuantity] ShoppingItem acquiredQuantity
@@ -297,14 +261,6 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
                 if (properties[keys[i]] != null)
                     this[keys[i]] = properties[keys[i]];
     }
-
-    /**
-     * ShoppingItem id.
-     * @member {string} id
-     * @memberof ShoppingItem
-     * @instance
-     */
-    ShoppingItem.prototype.id = "";
 
     /**
      * ShoppingItem name.
@@ -354,14 +310,12 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
     ShoppingItem.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-            writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
         if (message.name != null && Object.hasOwnProperty.call(message, "name"))
-            writer.uint32(/* id 2, wireType 2 =*/18).string(message.name);
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
         if (message.totalQuantity != null && Object.hasOwnProperty.call(message, "totalQuantity"))
-            writer.uint32(/* id 3, wireType 0 =*/24).int32(message.totalQuantity);
+            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.totalQuantity);
         if (message.acquiredQuantity != null && Object.hasOwnProperty.call(message, "acquiredQuantity"))
-            writer.uint32(/* id 4, wireType 0 =*/32).int32(message.acquiredQuantity);
+            writer.uint32(/* id 3, wireType 0 =*/24).int32(message.acquiredQuantity);
         return writer;
     };
 
@@ -399,18 +353,14 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
                 break;
             switch (tag >>> 3) {
             case 1: {
-                    message.id = reader.string();
-                    break;
-                }
-            case 2: {
                     message.name = reader.string();
                     break;
                 }
-            case 3: {
+            case 2: {
                     message.totalQuantity = reader.int32();
                     break;
                 }
-            case 4: {
+            case 3: {
                     message.acquiredQuantity = reader.int32();
                     break;
                 }
@@ -449,9 +399,6 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
     ShoppingItem.verify = function verify(message) {
         if (typeof message !== "object" || message === null)
             return "object expected";
-        if (message.id != null && message.hasOwnProperty("id"))
-            if (!$util.isString(message.id))
-                return "id: string expected";
         if (message.name != null && message.hasOwnProperty("name"))
             if (!$util.isString(message.name))
                 return "name: string expected";
@@ -476,8 +423,6 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
         if (object instanceof $root.ShoppingItem)
             return object;
         let message = new $root.ShoppingItem();
-        if (object.id != null)
-            message.id = String(object.id);
         if (object.name != null)
             message.name = String(object.name);
         if (object.totalQuantity != null)
@@ -501,13 +446,10 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
             options = {};
         let object = {};
         if (options.defaults) {
-            object.id = "";
             object.name = "";
             object.totalQuantity = 0;
             object.acquiredQuantity = 0;
         }
-        if (message.id != null && message.hasOwnProperty("id"))
-            object.id = message.id;
         if (message.name != null && message.hasOwnProperty("name"))
             object.name = message.name;
         if (message.totalQuantity != null && message.hasOwnProperty("totalQuantity"))
@@ -554,7 +496,7 @@ export const ShoppingList = $root.ShoppingList = (() => {
      * @interface IShoppingList
      * @property {string|null} [id] ShoppingList id
      * @property {string|null} [name] ShoppingList name
-     * @property {Array.<string>|null} [itemIds] ShoppingList itemIds
+     * @property {Object.<string,IShoppingItem>|null} [items] ShoppingList items
      */
 
     /**
@@ -566,7 +508,7 @@ export const ShoppingList = $root.ShoppingList = (() => {
      * @param {IShoppingList=} [properties] Properties to set
      */
     function ShoppingList(properties) {
-        this.itemIds = [];
+        this.items = {};
         if (properties)
             for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                 if (properties[keys[i]] != null)
@@ -590,12 +532,12 @@ export const ShoppingList = $root.ShoppingList = (() => {
     ShoppingList.prototype.name = "";
 
     /**
-     * ShoppingList itemIds.
-     * @member {Array.<string>} itemIds
+     * ShoppingList items.
+     * @member {Object.<string,IShoppingItem>} items
      * @memberof ShoppingList
      * @instance
      */
-    ShoppingList.prototype.itemIds = $util.emptyArray;
+    ShoppingList.prototype.items = $util.emptyObject;
 
     /**
      * Creates a new ShoppingList instance using the specified properties.
@@ -625,9 +567,11 @@ export const ShoppingList = $root.ShoppingList = (() => {
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
         if (message.name != null && Object.hasOwnProperty.call(message, "name"))
             writer.uint32(/* id 2, wireType 2 =*/18).string(message.name);
-        if (message.itemIds != null && message.itemIds.length)
-            for (let i = 0; i < message.itemIds.length; ++i)
-                writer.uint32(/* id 3, wireType 2 =*/26).string(message.itemIds[i]);
+        if (message.items != null && Object.hasOwnProperty.call(message, "items"))
+            for (let keys = Object.keys(message.items), i = 0; i < keys.length; ++i) {
+                writer.uint32(/* id 3, wireType 2 =*/26).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
+                $root.ShoppingItem.encode(message.items[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
+            }
         return writer;
     };
 
@@ -658,7 +602,7 @@ export const ShoppingList = $root.ShoppingList = (() => {
     ShoppingList.decode = function decode(reader, length, error) {
         if (!(reader instanceof $Reader))
             reader = $Reader.create(reader);
-        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.ShoppingList();
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.ShoppingList(), key, value;
         while (reader.pos < end) {
             let tag = reader.uint32();
             if (tag === error)
@@ -673,9 +617,26 @@ export const ShoppingList = $root.ShoppingList = (() => {
                     break;
                 }
             case 3: {
-                    if (!(message.itemIds && message.itemIds.length))
-                        message.itemIds = [];
-                    message.itemIds.push(reader.string());
+                    if (message.items === $util.emptyObject)
+                        message.items = {};
+                    let end2 = reader.uint32() + reader.pos;
+                    key = "";
+                    value = null;
+                    while (reader.pos < end2) {
+                        let tag2 = reader.uint32();
+                        switch (tag2 >>> 3) {
+                        case 1:
+                            key = reader.string();
+                            break;
+                        case 2:
+                            value = $root.ShoppingItem.decode(reader, reader.uint32());
+                            break;
+                        default:
+                            reader.skipType(tag2 & 7);
+                            break;
+                        }
+                    }
+                    message.items[key] = value;
                     break;
                 }
             default:
@@ -719,12 +680,15 @@ export const ShoppingList = $root.ShoppingList = (() => {
         if (message.name != null && message.hasOwnProperty("name"))
             if (!$util.isString(message.name))
                 return "name: string expected";
-        if (message.itemIds != null && message.hasOwnProperty("itemIds")) {
-            if (!Array.isArray(message.itemIds))
-                return "itemIds: array expected";
-            for (let i = 0; i < message.itemIds.length; ++i)
-                if (!$util.isString(message.itemIds[i]))
-                    return "itemIds: string[] expected";
+        if (message.items != null && message.hasOwnProperty("items")) {
+            if (!$util.isObject(message.items))
+                return "items: object expected";
+            let key = Object.keys(message.items);
+            for (let i = 0; i < key.length; ++i) {
+                let error = $root.ShoppingItem.verify(message.items[key[i]]);
+                if (error)
+                    return "items." + error;
+            }
         }
         return null;
     };
@@ -745,12 +709,15 @@ export const ShoppingList = $root.ShoppingList = (() => {
             message.id = String(object.id);
         if (object.name != null)
             message.name = String(object.name);
-        if (object.itemIds) {
-            if (!Array.isArray(object.itemIds))
-                throw TypeError(".ShoppingList.itemIds: array expected");
-            message.itemIds = [];
-            for (let i = 0; i < object.itemIds.length; ++i)
-                message.itemIds[i] = String(object.itemIds[i]);
+        if (object.items) {
+            if (typeof object.items !== "object")
+                throw TypeError(".ShoppingList.items: object expected");
+            message.items = {};
+            for (let keys = Object.keys(object.items), i = 0; i < keys.length; ++i) {
+                if (typeof object.items[keys[i]] !== "object")
+                    throw TypeError(".ShoppingList.items: object expected");
+                message.items[keys[i]] = $root.ShoppingItem.fromObject(object.items[keys[i]]);
+            }
         }
         return message;
     };
@@ -768,8 +735,8 @@ export const ShoppingList = $root.ShoppingList = (() => {
         if (!options)
             options = {};
         let object = {};
-        if (options.arrays || options.defaults)
-            object.itemIds = [];
+        if (options.objects || options.defaults)
+            object.items = {};
         if (options.defaults) {
             object.id = "";
             object.name = "";
@@ -778,10 +745,11 @@ export const ShoppingList = $root.ShoppingList = (() => {
             object.id = message.id;
         if (message.name != null && message.hasOwnProperty("name"))
             object.name = message.name;
-        if (message.itemIds && message.itemIds.length) {
-            object.itemIds = [];
-            for (let j = 0; j < message.itemIds.length; ++j)
-                object.itemIds[j] = message.itemIds[j];
+        let keys2;
+        if (message.items && (keys2 = Object.keys(message.items)).length) {
+            object.items = {};
+            for (let j = 0; j < keys2.length; ++j)
+                object.items[keys2[j]] = $root.ShoppingItem.toObject(message.items[keys2[j]], options);
         }
         return object;
     };

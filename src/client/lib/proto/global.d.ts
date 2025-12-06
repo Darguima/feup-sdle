@@ -5,9 +5,6 @@ export interface IEntity {
 
     /** Entity shoppingList */
     shoppingList?: (IShoppingList|null);
-
-    /** Entity shoppingListItem */
-    shoppingListItem?: (IShoppingItem|null);
 }
 
 /** Represents an Entity. */
@@ -22,11 +19,8 @@ export class Entity implements IEntity {
     /** Entity shoppingList. */
     public shoppingList?: (IShoppingList|null);
 
-    /** Entity shoppingListItem. */
-    public shoppingListItem?: (IShoppingItem|null);
-
     /** Entity payload. */
-    public payload?: ("shoppingList"|"shoppingListItem");
+    public payload?: "shoppingList";
 
     /**
      * Creates a new Entity instance using the specified properties.
@@ -109,9 +103,6 @@ export class Entity implements IEntity {
 /** Properties of a ShoppingItem. */
 export interface IShoppingItem {
 
-    /** ShoppingItem id */
-    id?: (string|null);
-
     /** ShoppingItem name */
     name?: (string|null);
 
@@ -130,9 +121,6 @@ export class ShoppingItem implements IShoppingItem {
      * @param [properties] Properties to set
      */
     constructor(properties?: IShoppingItem);
-
-    /** ShoppingItem id. */
-    public id: string;
 
     /** ShoppingItem name. */
     public name: string;
@@ -230,8 +218,8 @@ export interface IShoppingList {
     /** ShoppingList name */
     name?: (string|null);
 
-    /** ShoppingList itemIds */
-    itemIds?: (string[]|null);
+    /** ShoppingList items */
+    items?: ({ [k: string]: IShoppingItem }|null);
 }
 
 /** Represents a ShoppingList. */
@@ -249,8 +237,8 @@ export class ShoppingList implements IShoppingList {
     /** ShoppingList name. */
     public name: string;
 
-    /** ShoppingList itemIds. */
-    public itemIds: string[];
+    /** ShoppingList items. */
+    public items: { [k: string]: IShoppingItem };
 
     /**
      * Creates a new ShoppingList instance using the specified properties.
