@@ -1,6 +1,6 @@
 package crdt
 
-type DotContextCrdt[T any] interface {
+type DotContextCRDT[T any] interface {
 	Context() *DotContext[string]
 
 	// Create a new empty instance of the same type
