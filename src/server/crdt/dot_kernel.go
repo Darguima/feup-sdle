@@ -14,6 +14,10 @@ func NewDotKernel[E comparable, V comparable]() *DotKernel[E, V] {
 	}
 }
 
+func (dk *DotKernel[E, V]) Context() *DotContext[E] {
+	return dk.dotContext
+}
+
 func (dk *DotKernel[E, V]) DotAdd(replicaID E, value V) Dot[E] {
 	dot := dk.dotContext.MakeDot(replicaID)
 	dk.dotValues[dot] = value

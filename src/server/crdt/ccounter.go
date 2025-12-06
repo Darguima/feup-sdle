@@ -14,6 +14,10 @@ func NewCCounter(id string) *CCounter {
 	}
 }
 
+func (cc *CCounter) Context() *DotContext[string] {
+	return cc.dotKernel.Context()
+}
+
 func (cc *CCounter) Read() uint64 {
 	total := uint64(0)
 	for _, value := range cc.dotKernel.dotValues {
@@ -51,7 +55,7 @@ func (cc *CCounter) Dec(diff uint64) *CCounter {
 
 	oldValue := cc.removeOldDot(delta)
 	newValue := oldValue - diff
-	
+
 	delta.dotKernel.Add(cc.id, newValue)
 	return delta
 }
@@ -68,4 +72,8 @@ func (cc *CCounter) Join(other *CCounter) {
 
 func (cc *CCounter) String() string {
 	return fmt.Sprintf("CCounter{id %s, dotKernel: %v}", cc.id, cc.dotKernel)
+}
+
+func (cc *CCounter) NewEmpty(id string) *CCounter {
+	return NewCCounter(id)
 }
