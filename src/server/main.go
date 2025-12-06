@@ -42,10 +42,6 @@ func main() {
 
 		time.Sleep(300 * time.Millisecond)
 
-		if i == 0 {
-			continue
-		}
-
 		nd.JoinToRing(nodes[0].GetAddress())
 
 	}

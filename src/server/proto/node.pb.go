@@ -333,7 +333,7 @@ func (x *RequestGetHashSpace) GetEndHashSpace() uint64 {
 
 type RequestGossipJoin struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	NewNodeAddr   string                 `protobuf:"bytes,1,opt,name=new_node_addr,json=newNodeAddr,proto3" json:"new_node_addr,omitempty"`
+	NewNodeId     string                 `protobuf:"bytes,1,opt,name=new_node_id,json=newNodeId,proto3" json:"new_node_id,omitempty"`
 	Tokens        []uint64               `protobuf:"varint,2,rep,packed,name=tokens,proto3" json:"tokens,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -369,9 +369,9 @@ func (*RequestGossipJoin) Descriptor() ([]byte, []int) {
 	return file_node_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *RequestGossipJoin) GetNewNodeAddr() string {
+func (x *RequestGossipJoin) GetNewNodeId() string {
 	if x != nil {
-		return x.NewNodeAddr
+		return x.NewNodeId
 	}
 	return ""
 }
@@ -1096,9 +1096,9 @@ const file_node_proto_rawDesc = "" +
 	"\x10RequestFetchRing\"e\n" +
 	"\x13RequestGetHashSpace\x12(\n" +
 	"\x10start_hash_space\x18\x01 \x01(\x04R\x0estartHashSpace\x12$\n" +
-	"\x0eend_hash_space\x18\x02 \x01(\x04R\fendHashSpace\"O\n" +
-	"\x11RequestGossipJoin\x12\"\n" +
-	"\rnew_node_addr\x18\x01 \x01(\tR\vnewNodeAddr\x12\x16\n" +
+	"\x0eend_hash_space\x18\x02 \x01(\x04R\fendHashSpace\"K\n" +
+	"\x11RequestGossipJoin\x12\x1e\n" +
+	"\vnew_node_id\x18\x01 \x01(\tR\tnewNodeId\x12\x16\n" +
 	"\x06tokens\x18\x02 \x03(\x04R\x06tokens\"\x1e\n" +
 	"\n" +
 	"RequestGet\x12\x10\n" +

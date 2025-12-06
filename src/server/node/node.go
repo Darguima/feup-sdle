@@ -20,7 +20,7 @@ type Node struct {
 }
 
 func New(id string, baseDir string) (*Node, error) {
-	addr := "tcp://" + id
+	addr := idToAddr(id)
 
 	ringView := ringview.New()
 
@@ -52,6 +52,10 @@ func New(id string, baseDir string) (*Node, error) {
 	}, nil
 }
 
+func idToAddr(id string) string {
+	return "tcp://" + id
+}
+
 // Get the current ring view from a target node and update the local ring view
 func (n *Node) UpdateRingView(targetAddr string) error {
 	resp, err := n.sendFetchRing(targetAddr)
@@ -78,7 +82,7 @@ func (n *Node) UpdateRingView(targetAddr string) error {
 func (n *Node) JoinToRing(targetAddr string) error {
 	n.UpdateRingView(targetAddr)
 
-	tokens := n.ringView.JoinToRing(n.GetAddress())
+	tokens := n.ringView.JoinToRing(n.GetID())
 
 	fmt.Println("Node "+n.id+" joined the ring with tokens:", tokens)
 
@@ -91,9 +95,10 @@ func (n *Node) JoinToRing(targetAddr string) error {
 		fmt.Println("Node " + n.id + " would request data for token " + fmt.Sprint(token) + " from the responsible node.")
 	}
 
-	gossipAddrs := []string{targetAddr}
-	for _, nodeAddr := range gossipAddrs {
-		n.sendJoinGossip(nodeAddr, n.GetAddress(), tokens)
+	gossipAddrs := n.ringView.GetGossipNeighborsNodes(n.GetID())
+	for _, nodeId := range gossipAddrs {
+		nodeAddr := idToAddr(nodeId)
+		n.sendJoinGossip(nodeAddr, n.GetID(), tokens)
 	}
 
 	return nil

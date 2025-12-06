@@ -129,13 +129,13 @@ func (n *Node) sendGetHashSpace(peerAddr string, startHashSpace int, endHashSpac
 	return n.sendRequest(peerAddr, req, 0)
 }
 
-func (n *Node) sendJoinGossip(peerAddr string, newNodeAddr string, tokens []uint64) (*pb.Response, error) {
+func (n *Node) sendJoinGossip(peerAddr string, newNodeID string, tokens []uint64) (*pb.Response, error) {
 	req := &pb.Request{
 		Origin: n.addr,
 		RequestType: &pb.Request_GossipJoin{
 			GossipJoin: &pb.RequestGossipJoin{
-				NewNodeAddr: newNodeAddr,
-				Tokens:      tokens,
+				NewNodeId: newNodeID,
+				Tokens:    tokens,
 			},
 		},
 	}

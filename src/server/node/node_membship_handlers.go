@@ -38,6 +38,24 @@ func (n *Node) handleGetHashSpace(req *pb.Request) error {
 }
 
 func (n *Node) handleGossipJoin(req *pb.Request) error {
-	println("Node " + n.addr + " received GossipJoin from " + req.Origin)
-	return n.sendResponseError("GossipJoin not implemented")
+	gossipReq := req.GetGossipJoin()
+	// print("Node " + n.addr + " received GossipJoin from " + req.Origin)
+	success := n.ringView.AddNode(gossipReq.NewNodeId, gossipReq.Tokens)
+	// print(" (success " + fmt.Sprintf("%v", success) + ")\n")
+
+	if !success {
+		return n.sendResponseError("Node already exists in ring view")
+	}
+
+	// println("Node " + n.addr + " has this new ring view: " + n.ringView.ToString())
+
+	gossipAddrs := n.ringView.GetGossipNeighborsNodes(n.GetID())
+	// fmt.Println("Node "+n.id+" will gossip message from "+gossipReq.NewNodeId+" to nodes:", gossipAddrs)
+	for _, nodeId := range gossipAddrs {
+		nodeAddr := idToAddr(nodeId)
+		_ = nodeAddr
+		// n.sendJoinGossip(nodeAddr, gossipReq.NewNodeId, gossipReq.Tokens)
+	}
+
+	return n.sendResponseOK(&pb.Response{})
 }

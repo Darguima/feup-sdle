@@ -31,7 +31,7 @@ message RequestGetHashSpace {
 }
 
 message RequestGossipJoin {
-  string new_node_addr = 1;
+  string new_node_id = 1;
   repeated uint64 tokens = 2;
 }
 

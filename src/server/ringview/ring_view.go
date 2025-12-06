@@ -3,6 +3,8 @@ package ringview
 import (
 	"crypto/sha1"
 	"encoding/binary"
+	"maps"
+	"slices"
 	"sort"
 	"strconv"
 	"sync"
@@ -47,8 +49,8 @@ func NewFromTokenMap(tokenToNode map[uint64]string) *RingView {
 	}
 
 	// Sort tokens and nodes
-	sort.Slice(rv.tokens, func(i, j int) bool { return rv.tokens[i] < rv.tokens[j] })
-	sort.Slice(rv.nodes, func(i, j int) bool { return rv.nodes[i] < rv.nodes[j] })
+	slices.Sort(rv.tokens)
+	slices.Sort(rv.nodes)
 
 	return rv
 }
@@ -59,10 +61,8 @@ func (r *RingView) JoinToRing(nodeId string) (tokens []uint64) {
 	defer r.mu.Unlock()
 
 	// Check if node already exists
-	for _, node := range r.nodes {
-		if node == nodeId {
-			return // Node already exists
-		}
+	if slices.Contains(r.nodes, nodeId) {
+		return // Node already exists
 	}
 
 	tokens = make([]uint64, 0, r.nTokens)
@@ -88,22 +88,20 @@ func (r *RingView) JoinToRing(nodeId string) (tokens []uint64) {
 	}
 
 	r.nodes = append(r.nodes, nodeId)
-	sort.Slice(r.nodes, func(i, j int) bool { return r.nodes[i] < r.nodes[j] })
-	sort.Slice(r.tokens, func(i, j int) bool { return r.tokens[i] < r.tokens[j] })
+	slices.Sort(r.nodes)
+	slices.Sort(r.tokens)
 
 	return tokens
 }
 
 // Adds a node with pre-defined tokens to the ring (used when node info is received from other nodes)
-func (r *RingView) AddNode(nodeId string, tokens []uint64) {
+func (r *RingView) AddNode(nodeId string, tokens []uint64) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	// Check if node already exists
-	for _, node := range r.nodes {
-		if node == nodeId {
-			return // Node already exists
-		}
+	if slices.Contains(r.nodes, nodeId) {
+		return false // Node already exists
 	}
 
 	for _, h := range tokens {
@@ -112,8 +110,10 @@ func (r *RingView) AddNode(nodeId string, tokens []uint64) {
 	}
 
 	r.nodes = append(r.nodes, nodeId)
-	sort.Slice(r.nodes, func(i, j int) bool { return r.nodes[i] < r.nodes[j] })
-	sort.Slice(r.tokens, func(i, j int) bool { return r.tokens[i] < r.tokens[j] })
+	slices.Sort(r.nodes)
+	slices.Sort(r.tokens)
+
+	return true
 }
 
 func (r *RingView) Lookup(key string) (string, bool) {
@@ -136,6 +136,32 @@ func (r *RingView) Lookup(key string) (string, bool) {
 	return nodeId, true
 }
 
+func (r *RingView) GetGossipNeighborsNodes(originNode string) []string {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	originIndex := slices.Index(r.nodes, originNode)
+
+	if originIndex == -1 || len(r.nodes) < 2 {
+		return []string{}
+	}
+
+	prevIndex := (len(r.nodes) + originIndex - 2) % len(r.nodes)
+	succIndex := (originIndex + 1) % len(r.nodes)
+
+	neighbors := make([]string, 0, 2)
+
+	if r.nodes[prevIndex] != originNode {
+		neighbors = append(neighbors, r.nodes[prevIndex])
+	}
+
+	if r.nodes[succIndex] != originNode {
+		neighbors = append(neighbors, r.nodes[succIndex])
+	}
+
+	return neighbors
+}
+
 func hashKey(s string) uint64 {
 	sum := sha1.Sum([]byte(s))
 	return binary.BigEndian.Uint64(sum[:8])
@@ -147,9 +173,7 @@ func (r *RingView) GetTokenToNode() map[uint64]string {
 	defer r.mu.RUnlock()
 
 	tokenToNodeCopy := make(map[uint64]string, len(r.tokenToNode))
-	for k, v := range r.tokenToNode {
-		tokenToNodeCopy[k] = v
-	}
+	maps.Copy(tokenToNodeCopy, r.tokenToNode)
 	return tokenToNodeCopy
 }
 
