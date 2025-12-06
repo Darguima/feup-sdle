@@ -7,8 +7,8 @@ type DotKernel[E comparable, V comparable] struct {
 	dotContext *DotContext[E]
 }
 
-func NewDotKernel[E comparable, V comparable]() DotKernel[E, V] {
-	return DotKernel[E, V]{
+func NewDotKernel[E comparable, V comparable]() *DotKernel[E, V] {
+	return &DotKernel[E, V]{
 		dotValues:  make(map[Dot[E]]V),
 		dotContext: NewDotContext[E](),
 	}
@@ -20,7 +20,7 @@ func (dk *DotKernel[E, V]) DotAdd(replicaID E, value V) Dot[E] {
 	return dot
 }
 
-func (dk *DotKernel[E, V]) Add(replicaID E, value V) DotKernel[E, V] {
+func (dk *DotKernel[E, V]) Add(replicaID E, value V) *DotKernel[E, V] {
 	dot := dk.DotAdd(replicaID, value)
 
 	delta := NewDotKernel[E, V]()
@@ -30,7 +30,7 @@ func (dk *DotKernel[E, V]) Add(replicaID E, value V) DotKernel[E, V] {
 	return delta
 }
 
-func (dk *DotKernel[E, V]) RemoveDot(dot Dot[E]) DotKernel[E, V] {
+func (dk *DotKernel[E, V]) RemoveDot(dot Dot[E]) *DotKernel[E, V] {
 	delta := NewDotKernel[E, V]()
 
 	if _, ok := dk.dotValues[dot]; ok {
@@ -42,7 +42,7 @@ func (dk *DotKernel[E, V]) RemoveDot(dot Dot[E]) DotKernel[E, V] {
 }
 
 // Removes any dot that has matching value
-func (dk *DotKernel[E, V]) RemoveValue(value V) DotKernel[E, V] {
+func (dk *DotKernel[E, V]) RemoveValue(value V) *DotKernel[E, V] {
 	delta := NewDotKernel[E, V]()
 
 	for dot, dotValue := range dk.dotValues {
@@ -55,7 +55,7 @@ func (dk *DotKernel[E, V]) RemoveValue(value V) DotKernel[E, V] {
 	return delta
 }
 
-func (dk *DotKernel[E, V]) Reset() DotKernel[E, V] {
+func (dk *DotKernel[E, V]) Reset() *DotKernel[E, V] {
 	delta := NewDotKernel[E, V]()
 
 	for dot := range dk.dotValues {

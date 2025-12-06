@@ -94,6 +94,20 @@ func (dc *DotContext[T]) Join(other *DotContext[T]) {
 	dc.Compact()
 }
 
+func (dc *DotContext[T]) Clone() *DotContext[T] {
+	clone := NewDotContext[T]()
+
+	for replicaID, seq := range dc.compactContext {
+		clone.compactContext[replicaID] = seq
+	}
+
+	for dot := range dc.dots {
+		clone.dots.Add(dot)
+	}
+
+	return clone
+}
+
 func (dc *DotContext[T]) String() string {
 	return fmt.Sprintf("DotContext{compactContext: %v, dots: %v}", dc.compactContext, dc.dots)
 }

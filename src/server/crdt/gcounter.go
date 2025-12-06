@@ -5,8 +5,8 @@ type GCounter struct {
 	id string
 }
 
-func NewGCounter(id string) GCounter {
-	return GCounter{
+func NewGCounter(id string) *GCounter {
+	return &GCounter{
 		m:  make(map[string]uint64),
 		id: id,
 	}
@@ -20,7 +20,7 @@ func (gc *GCounter) Read() uint64 {
 	return res
 }
 
-func (gc *GCounter) Inc(diff uint64) GCounter {
+func (gc *GCounter) Inc(diff uint64) *GCounter {
 	delta := NewGCounter(gc.id)
 
 	gc.m[gc.id] += diff

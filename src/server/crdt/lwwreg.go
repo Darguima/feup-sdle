@@ -7,8 +7,8 @@ type LWWReg[T any] struct {
 	value     T
 }
 
-func NewLWWReg[T any](value T) LWWReg[T] {
-	return LWWReg[T] {
+func NewLWWReg[T any](value T) *LWWReg[T] {
+	return &LWWReg[T] {
 		timestamp: 0,
 		value: value,
 	}
@@ -18,11 +18,11 @@ func (reg *LWWReg[T]) Read() T {
 	return reg.value
 }
 
-func (reg *LWWReg[T]) Write(timestamp uint64, value T) LWWReg[T] {
+func (reg *LWWReg[T]) Write(timestamp uint64, value T) *LWWReg[T] {
 	delta := NewLWWReg(value)
 	delta.timestamp = timestamp
 
-	reg.Join(&delta)
+	reg.Join(delta)
 
 	return delta
 }
