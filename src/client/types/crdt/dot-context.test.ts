@@ -165,4 +165,85 @@ describe("DotContext", () => {
         expect(context.knows(new Dot("node1", 2))).toBe(false);
         expect(clone.knows(new Dot("node1", 2))).toBe(true);
     });
+
+        test("should compact dots", () => {
+        context.insertDot(new Dot("node1", 1), false);
+        context.compact();
+
+        context.compact(); // Compact again to ensure idempotence
+
+        expect(context["versionVector"].get("node1")).toBe(1);
+        expect(context["dots"].size).toBe(0);
+    });
+
+    test("should compact dots", () => {
+        context.insertDot(new Dot("node1", 1), false);
+        context.compact();
+
+        expect(context["versionVector"].get("node1")).toBe(1);
+        expect(context["versionVector"].has("node2")).toBe(false);
+        expect(context["dots"].size).toBe(0);
+
+        context.insertDot(new Dot("node2", 1), false);
+        context.compact();
+
+        expect(context["versionVector"].get("node1")).toBe(1);
+        expect(context["versionVector"].get("node2")).toBe(1);
+        expect(context["dots"].size).toBe(0);
+    });
+
+    test("should compact dots", () => {
+        context.insertDot(new Dot("node1", 2), false);
+        context.compact();
+
+        expect(context["versionVector"].has("node1")).toBe(false);
+        expect(context["dots"].size).toBe(1);
+
+        context.insertDot(new Dot("node1", 1), false);
+        context.compact();
+
+        expect(context["versionVector"].get("node1")).toBe(2);
+        expect(context["dots"].size).toBe(0);
+    });
+
+    test("should compact complex cases", () => {
+        context.insertDot(new Dot("node1", 1));
+        context.insertDot(new Dot("node2", 1));
+        context.insertDot(new Dot("node2", 3));
+        context.compact();
+
+        expect(context.knows(new Dot("node1", 1))).toBe(true);
+        expect(context.knows(new Dot("node2", 1))).toBe(true);
+        expect(context.knows(new Dot("node1", 2))).toBe(false);
+        expect(context.knows(new Dot("node2", 3))).toBe(true);
+        expect(context.knows(new Dot("node2", 2))).toBe(false);
+
+        context.insertDot(new Dot("node2", 2));
+        context.compact();
+
+        expect(context.knows(new Dot("node2", 2))).toBe(true);
+        expect(context.knows(new Dot("node2", 3))).toBe(true);
+    });
+
+    test("should insert a dot", () => {
+        const dot = new Dot("node1", 1);
+        context.insertDot(dot);
+
+        expect(context["versionVector"].has("node1")).toBe(true);
+        expect(context["versionVector"].get("node1")).toBe(1);
+    });
+
+    test('should ensure that modifying a clone does not affect the original DotContext', () => {
+        const ctx = new DotContext();
+        ctx.insertDot(new Dot('node1', 1));
+
+        const clone = ctx.clone();
+        clone.insertDot(new Dot('node1', 2));
+
+        // Verify that the original context does not know about the new dot
+        expect(ctx.knows(new Dot('node1', 2))).toBe(false);
+
+        // Verify that the clone knows about the new dot
+        expect(clone.knows(new Dot('node1', 2))).toBe(true);
+    });
 });
