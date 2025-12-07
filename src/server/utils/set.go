@@ -1,5 +1,7 @@
 package utils
 
+import "fmt"
+
 type Set[T comparable] map[T]struct{}
 
 func NewSet[T comparable](items ...T) Set[T] {
@@ -25,4 +27,18 @@ func (s Set[T]) Contains(item T) bool {
 
 func (s Set[T]) Size() int {
 	return len(s)
+}
+
+func (s Set[T]) String() string {
+	str := "{"
+	first := true
+	for item := range s {
+		if !first {
+			str += ", "
+		}
+		str += fmt.Sprintf("%v", item)
+		first = false
+	}
+	str += "}"
+	return str
 }

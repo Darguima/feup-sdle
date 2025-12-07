@@ -28,11 +28,16 @@ func (ormap *ORMap[K, V]) SetContext(ctx *DotContext) {
 	}
 }
 
-func (ormap *ORMap[K, V]) Get(key K) *V {
-    if value, ok := ormap.valueMap[key]; ok {
-        return &value
-    }
-    return nil
+func (ormap *ORMap[K, V]) Get(key K) V {
+    if value, exists := ormap.valueMap[key]; exists {
+		return value
+	}
+
+	value := (*new(V)).NewEmpty(ormap.id)
+	value.SetContext(ormap.dotContext)
+	ormap.valueMap[key] = value
+
+	return value
 }
 
 func (ormap *ORMap[K, V]) Keys() []K {
@@ -41,6 +46,18 @@ func (ormap *ORMap[K, V]) Keys() []K {
 		keys = append(keys, key)
 	}
 	return keys
+}
+
+func (ormap *ORMap[K, V]) Apply(key K, fn func(V) V) *ORMap[K, V] {
+	delta := NewORMap[K, V](ormap.id)
+
+	value := ormap.Get(key)
+	valueDelta := fn(value)
+	delta.valueMap[key] = valueDelta
+	
+	delta.dotContext.Join(valueDelta.Context())
+
+	return delta
 }
 
 func (ormap *ORMap[K, V]) Remove(key K) *ORMap[K, V] {
@@ -92,6 +109,19 @@ func (ormap *ORMap[K, V]) Join(other *ORMap[K, V]) {
 	}
 
 	ormap.dotContext.Join(other.dotContext)
+}
+
+func (ormap *ORMap[K, V]) Clone() *ORMap[K, V] {
+	clone := NewORMap[K, V](ormap.id)
+	clone.dotContext = ormap.dotContext.Clone()
+
+	for key, value := range ormap.valueMap {
+		valueClone := value.Clone()
+		valueClone.SetContext(clone.dotContext)
+		clone.valueMap[key] = valueClone
+	}
+
+	return clone
 }
 
 func (ormap *ORMap[K, V]) String() string {

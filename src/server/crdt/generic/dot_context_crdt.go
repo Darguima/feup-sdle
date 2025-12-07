@@ -10,4 +10,5 @@ type DotContextCRDT[T any] interface {
 
 	Join(other T)
 	Reset() T
+	Clone() T
 }

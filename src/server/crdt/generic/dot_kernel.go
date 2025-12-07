@@ -56,10 +56,11 @@ func (dk *DotKernel[V]) RemoveValue(value V) *DotKernel[V] {
 	for dot, dotValue := range dk.dotValues {
 		if dotValue == value { // Remove value
 			delete(dk.dotValues, dot)
-			delta.dotContext.InsertDot(dot)
+			delta.dotContext.InsertDotCompact(dot, false)
 		}
 	}
 
+	delta.dotContext.Compact()
 	return delta
 }
 
