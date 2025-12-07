@@ -55,7 +55,7 @@ func (si *ShoppingItem) Quantity() uint64 {
 }
 
 func (si *ShoppingItem) IncQuantity(amount int64) *ShoppingItem {
-	delta := NewShoppingItem(si.crdtID, si.itemID, "")
+	delta := NewShoppingItem(si.crdtID, si.itemID, si.name)
 
 	// Prevent negative quantity values
 	amount = max(-int64(si.quantity.Read()), amount)
@@ -72,7 +72,7 @@ func (si *ShoppingItem) Acquired() uint64 {
 }
 
 func (si *ShoppingItem) IncAcquired(amount int64) *ShoppingItem {
-	delta := NewShoppingItem(si.crdtID, si.itemID, "")
+	delta := NewShoppingItem(si.crdtID, si.itemID, si.name)
 	currQuantity := int64(si.quantity.Read())
 	currAcquired := int64(si.acquired.Read())
 
@@ -100,11 +100,11 @@ func (si *ShoppingItem) SetContext(ctx *crdt.DotContext) {
 }
 
 func (si *ShoppingItem) NewEmpty(id string) *ShoppingItem {
-	return NewShoppingItem(id, si.itemID, "")
+	return NewShoppingItem(id, "", "")
 }
 
 func (si *ShoppingItem) Reset() *ShoppingItem {
-	delta := NewShoppingItem(si.crdtID, si.itemID, "")
+	delta := NewShoppingItem(si.crdtID, si.itemID, si.name)
 	quantityDelta := si.quantity.Reset()
 	acquiredDelta := si.acquired.Reset()
 
@@ -121,6 +121,15 @@ func (si *ShoppingItem) IsNull() bool {
 func (si *ShoppingItem) Join(other *ShoppingItem) {
 	originalContext := si.dotContext.Clone()
 
+	// Merge itemID and name if they are empty
+	// This is needed when empty items are created automatically by ORMap
+	if si.itemID == "" {
+		si.itemID = other.itemID
+	}
+	if si.name == "" {
+		si.name = other.name
+	}
+
 	si.quantity.Join(other.quantity)
 	si.dotContext.Copy(originalContext)
 
@@ -132,7 +141,7 @@ func (si *ShoppingItem) Join(other *ShoppingItem) {
 
 func (si *ShoppingItem) Clone() *ShoppingItem {
 	clone := NewShoppingItem(si.crdtID, si.itemID, si.name)
-	
+
 	clone.dotContext = si.dotContext.Clone()
 	clone.quantity = si.quantity.Clone()
 	clone.acquired = si.acquired.Clone()
@@ -143,7 +152,7 @@ func (si *ShoppingItem) Clone() *ShoppingItem {
 	return clone
 }
 
-func (si *ShoppingItem) String() string {
+func (si ShoppingItem) String() string {
 	return "ShoppingItem{" +
 		"crdtID: " + si.crdtID +
 		", itemID: " + si.itemID +

@@ -42,8 +42,10 @@ func (ormap *ORMap[K, V]) Get(key K) V {
 
 func (ormap *ORMap[K, V]) Keys() []K {
 	keys := make([]K, 0, len(ormap.valueMap))
-	for key := range ormap.valueMap {
-		keys = append(keys, key)
+	for key, value := range ormap.valueMap {
+		if !value.IsNull() {
+			keys = append(keys, key)
+		}
 	}
 	return keys
 }
@@ -66,6 +68,7 @@ func (ormap *ORMap[K, V]) Remove(key K) *ORMap[K, V] {
     if value, ok := ormap.valueMap[key]; ok {
         valueDelta := value.Reset()
 		delta.SetContext(valueDelta.Context())
+
 		delete(ormap.valueMap, key)
     }
 
@@ -75,9 +78,10 @@ func (ormap *ORMap[K, V]) Remove(key K) *ORMap[K, V] {
 func (ormap *ORMap[K, V]) Reset() *ORMap[K, V] {
 	delta := NewORMap[K, V](ormap.id)
 
-	for _, value := range ormap.valueMap {
+	for key, value := range ormap.valueMap {
 		valueDelta := value.Reset()
 		delta.dotContext.Join(valueDelta.Context())
+		delta.valueMap[key] = valueDelta
 	}
 
 	return delta
@@ -89,23 +93,28 @@ func (ormap *ORMap[K, V]) Join(other *ORMap[K, V]) {
 	for _, value := range ormap.valueMap {
 		// Must invalidate local entries known by the other context
 		emptyValue := value.NewEmpty(ormap.id)
+		emptyValue.SetContext(other.dotContext)
 		value.Join(emptyValue)
 		ormap.dotContext.Copy(originalContext)
 	}
 
 	for key, otherValue := range other.valueMap {
-		if localValue, ok := ormap.valueMap[key]; ok {
-			localValue.Join(otherValue)
-			ormap.dotContext.Copy(originalContext)
+		// if localValue, ok := ormap.valueMap[key]; ok {
+		// 	localValue.Join(otherValue)
+		// 	ormap.dotContext.Copy(originalContext)
 
-		} else {
-			newValue := otherValue.NewEmpty(ormap.id)
-			newValue.SetContext(ormap.dotContext)
-			newValue.Join(otherValue)
+		// } else {
+		// 	newValue := otherValue.NewEmpty(ormap.id)
+		// 	newValue.SetContext(ormap.dotContext)
+		// 	newValue.Join(otherValue)
 
-			ormap.valueMap[key] = newValue
-			ormap.dotContext.Copy(originalContext)
-		}
+		// 	ormap.valueMap[key] = newValue
+		// 	ormap.dotContext.Copy(originalContext)
+		// }
+
+		localValue := ormap.Get(key)
+		localValue.Join(otherValue)
+		ormap.dotContext.Copy(originalContext)
 	}
 
 	ormap.dotContext.Join(other.dotContext)

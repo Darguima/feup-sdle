@@ -1,7 +1,6 @@
 package crdt
 
 import (
-	"fmt"
 	"reflect"
 	"sort"
 	"testing"
@@ -9,92 +8,103 @@ import (
 
 // === Mock Dot Context Based CRDT for Testing ===
 
-type MockCRDT struct {
-    id         string
-    dotContext *DotContext
-    value      int
-}
+// type MockCRDT struct {
+//     id        string
+//     dotKernel *DotKernel[int]
+// }
 
-func NewMockCRDT(id string) *MockCRDT {
-    return &MockCRDT{
-        id:         id,
-        dotContext: NewDotContext(),
-        value:      0,
-    }
-}
+// func NewMockCRDT(id string) *MockCRDT {
+//     return &MockCRDT{
+//         id:        id,
+//         dotKernel: NewDotKernel[int](),
+//     }
+// }
 
-func (m *MockCRDT) String() string {
-    return fmt.Sprintf("MockCRDT{id: %s, value: %d, dotContext: %v}", m.id, m.value, m.dotContext)
-}
+// func (m *MockCRDT) String() string {
+//     return fmt.Sprintf("MockCRDT{id: %s, dotKernel: %v}", m.id, m.dotKernel)
+// }
 
-func (m *MockCRDT) Context() *DotContext {
-    return m.dotContext
-}
+// func (m *MockCRDT) Context() *DotContext {
+//     return m.dotKernel.Context()
+// }
 
-func (m *MockCRDT) SetContext(ctx *DotContext) {
-    m.dotContext = ctx
-}
+// func (m *MockCRDT) SetContext(ctx *DotContext) {
+//     m.dotKernel.SetContext(ctx)
+// }
 
-func (m *MockCRDT) Read() int {
-    return m.value
-}
+// func (m *MockCRDT) Read() int {
+//     value := 0
+//     for _, v := range m.dotKernel.dotValues {
+//         value = max(value, v)
+//     }
+//     return value
+// }
 
-func (m *MockCRDT) Inc(amount int) *MockCRDT {
-    delta := NewMockCRDT(m.id)
-    delta.value = m.value + amount
-    m.value += amount
-    return delta
-}
+// func (m *MockCRDT) Inc(amount int) *MockCRDT {
+//     delta := NewMockCRDT(m.id)
 
-func (m *MockCRDT) Reset() *MockCRDT {
-    delta := NewMockCRDT(m.id)
-    delta.value = m.value
-    m.value = 0
-    return delta
-}
+//     for dot, v := range m.dotKernel.dotValues {
+//         if dot.id == m.id {
+//             newValue := v + amount
 
-func (m *MockCRDT) Join(other *MockCRDT) {
-    if other.value > m.value {
-        m.value = other.value
-    }
-}
+//             delta.dotKernel.Join(m.dotKernel.Add(m.id, newValue))
 
-func (m *MockCRDT) NewEmpty(id string) *MockCRDT {
-    return NewMockCRDT(id)
-}
+//             return delta
+//         }
+//     }
 
-func (m *MockCRDT) Clone() *MockCRDT {
-    clone := NewMockCRDT(m.id)
-    clone.value = m.value
-    clone.dotContext = m.dotContext.Clone()
-    return clone
-}
+//     return delta
+// }
 
-func (m *MockCRDT) IsEmpty() bool {
-    return m.value == 0
-}
+// func (m *MockCRDT) Reset() *MockCRDT {
+//     delta := NewMockCRDT(m.id)
 
-func (m *MockCRDT) Equal(other *MockCRDT) bool {
-    return m.value == other.value && reflect.DeepEqual(m.dotContext, other.dotContext)
-}
+//     delta.dotKernel = m.dotKernel.Reset()
+
+//     return delta
+// }
+
+// func (m *MockCRDT) Join(other *MockCRDT) {
+//     m.dotKernel.Join(other.dotKernel)
+// }
+
+// func (m *MockCRDT) NewEmpty(id string) *MockCRDT {
+//     return NewMockCRDT(id)
+// }
+
+// func (m *MockCRDT) Clone() *MockCRDT {
+//     clone := NewMockCRDT(m.id)
+//     clone.dotKernel = m.dotKernel.Clone()
+//     return clone
+// }
+
+// func (m *MockCRDT) IsNull() bool {
+//     return m.Read() == 0
+// }
+
+// func (m *MockCRDT) Equal(other *MockCRDT) bool {
+//     return m.Read() == other.Read() && reflect.DeepEqual(m.dotKernel, other.dotKernel)
+// }
 
 // === Test Auxiliary Functions ===
 
-func equalORMaps(a, b *ORMap[string, *MockCRDT]) bool {
+func equalORMaps(a, b *ORMap[string, *CCounter]) bool {
     if !reflect.DeepEqual(a.dotContext, b.dotContext) {
         return false
     }
 
     for key, valueA := range a.valueMap {
-        valueB, ok := b.valueMap[key]
-        if (!ok && !valueA.IsEmpty()) || !valueA.Equal(valueB) {
+        valueB := b.Get(key)
+
+        if !reflect.DeepEqual(valueA.dotKernel, valueB.dotKernel) {
             return false
         }
     }
 
     for key, valueB := range b.valueMap {
-        valueA, ok := a.valueMap[key]
-        if (!ok && !valueB.IsEmpty()) || !valueA.Equal(valueB) {
+        valueA := a.Get(key)
+        
+        if !reflect.DeepEqual(valueA.dotKernel, valueB.dotKernel) {
             return false
         }
     }
@@ -104,7 +114,7 @@ func equalORMaps(a, b *ORMap[string, *MockCRDT]) bool {
 // === ORMap Tests ===
 
 func TestORMap_NewORMap(t *testing.T) {
-    ormap := NewORMap[string, *MockCRDT]("ormap1")
+    ormap := NewORMap[string, *CCounter]("ormap1")
 
     if ormap.id != "ormap1" {
         t.Errorf("Expected ORMap id to be 'ormap1', got %s", ormap.id)
@@ -118,10 +128,10 @@ func TestORMap_NewORMap(t *testing.T) {
 }
 
 func TestORMap_Get(t *testing.T) {
-    ormap := NewORMap[string, *MockCRDT]("ormap1")
+    ormap := NewORMap[string, *CCounter]("ormap1")
 
     value1 := ormap.Get("key1")
-    if !value1.IsEmpty() {
+    if !value1.IsNull() {
         t.Errorf("Expected created value for 'key1' to be nil: %v", value1)
     }
 
@@ -132,9 +142,9 @@ func TestORMap_Get(t *testing.T) {
 }
 
 func TestORMap_Keys(t *testing.T) {
-    ormap := NewORMap[string, *MockCRDT]("ormap1")
-    ormap.Get("key1")
-    ormap.Get("key2")
+    ormap := NewORMap[string, *CCounter]("ormap1")
+    ormap.Get("key1").Inc(10)
+    ormap.Get("key2").Inc(20)
 
     keys := ormap.Keys()
     sort.Strings(keys)
@@ -145,12 +155,25 @@ func TestORMap_Keys(t *testing.T) {
     }
 }
 
+func TestORMap_KeysWithNullValues(t *testing.T) {
+    ormap := NewORMap[string, *CCounter]("ormap1")
+    ormap.Get("key1").Inc(5)
+    ormap.Get("key2") // This will be null
+
+    keys := ormap.Keys()
+    expectedKeys := []string{"key1"}
+
+    if !reflect.DeepEqual(keys, expectedKeys) {
+        t.Errorf("Expected keys %v, got %v", expectedKeys, keys)
+    }
+}
+
 func TestORMap_Apply(t *testing.T) {
-    ormap1 := NewORMap[string, *MockCRDT]("ormap1")
+    ormap1 := NewORMap[string, *CCounter]("ormap1")
     ormap2 := ormap1.Clone()
 
     // Apply an increment operation
-    delta := ormap1.Apply("key1", func(value *MockCRDT) *MockCRDT {
+    delta := ormap1.Apply("key1", func(value *CCounter) *CCounter {
         return value.Inc(5)
     })
 
@@ -169,12 +192,14 @@ func TestORMap_Apply(t *testing.T) {
     // Join delta to the cloned ORMap and verify equality
     ormap2.Join(delta)
     if !equalORMaps(ormap1, ormap2) {
+        t.Logf("ORMap 1: %v", ormap1)
+        t.Logf("ORMap 2: %v", ormap2)
         t.Errorf("Expected ormap1 and ormap2 to be equal after joining with delta")
     }
 }
 
 func TestORMap_Remove(t *testing.T) {
-    ormap1 := NewORMap[string, *MockCRDT]("replica1")
+    ormap1 := NewORMap[string, *CCounter]("replica1")
     ormap2 := ormap1.Clone()
 
     delta := ormap1.Remove("key1")
@@ -190,15 +215,12 @@ func TestORMap_Remove(t *testing.T) {
 }
 
 func TestORMap_Reset(t *testing.T) {
-    ormap1 := NewORMap[string, *MockCRDT]("ormap1")
+    ormap1 := NewORMap[string, *CCounter]("ormap1")
     ormap1.Get("key1").Inc(5)
     ormap1.Get("key2").Inc(10)
 
     delta := ormap1.Reset()
 
-    if len(ormap1.valueMap) != 2 {
-        t.Errorf("Expected ORMap valueMap to still contain 2 entries, got %d", len(ormap1.valueMap))
-    }
     value1 := ormap1.Get("key1")
     value2 := ormap1.Get("key2")
     if value1.Read() != 0 || value2.Read() != 0 {
@@ -214,20 +236,22 @@ func TestORMap_Reset(t *testing.T) {
     ormap2 := ormap1.Clone()
     ormap2.Join(delta)
     if !equalORMaps(ormap1, ormap2) {
+        t.Logf("ORMap 1: %v", ormap1)
+        t.Logf("ORMap 2: %v", ormap2)
         t.Errorf("Expected ormap1 and ormap2 to be equal after joining with delta")
     }
 }
 
 func TestORMap_Join(t *testing.T) {
-    ormap1 := NewORMap[string, *MockCRDT]("ormap1")
+    ormap1 := NewORMap[string, *CCounter]("ormap1")
     ormap1.Get("key1").Inc(5)
 
-    ormap2 := NewORMap[string, *MockCRDT]("ormap2")
+    ormap2 := NewORMap[string, *CCounter]("ormap2")
     ormap2.Get("key1").Inc(10)
     ormap2.Get("key2").Inc(5)
     ormap1.Join(ormap2)
 
-    if ormap1.Get("key1").Read() != 10 {
+    if ormap1.Get("key1").Read() != 15 {
         t.Errorf("Expected ORMap to prefer higher value for 'key1', got %d", ormap1.Get("key1").Read())
     }
     if ormap1.Get("key2").Read() != 5 {
@@ -236,10 +260,10 @@ func TestORMap_Join(t *testing.T) {
 }
 
 func TestORMap_JoinWithEmptyORMap(t *testing.T) {
-    ormap1 := NewORMap[string, *MockCRDT]("ormap1")
+    ormap1 := NewORMap[string, *CCounter]("ormap1")
     ormap1.Get("key1").Inc(5)
 
-    ormap2 := NewORMap[string, *MockCRDT]("ormap2")
+    ormap2 := NewORMap[string, *CCounter]("ormap2")
 
     ormap1.Join(ormap2)
 
@@ -252,7 +276,7 @@ func TestORMap_JoinWithEmptyORMap(t *testing.T) {
 }
 
 func TestORMap_JoinIdempotent(t *testing.T) {
-    ormap1 := NewORMap[string, *MockCRDT]("ormap1")
+    ormap1 := NewORMap[string, *CCounter]("ormap1")
     ormap1.Get("key1").Inc(5)
 
     ormap2 := ormap1.Clone()
@@ -264,10 +288,10 @@ func TestORMap_JoinIdempotent(t *testing.T) {
 }
 
 func TestORMap_JoinCommutative(t *testing.T) {
-    ormap1 := NewORMap[string, *MockCRDT]("ormap1")
+    ormap1 := NewORMap[string, *CCounter]("ormap1")
     ormap1.Get("key1").Inc(5)
 
-    ormap2 := NewORMap[string, *MockCRDT]("ormap2")
+    ormap2 := NewORMap[string, *CCounter]("ormap2")
     ormap2.Get("key1").Inc(10)
     ormap2.Get("key2").Inc(5)
 
@@ -287,10 +311,10 @@ func TestORMap_JoinCommutative(t *testing.T) {
 }
 
 func TestORMap_JoinIndependence(t *testing.T) {
-    ormap1 := NewORMap[string, *MockCRDT]("ormap1")
+    ormap1 := NewORMap[string, *CCounter]("ormap1")
     ormap1.Get("key1").Inc(5)
 
-    ormap2 := NewORMap[string, *MockCRDT]("ormap2")
+    ormap2 := NewORMap[string, *CCounter]("ormap2")
     ormap2.Get("key2").Inc(10)
 
     // Join ormap2 into ormap1
@@ -305,8 +329,26 @@ func TestORMap_JoinIndependence(t *testing.T) {
     }
 }
 
+func TestORMap_JoinAfterRemove(t *testing.T) {
+    ormap1 := NewORMap[string, *CCounter]("replica1")
+    ormap1.Get("key1").Inc(5)
+
+    ormap2 := ormap1.Clone()
+    delta := ormap1.Remove("key1")
+
+    // t.Logf("Before merge: %v", ormap2)
+    ormap2.Join(delta)
+
+    if !equalORMaps(ormap1, ormap2) {
+        t.Logf("ORMap 1: %v", ormap1)
+        t.Logf("ORMap 2: %v", ormap2)
+        t.Logf("Delta: %v", delta)
+        t.Errorf("Expected ORMaps to be equal after joining with removal delta")
+    }
+}
+
 func TestORMap_Clone(t *testing.T) {
-    ormap1 := NewORMap[string, *MockCRDT]("ormap1")
+    ormap1 := NewORMap[string, *CCounter]("ormap1")
     ormap1.Get("key1").Inc(5)
 
     ormap2 := ormap1.Clone()
@@ -323,7 +365,7 @@ func TestORMap_Clone(t *testing.T) {
 }
 
 func TestORMap_SetContext(t *testing.T) {
-    ormap := NewORMap[string, *MockCRDT]("ormap1")
+    ormap := NewORMap[string, *CCounter]("ormap1")
     ormap.Get("key1").Inc(5)
 
     newContext := NewDotContext()

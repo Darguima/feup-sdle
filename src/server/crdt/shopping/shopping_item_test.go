@@ -130,6 +130,21 @@ func TestShoppingItem_Reset(t *testing.T) {
 	}
 }
 
+func TestShoppingItem_ResetIsNull(t *testing.T) {
+    item := NewShoppingItem("crdt1", "item1", "Milk")
+    item.IncQuantity(5)
+
+    if item.IsNull() {
+        t.Errorf("Expected item to not be null before reset")
+    }
+
+    item.Reset()
+
+    if !item.IsNull() {
+        t.Errorf("Expected item to be null after reset")
+    }
+}
+
 func TestShoppingItem_Join(t *testing.T) {
     item1 := NewShoppingItem("crdt1", "item1", "Milk")
     item1.IncQuantity(3)

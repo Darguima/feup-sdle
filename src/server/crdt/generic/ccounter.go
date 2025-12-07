@@ -58,6 +58,7 @@ func (cc *CCounter) Inc(diff int64) *CCounter {
 func (cc *CCounter) Reset() *CCounter {
 	delta := NewCCounter(cc.id)
 	delta.dotKernel = cc.dotKernel.Reset()
+
 	return delta
 }
 
@@ -71,6 +72,10 @@ func (cc *CCounter) String() string {
 
 func (cc *CCounter) NewEmpty(id string) *CCounter {
 	return NewCCounter(id)
+}
+
+func (cc *CCounter) IsNull() bool {
+	return len(cc.dotKernel.dotValues) == 0
 }
 
 func (cc *CCounter) Clone() *CCounter {
