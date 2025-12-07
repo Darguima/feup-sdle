@@ -73,7 +73,7 @@ func (n *Node) UpdateRingView(targetAddr string) error {
 	newRingView := ringview.NewFromTokenMap(fetchRingResp.TokenToNode)
 	n.ringView = newRingView
 
-	println("Node " + n.id + " updated its ring view. " + n.ringView.ToString())
+	n.log("Updated ring view: " + n.ringView.ToString())
 
 	return nil
 }
@@ -84,7 +84,7 @@ func (n *Node) JoinToRing(targetAddr string) error {
 
 	tokens := n.ringView.JoinToRing(n.GetID())
 
-	fmt.Println("Node "+n.id+" joined the ring with tokens:", tokens)
+	n.log("joined the ring with tokens: " + fmt.Sprint(tokens))
 
 	for _, token := range tokens {
 		// TODO:
@@ -92,7 +92,8 @@ func (n *Node) JoinToRing(targetAddr string) error {
 		// request the data for that token from the responsible node,
 		// and then store the received data in the local storage.
 
-		fmt.Println("Node " + n.id + " would request data for token " + fmt.Sprint(token) + " from the responsible node.")
+		n.log("would request data for token " + fmt.Sprint(token) + " from the responsible node.")
+
 	}
 
 	gossipAddrs := n.ringView.GetGossipNeighborsNodes(n.GetID())
@@ -110,4 +111,8 @@ func (n *Node) GetAddress() string {
 
 func (n *Node) GetID() string {
 	return n.id
+}
+
+func (n *Node) log(msg string) {
+	fmt.Printf("[Node %s]: %s\n", n.id, msg)
 }

@@ -185,10 +185,10 @@ func (r *RingView) ToString() string {
 		return "RingView is empty"
 	}
 
-	result := "RingView:\n"
+	result := "RingView:"
 
 	for t, n := range r.tokenToNode {
-		result += "Mapping: " + strconv.FormatUint(t, 10) + " -> " + n + "\n"
+		result += "\n\t" + strconv.FormatUint(t, 10) + " -> " + n
 	}
 
 	return result

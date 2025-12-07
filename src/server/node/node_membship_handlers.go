@@ -5,7 +5,7 @@ import (
 )
 
 func (n *Node) handlePing(req *pb.Request) error {
-	println("Node " + n.addr + " received Ping from " + req.Origin)
+	n.log("Received Ping from " + req.Origin)
 
 	response := &pb.Response{
 		ResponseType: &pb.Response_Ping{
@@ -19,7 +19,7 @@ func (n *Node) handlePing(req *pb.Request) error {
 }
 
 func (n *Node) handleFetchRing(req *pb.Request) error {
-	println("Node " + n.addr + " received FetchRing from " + req.Origin)
+	n.log("Received FetchRing from " + req.Origin)
 
 	response := &pb.Response{
 		ResponseType: &pb.Response_FetchRing{
@@ -33,7 +33,7 @@ func (n *Node) handleFetchRing(req *pb.Request) error {
 }
 
 func (n *Node) handleGetHashSpace(req *pb.Request) error {
-	println("Node " + n.addr + " received GetHashSpace from " + req.Origin)
+	n.log("Received GetHashSpace from " + req.Origin)
 	return n.sendResponseError("GetHashSpace not implemented")
 }
 

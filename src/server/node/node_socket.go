@@ -11,7 +11,7 @@ import (
 )
 
 func (n *Node) StartReceiving() error {
-	println("Node started at " + n.addr)
+	n.log("Socket started at " + n.addr)
 
 	for {
 		msgBytes, err := n.repSock.RecvBytes(0)
