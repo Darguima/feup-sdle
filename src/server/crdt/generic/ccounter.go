@@ -23,10 +23,10 @@ func (cc *CCounter) SetContext(ctx *DotContext) {
 	cc.dotKernel.SetContext(ctx)
 }
 
-func (cc *CCounter) Read() uint64 {
-	total := uint64(0)
+func (cc *CCounter) Read() int64 {
+	total := int64(0)
 	for _, value := range cc.dotKernel.dotValues {
-		total += value
+		total += int64(value)
 	}
 	return total
 }
@@ -51,7 +51,7 @@ func (cc *CCounter) Inc(diff uint64) *CCounter {
 	oldValue := cc.removeOldDot(delta)
 	newValue := oldValue + diff
 
-	delta.dotKernel.Add(cc.id, newValue)
+	delta.dotKernel.Join(cc.dotKernel.Add(cc.id, newValue))
 	return delta
 }
 
@@ -61,7 +61,7 @@ func (cc *CCounter) Dec(diff uint64) *CCounter {
 	oldValue := cc.removeOldDot(delta)
 	newValue := oldValue - diff
 
-	delta.dotKernel.Add(cc.id, newValue)
+	delta.dotKernel.Join(cc.dotKernel.Add(cc.id, newValue))
 	return delta
 }
 
@@ -81,4 +81,10 @@ func (cc *CCounter) String() string {
 
 func (cc *CCounter) NewEmpty(id string) *CCounter {
 	return NewCCounter(id)
+}
+
+func (cc *CCounter) Clone() *CCounter {
+	clone := NewCCounter(cc.id)
+	clone.dotKernel = cc.dotKernel.Clone()
+	return clone
 }
