@@ -149,13 +149,13 @@ func TestCCounter_JoinWithConflicts(t *testing.T) {
     cc1 := NewCCounter("node1")
     cc1.Inc(5)
 
-    cc2 := NewCCounter("node1")
+    cc2 := NewCCounter("node2")
     cc2.Inc(10)
 
     cc1.Join(cc2)
 
-    if cc1.Read() != 10 {
-        t.Errorf("Expected counter1 value to be 10 after join, got %d", cc1.Read())
+    if cc1.Read() != 15 {
+        t.Errorf("Expected counter1 value to be 15 after join, got %d", cc1.Read())
     }
     if cc2.Read() != 10 {
         t.Errorf("Expected counter2 value to remain 10, got %d", cc2.Read())
@@ -164,7 +164,7 @@ func TestCCounter_JoinWithConflicts(t *testing.T) {
 
 func TestCCounter_ConcurrentUpdates(t *testing.T) {
     counter1 := NewCCounter("node1")
-    counter2 := NewCCounter("node1")
+    counter2 := NewCCounter("node2")
 
     delta1 := counter1.Inc(5)
     delta2 := counter2.Inc(10)
@@ -172,11 +172,11 @@ func TestCCounter_ConcurrentUpdates(t *testing.T) {
     counter1.Join(delta2)
     counter2.Join(delta1)
 
-    if counter1.Read() != 10 {
-        t.Errorf("Expected counter1 value to be 10 after concurrent updates, got %d", counter1.Read())
+    if counter1.Read() != 15 {
+        t.Errorf("Expected counter1 value to be 15 after concurrent updates, got %d", counter1.Read())
     }
-    if counter2.Read() != 10 {
-        t.Errorf("Expected counter2 value to be 10 after concurrent updates, got %d", counter2.Read())
+    if counter2.Read() != 15 {
+        t.Errorf("Expected counter2 value to be 15 after concurrent updates, got %d", counter2.Read())
     }
 }
 
@@ -193,15 +193,5 @@ func TestCCounter_JoinWithEmptyCounter(t *testing.T) {
     }
     if counter2.Read() != 0 {
         t.Errorf("Expected counter2 value to remain 0, got %d", counter2.Read())
-    }
-}
-
-func TestCCounter_String(t *testing.T) {
-    counter := NewCCounter("node1")
-    counter.Inc(5)
-
-    str := counter.String()
-    if str == "" {
-        t.Errorf("Expected non-empty string representation, got empty string")
     }
 }

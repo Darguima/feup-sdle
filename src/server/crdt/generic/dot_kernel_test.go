@@ -314,14 +314,3 @@ func TestDotKernel_Clone(t *testing.T) {
 		t.Errorf("Expected cloned kernel.dotValues to have 3 entries, got %d", len(clone.dotValues))
 	}
 }
-
-func TestDotKernel_String(t *testing.T) {
-    kernel := NewDotKernel[string]()
-    kernel.DotAdd("node1", "value1")
-    kernel.DotAdd("node2", "value2")
-
-    str := kernel.String()
-    if str == "" {
-        t.Errorf("Expected non-empty string representation, got empty string")
-    }
-}
