@@ -15,8 +15,9 @@ func NewShoppingItem(crdtID string, itemID string, name string) *ShoppingItem {
 	dotContext := crdt.NewDotContext()
 
 	quantity := crdt.NewCCounter(crdtID)
-	acquired := crdt.NewCCounter(crdtID)
 	quantity.SetContext(dotContext)
+
+	acquired := crdt.NewCCounter(crdtID)
 	acquired.SetContext(dotContext)
 
 	return &ShoppingItem{
@@ -41,12 +42,52 @@ func (si *ShoppingItem) ItemID() string {
 	return si.itemID
 }
 
-func (si *ShoppingItem) Quantity() *crdt.CCounter {
-	return si.quantity
+func (si *ShoppingItem) Quantity() int64 {
+	return si.quantity.Read()
 }
 
-func (si *ShoppingItem) Acquired() *crdt.CCounter {
-	return si.acquired
+func (si *ShoppingItem) IncQuantity(amount uint64) *ShoppingItem {
+	delta := NewShoppingItem(si.crdtID, "", "")
+
+	quantityDelta := si.quantity.Inc(amount)
+	delta.quantity = quantityDelta
+	delta.SetContext(quantityDelta.Context())
+
+	return delta
+}
+
+func (si *ShoppingItem) DecQuantity(amount uint64) *ShoppingItem {
+	delta := NewShoppingItem(si.crdtID, "", "")
+
+	quantityDelta := si.quantity.Dec(amount)
+	delta.quantity = quantityDelta
+	delta.SetContext(quantityDelta.Context())
+
+	return delta
+}
+
+func (si *ShoppingItem) Acquired() int64 {
+	return si.acquired.Read()
+}
+
+func (si *ShoppingItem) IncAcquired(amount uint64) *ShoppingItem {
+	delta := NewShoppingItem(si.crdtID, "", "")
+
+	acquiredDelta := si.acquired.Inc(amount)
+	delta.acquired = acquiredDelta
+	delta.SetContext(acquiredDelta.Context())
+
+	return delta
+}
+
+func (si *ShoppingItem) DecAcquired(amount uint64) *ShoppingItem {
+	delta := NewShoppingItem(si.crdtID, "", "")
+
+	acquiredDelta := si.acquired.Dec(amount)
+	delta.acquired = acquiredDelta
+	delta.SetContext(acquiredDelta.Context())
+
+	return delta
 }
 
 func (si *ShoppingItem) Context() *crdt.DotContext {
@@ -85,4 +126,26 @@ func (si *ShoppingItem) Join(other *ShoppingItem) {
 	// No need to restore original context here
 
 	si.dotContext.Join(other.dotContext)
+}
+
+func (si *ShoppingItem) Clone() *ShoppingItem {
+	clone := NewShoppingItem(si.crdtID, si.itemID, si.name)
+	clone.dotContext = si.dotContext.Clone()
+	clone.quantity = si.quantity.Clone()
+	clone.acquired = si.acquired.Clone()
+
+	clone.quantity.SetContext(clone.dotContext)
+	clone.acquired.SetContext(clone.dotContext)
+
+	return clone
+}
+
+func (si *ShoppingItem) String() string {
+	return "ShoppingItem{" +
+		"crdtID: " + si.crdtID +
+		", itemID: " + si.itemID +
+		", name: " + si.name +
+		", quantity: " + si.quantity.String() +
+		", acquired: " + si.acquired.String() +
+	"}"
 }
