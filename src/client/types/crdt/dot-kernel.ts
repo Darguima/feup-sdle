@@ -2,11 +2,11 @@ import Dot from "./dot";
 import DotContext from "./dot-context";
 
 export default class DotKernel<T> {
-    private dotValues: Map<Dot, T>;
+    private dotValues: Map<string, T>;  // Objects do not work as Map keys, so we use their string representation
     private dotContext: DotContext;
 
     constructor() {
-        this.dotValues = new Map<Dot, T>();
+        this.dotValues = new Map<string, T>();
         this.dotContext = new DotContext();
     }
 
@@ -20,15 +20,15 @@ export default class DotKernel<T> {
 
     public dotAdd(id: string, value: T): Dot {
         const dot = this.dotContext.makeDot(id);
-        this.dotValues.set(dot, value);
+        this.dotValues.set(dot.toKey(), value);
         return dot;
     }
 
-    public ddd(id: string, value: T): DotKernel<T> {
+    public add(id: string, value: T): DotKernel<T> {
         const dot = this.dotAdd(id, value);
 
         const delta = new DotKernel<T>();
-        delta.dotValues.set(dot, value);
+        delta.dotValues.set(dot.toKey(), value);
         delta.dotContext.insertDot(dot);
 
         return delta
@@ -37,8 +37,9 @@ export default class DotKernel<T> {
     public removeDot(dot: Dot): DotKernel<T> {
         const delta = new DotKernel<T>();
 
-        if (this.dotValues.has(dot)) {
-            this.dotValues.delete(dot);
+        const dotKey = dot.toKey();
+        if (this.dotValues.has(dotKey)) {
+            this.dotValues.delete(dotKey);
             delta.dotContext.insertDot(dot);
         }
 
@@ -49,10 +50,10 @@ export default class DotKernel<T> {
     public removeValue(value: T): DotKernel<T> {
         const delta = new DotKernel<T>();
 
-        this.dotValues.forEach((dotValue, dot) => {
+        this.dotValues.forEach((dotValue, dotKey) => {
             if (dotValue === value) {
-                this.dotValues.delete(dot);
-                delta.dotContext.insertDot(dot, false);
+                this.dotValues.delete(dotKey);
+                delta.dotContext.insertDot(Dot.fromKey(dotKey), false);
             }
         })
 
@@ -63,8 +64,8 @@ export default class DotKernel<T> {
     public reset(): DotKernel<T> {
         const delta = new DotKernel<T>();
 
-        this.dotValues.forEach((_, dot) => {
-            delta.dotContext.insertDot(dot, false);
+        this.dotValues.forEach((_, dotKey) => {
+            delta.dotContext.insertDot(Dot.fromKey(dotKey), false);
         });
 
         delta.dotContext.compact();
@@ -74,17 +75,19 @@ export default class DotKernel<T> {
 
     // Merges the kernel with another, preferring the values of other on conflicts
     public join(other: DotKernel<T>): void {
-        this.dotValues.forEach((value, dot) => {
+        this.dotValues.forEach((_ , dotKey) => {
+            const dot = Dot.fromKey(dotKey);
+
             // If dot is not present in other and is known by other, it means it was removed
-            if (!other.dotContext.knows(dot) && !other.dotValues.has(dot)) {
-                this.dotValues.delete(dot);
+            if (other.dotContext.knows(dot) && !other.dotValues.has(dotKey)) {
+                this.dotValues.delete(dotKey);
             }
         });
 
-        other.dotValues.forEach((value, dot) => {
+        other.dotValues.forEach((value, dotKey) => {
             // If dot is not present locally, add it
-            if (!this.dotValues.has(dot)) {
-                this.dotValues.set(dot, value);
+            if (!this.dotValues.has(dotKey)) {
+                this.dotValues.set(dotKey, value);
             }
         });
 
@@ -95,7 +98,7 @@ export default class DotKernel<T> {
         const clone = new DotKernel<T>();
 
         clone.dotContext = this.dotContext.clone();
-        clone.dotValues = new Map<Dot, T>(this.dotValues);
+        clone.dotValues = new Map<string, T>(this.dotValues);
 
         return clone;
     }

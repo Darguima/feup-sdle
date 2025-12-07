@@ -122,7 +122,7 @@ describe("DotContext", () => {
 
         expect(context.knows(new Dot("node1", 1))).toBe(true);
         expect(context.knows(new Dot("node1", 2))).toBe(false);
-        expect(context.knows(new Dot("node1", 3))).toBe(false);
+        expect(context.knows(new Dot("node1", 3))).toBe(true);
 
         otherContext.insertDot(new Dot("node1", 2));
         context.join(otherContext);

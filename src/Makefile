@@ -13,3 +13,5 @@ server-test:
 
 server-crdt-test:
 	cd server && go test ./crdt/...
+client-crdt-test:
+	cd client && npm run test -- types/crdt

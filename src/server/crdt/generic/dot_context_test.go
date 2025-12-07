@@ -136,8 +136,11 @@ func TestDotContext_CompactComplex(t *testing.T) {
 	if ctx.Knows(NewDot("node1", 2)) {
 		t.Errorf("Did not expect ctx to know Dot(node1, 2)")
 	}
-	if ctx.Knows(NewDot("node2", 3)) {
-		t.Errorf("Did not expect ctx to know Dot(node2, 3)")
+	if !ctx.Knows(NewDot("node2", 3)) {
+		t.Errorf("Expected ctx to know Dot(node2, 3)")
+	}
+	if ctx.Knows(NewDot("node2", 2)) {
+		t.Errorf("Did not expect ctx to know Dot(node2, 2)")
 	}
 
 	ctx.InsertDot(NewDot("node2", 2))
@@ -277,6 +280,7 @@ func TestDotContext_JoinWithGaps(t *testing.T) {
 	ctx2.InsertDot(NewDot("node1", 3))
 
 	ctx1.Join(ctx2)
+	t.Logf("After first join: %+v", ctx1)
 
 	if !ctx1.Knows(NewDot("node1", 1)) {
 		t.Errorf("Expected ctx1 to know Dot(node1, 1)")
@@ -284,8 +288,8 @@ func TestDotContext_JoinWithGaps(t *testing.T) {
 	if ctx1.Knows(NewDot("node1", 2)) {
 		t.Errorf("Did not expect ctx1 to know Dot(node1, 2)")
 	}
-	if ctx1.Knows(NewDot("node1", 3)) {
-		t.Errorf("Did not expect ctx1 to know Dot(node1, 3)")
+	if !ctx1.Knows(NewDot("node1", 3)) {
+		t.Errorf("Expected ctx1 to know Dot(node1, 3)")
 	}
 
 	ctx2.InsertDot(NewDot("node1", 2))

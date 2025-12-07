@@ -19,8 +19,8 @@ func NewDotContext() *DotContext {
 }
 
 func (ctx *DotContext) Knows(dot Dot) bool {
-	if localSeq, ok := ctx.versionVector[dot.id]; ok {
-		return dot.seq <= localSeq
+	if localSeq, ok := ctx.versionVector[dot.id]; ok && dot.seq <= localSeq {
+		return true
 	}
 
 	return ctx.dots.Contains(dot)

@@ -2,16 +2,16 @@ import Dot from "./dot";
 
 export default class DotContext {
     private versionVector: Map<string, number>;
-    private dots: Set<Dot>;
+    private dots: Set<string>;  // Using string representation, since objects do not work as Set keys
 
     constructor() {
         this.versionVector = new Map<string, number>();
-        this.dots = new Set<Dot>();
+        this.dots = new Set<string>();
     }
 
     public knows(dot: Dot): boolean {
         const localSeq = this.versionVector.get(dot.id) || 0;
-        return dot.seq <= localSeq || this.dots.has(dot);
+        return dot.seq <= localSeq || this.dots.has(dot.toKey());
     }
 
     public makeDot(id: string): Dot {
@@ -23,7 +23,7 @@ export default class DotContext {
     }
 
     public insertDot(dot: Dot, compact: boolean = true): void {
-        this.dots.add(dot);
+        this.dots.add(dot.toKey());
         if (compact) {
             this.compact();
         }
@@ -35,16 +35,17 @@ export default class DotContext {
         while (changed) {
             changed = false;
 
-            this.dots.forEach((dot) => {
+            this.dots.forEach((dotKey) => {
+                const dot = Dot.fromKey(dotKey);
                 const localSeq = this.versionVector.get(dot.id) || 0;
 
                 if (dot.seq === localSeq + 1) {  // Sequential order, can be merged into version vector
                     this.versionVector.set(dot.id, dot.seq);
-                    this.dots.delete(dot);
+                    this.dots.delete(dotKey);
                     changed = true;
 
                 } else if (dot.seq <= localSeq) {  // Already known, can be removed
-                    this.dots.delete(dot);
+                    this.dots.delete(dotKey);
                     changed = true;
                 }
             });
@@ -87,6 +88,6 @@ export default class DotContext {
         }
 
         this.versionVector = new Map<string, number>(other.versionVector);
-        this.dots = new Set<Dot>(other.dots);
+        this.dots = new Set<string>(other.dots);
     }
 }
