@@ -12,3 +12,10 @@ export function splitOnceFromEnd(str: string, sep: string): [string, string] {
 	}
 	return [str.slice(0, index), str.slice(index + sep.length)];
 }
+
+export function isIterableEmpty<T>(iterable: Iterable<T>): boolean {
+	for (const _ of iterable) {
+		return false;
+	}
+	return true;
+}

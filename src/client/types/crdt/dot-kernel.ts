@@ -18,6 +18,10 @@ export default class DotKernel<T> {
         this.dotContext = context;
     }
 
+    public getValues(): Iterable<[string, T]> {
+        return this.dotValues.entries()
+    }
+
     public dotAdd(id: string, value: T): Dot {
         const dot = this.dotContext.makeDot(id);
         this.dotValues.set(dot.toKey(), value);

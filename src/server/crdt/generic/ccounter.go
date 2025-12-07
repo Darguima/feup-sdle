@@ -6,14 +6,13 @@ import (
 )
 
 type CCounter struct {
-	id 	      string
+	replicaID string
 	dotKernel *DotKernel[int64]
 }
-// Implements DotContextCRDT[uint64]
 
-func NewCCounter(id string) *CCounter {
+func NewCCounter(replicaID string) *CCounter {
 	return &CCounter{
-		id: id,
+		replicaID: replicaID,
 		dotKernel: NewDotKernel[int64](),
 	}
 }
@@ -37,11 +36,10 @@ func (cc *CCounter) Read() int64 {
 // Removes the old dot for this replica, if any, applies the difference to the
 // delta, and returns the old value (or zero if absent)
 func (cc *CCounter) removeOldDot(delta *CCounter) int64 {
-	for dot := range cc.dotKernel.dotValues {
-		if dot.id == cc.id {  // There should be only one dot
-			oldValue := cc.dotKernel.dotValues[dot]
+	for dot, value := range cc.dotKernel.dotValues {
+		if dot.id == cc.replicaID { // There should be only one dot
 			delta.dotKernel.Join(cc.dotKernel.RemoveDot(dot))
-			return oldValue
+			return value
 		}
 	}
 
@@ -49,17 +47,17 @@ func (cc *CCounter) removeOldDot(delta *CCounter) int64 {
 }
 
 func (cc *CCounter) Inc(diff int64) *CCounter {
-	delta := NewCCounter(cc.id)
+	delta := NewCCounter(cc.replicaID)
 
-	oldLocalValue := cc.removeOldDot(delta)
-	newLocalValue := oldLocalValue + diff
+	oldValue := cc.removeOldDot(delta)
+	newValue := oldValue + diff
 
-	delta.dotKernel.Join(cc.dotKernel.Add(cc.id, newLocalValue))
+	delta.dotKernel.Join(cc.dotKernel.Add(cc.replicaID, newValue))
 	return delta
 }
 
 func (cc *CCounter) Reset() *CCounter {
-	delta := NewCCounter(cc.id)
+	delta := NewCCounter(cc.replicaID)
 	delta.dotKernel = cc.dotKernel.Reset()
 
 	return delta
@@ -70,7 +68,7 @@ func (cc *CCounter) Join(other *CCounter) {
 }
 
 func (cc *CCounter) String() string {
-	return fmt.Sprintf("CCounter{id %s, dotKernel: %v}", cc.id, cc.dotKernel)
+	return fmt.Sprintf("CCounter{id %s, dotKernel: %v}", cc.replicaID, cc.dotKernel)
 }
 
 func (cc *CCounter) NewEmpty(id string) *CCounter {
@@ -82,7 +80,7 @@ func (cc *CCounter) IsNull() bool {
 }
 
 func (cc *CCounter) Clone() *CCounter {
-	clone := NewCCounter(cc.id)
+	clone := NewCCounter(cc.replicaID)
 	clone.dotKernel = cc.dotKernel.Clone()
 	return clone
 }
@@ -97,7 +95,7 @@ func CCounterFromProto(protoCounter *g01.CCounter, id string, ctx *DotContext) *
 	dotKernel := DotKernelFromProto(protoCounter.GetDotKernel(), ctx)
 
 	return &CCounter{
-		id: id,
+		replicaID: id,
 		dotKernel: (*DotKernel[int64])(dotKernel),
 	}
 }
