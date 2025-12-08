@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"math/rand"
 	"os"
 	"os/signal"
 	"sdle-server/node"
@@ -32,11 +34,12 @@ func main() {
 	// 	log.Fatal("Failed to start server on port 8080: ", err)
 	// }
 
-	nodes := []*node.Node{
-		create_node("localhost:5000"),
-		create_node("localhost:5001"),
-		create_node("localhost:5002"),
-		create_node("localhost:5003"),
+	nodes := []*node.Node{}
+
+	for i := 5000; i < 5020; i++ {
+		node_id := fmt.Sprintf("localhost:%d", i)
+		node := create_node(node_id)
+		nodes = append(nodes, node)
 	}
 
 	errCh := make(chan error, 2)
@@ -53,9 +56,24 @@ func main() {
 
 		time.Sleep(300 * time.Millisecond)
 
-		nd.JoinToRing(nodes[0].GetAddress())
+		randomIds := rand.Intn(i+1) - 1
+		if randomIds < 0 {
+			randomIds = 0
+		}
 
+		nd.JoinToRing(nodes[randomIds].GetAddress())
 	}
+
+	// Wait for stabilization
+	time.Sleep(4 * time.Second)
+
+	// Check ring view of each node
+	println("\n=== Ring View After Stabilization ===")
+	for _, nd := range nodes {
+		knownIds := nd.GetRingView().GetKnownIds()
+		fmt.Printf("Node %s knows %d nodes: %v\n", nd.GetID(), len(knownIds), knownIds)
+	}
+	println("=====================================\n")
 
 	// Wait for shutdown signal
 	select {

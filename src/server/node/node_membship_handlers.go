@@ -1,6 +1,7 @@
 package node
 
 import (
+	"fmt"
 	pb "sdle-server/proto"
 )
 
@@ -39,23 +40,30 @@ func (n *Node) handleGetHashSpace(req *pb.Request) error {
 
 func (n *Node) handleGossipJoin(req *pb.Request) error {
 	gossipReq := req.GetGossipJoin()
-	// print("Node " + n.addr + " received GossipJoin from " + req.Origin)
+	n.log("Received GossipJoin (start node: " + gossipReq.NewNodeId + "; received from: " + req.Origin + ")")
 	success := n.ringView.AddNode(gossipReq.NewNodeId, gossipReq.Tokens)
-	// print(" (success " + fmt.Sprintf("%v", success) + ")\n")
 
 	if !success {
+		n.log("Node " + gossipReq.NewNodeId + " already exists in ring view. Finishing GossipJoin handling.")
 		return n.sendResponseError("Node already exists in ring view")
 	}
 
-	// println("Node " + n.addr + " has this new ring view: " + n.ringView.ToString())
+	n.log("Node " + gossipReq.NewNodeId + " added to ring view successfully.")
+
+	n.log("New ring view: " + n.ringView.ToString())
 
 	gossipAddrs := n.ringView.GetGossipNeighborsNodes(n.GetID())
-	// fmt.Println("Node "+n.id+" will gossip message from "+gossipReq.NewNodeId+" to nodes:", gossipAddrs)
-	for _, nodeId := range gossipAddrs {
-		nodeAddr := idToAddr(nodeId)
-		_ = nodeAddr
-		// n.sendJoinGossip(nodeAddr, gossipReq.NewNodeId, gossipReq.Tokens)
-	}
+	n.log("Send gossip message from " + gossipReq.NewNodeId + " to neighbors " + fmt.Sprint(gossipAddrs))
+
+	// Propagate gossip asynchronously so we don't block the response
+	go func() {
+		for _, nodeId := range gossipAddrs {
+			nodeAddr := idToAddr(nodeId)
+			resp, err := n.sendJoinGossip(nodeAddr, gossipReq.NewNodeId, gossipReq.Tokens)
+
+			n.log("Gossip (start node: " + gossipReq.NewNodeId + "; response from:" + nodeAddr + ") Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
+		}
+	}()
 
 	return n.sendResponseOK(&pb.Response{})
 }

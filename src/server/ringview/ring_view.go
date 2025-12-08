@@ -193,3 +193,12 @@ func (r *RingView) ToString() string {
 
 	return result
 }
+
+func (r *RingView) GetKnownIds() []string {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	idsCopy := make([]string, len(r.nodes))
+	copy(idsCopy, r.nodes)
+	return idsCopy
+}
