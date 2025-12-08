@@ -48,8 +48,8 @@ export default class CCounter {
         const oldValue = this.removeOldDot(delta);
         const newValue = oldValue + diff;
 
-        const newDot = this.dotKernel.dotAdd(this.replicaId, newValue);
-        delta.context().insertDot(newDot);
+        const addDelta = this.dotKernel.add(this.replicaId, newValue);
+        delta.dotKernel.join(addDelta)
 
         return delta;
     }
