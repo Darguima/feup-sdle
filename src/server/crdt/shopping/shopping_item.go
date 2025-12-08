@@ -61,7 +61,7 @@ func (si *ShoppingItem) IncQuantity(amount int64) *ShoppingItem {
 	delta := NewShoppingItem(si.replicaID, si.itemID, si.name)
 
 	// Prevent negative quantity values
-	amount = max(-int64(si.quantity.Read()), amount)
+	amount = max(-si.quantity.Read(), amount)
 
 	quantityDelta := si.quantity.Inc(amount)
 	delta.quantity = quantityDelta
@@ -118,10 +118,11 @@ func (si *ShoppingItem) Reset() *ShoppingItem {
 }
 
 func (si *ShoppingItem) IsNull() bool {
-	return si.quantity.Read() == 0
+	return si.quantity.Read() == 0  // Quantity must normally be positive
 }
 
 func (si *ShoppingItem) Join(other *ShoppingItem) {
+	// Save original context to restore after merging quantity
 	originalContext := si.dotContext.Clone()
 
 	// Merge itemID and name if they are empty

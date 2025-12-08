@@ -12,7 +12,7 @@ export default class CCounter {
         this.dotKernel = new DotKernel<number>();
     }
 
-    public context() {
+    public getContext() {
         return this.dotKernel.getContext();
     }
 
@@ -72,5 +72,9 @@ export default class CCounter {
         const clone = new CCounter(this.replicaId);
         clone.dotKernel = this.dotKernel.clone();
         return clone;
+    }
+
+    public static newEmpty(replicaId: string): CCounter {
+        return new CCounter(replicaId);
     }
 }
