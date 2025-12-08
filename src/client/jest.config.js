@@ -7,8 +7,12 @@ module.exports = {
   testEnvironment: "node",
   transform: {
     ...tsJestTransformCfg,
+    '^.+\\.js$': 'babel-jest',
   },
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1"
   },
+  transformIgnorePatterns: [
+    "/node_modules/(?!(protobufjs)/)",
+  ],
 };
