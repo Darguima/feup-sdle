@@ -2,14 +2,18 @@ syntax = "proto3";
 
 option go_package = "gitlab.up.pt/classes/sdle/2025/t2/g01";
 
+import "crdt.proto";
+
 message ShoppingItem {
     string name = 1;
-    int32 total_quantity = 2;
-    int32 acquired_quantity = 3;
+    CCounter quantity = 2;
+    CCounter acquired = 3;
 }
 
 message ShoppingList {
-    string id = 1;
-    string name = 2;
-    map<string, ShoppingItem> items = 3;
+    string replica_id = 1;
+    string id = 2;
+    string name = 3;
+    map<string, ShoppingItem> items = 4;
+    DotContext dot_context = 5;
 }

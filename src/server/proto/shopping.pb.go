@@ -22,12 +22,12 @@ const (
 )
 
 type ShoppingItem struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	Name             string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	TotalQuantity    int32                  `protobuf:"varint,2,opt,name=total_quantity,json=totalQuantity,proto3" json:"total_quantity,omitempty"`
-	AcquiredQuantity int32                  `protobuf:"varint,3,opt,name=acquired_quantity,json=acquiredQuantity,proto3" json:"acquired_quantity,omitempty"`
-	unknownFields    protoimpl.UnknownFields
-	sizeCache        protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	Quantity      *CCounter              `protobuf:"bytes,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	Acquired      *CCounter              `protobuf:"bytes,3,opt,name=acquired,proto3" json:"acquired,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *ShoppingItem) Reset() {
@@ -67,25 +67,27 @@ func (x *ShoppingItem) GetName() string {
 	return ""
 }
 
-func (x *ShoppingItem) GetTotalQuantity() int32 {
+func (x *ShoppingItem) GetQuantity() *CCounter {
 	if x != nil {
-		return x.TotalQuantity
+		return x.Quantity
 	}
-	return 0
+	return nil
 }
 
-func (x *ShoppingItem) GetAcquiredQuantity() int32 {
+func (x *ShoppingItem) GetAcquired() *CCounter {
 	if x != nil {
-		return x.AcquiredQuantity
+		return x.Acquired
 	}
-	return 0
+	return nil
 }
 
 type ShoppingList struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
-	Id            string                   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                   `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
-	Items         map[string]*ShoppingItem `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	ReplicaId     string                   `protobuf:"bytes,1,opt,name=replica_id,json=replicaId,proto3" json:"replica_id,omitempty"`
+	Id            string                   `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
+	Name          string                   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Items         map[string]*ShoppingItem `protobuf:"bytes,4,rep,name=items,proto3" json:"items,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	DotContext    *DotContext              `protobuf:"bytes,5,opt,name=dot_context,json=dotContext,proto3" json:"dot_context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -120,6 +122,13 @@ func (*ShoppingList) Descriptor() ([]byte, []int) {
 	return file_shopping_proto_rawDescGZIP(), []int{1}
 }
 
+func (x *ShoppingList) GetReplicaId() string {
+	if x != nil {
+		return x.ReplicaId
+	}
+	return ""
+}
+
 func (x *ShoppingList) GetId() string {
 	if x != nil {
 		return x.Id
@@ -141,19 +150,31 @@ func (x *ShoppingList) GetItems() map[string]*ShoppingItem {
 	return nil
 }
 
+func (x *ShoppingList) GetDotContext() *DotContext {
+	if x != nil {
+		return x.DotContext
+	}
+	return nil
+}
+
 var File_shopping_proto protoreflect.FileDescriptor
 
 const file_shopping_proto_rawDesc = "" +
 	"\n" +
-	"\x0eshopping.proto\"v\n" +
+	"\x0eshopping.proto\x1a\n" +
+	"crdt.proto\"p\n" +
 	"\fShoppingItem\x12\x12\n" +
 	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
-	"\x0etotal_quantity\x18\x02 \x01(\x05R\rtotalQuantity\x12+\n" +
-	"\x11acquired_quantity\x18\x03 \x01(\x05R\x10acquiredQuantity\"\xab\x01\n" +
-	"\fShoppingList\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x02 \x01(\tR\x04name\x12.\n" +
-	"\x05items\x18\x03 \x03(\v2\x18.ShoppingList.ItemsEntryR\x05items\x1aG\n" +
+	"\bquantity\x18\x02 \x01(\v2\t.CCounterR\bquantity\x12%\n" +
+	"\bacquired\x18\x03 \x01(\v2\t.CCounterR\bacquired\"\xf8\x01\n" +
+	"\fShoppingList\x12\x1d\n" +
+	"\n" +
+	"replica_id\x18\x01 \x01(\tR\treplicaId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x03 \x01(\tR\x04name\x12.\n" +
+	"\x05items\x18\x04 \x03(\v2\x18.ShoppingList.ItemsEntryR\x05items\x12,\n" +
+	"\vdot_context\x18\x05 \x01(\v2\v.DotContextR\n" +
+	"dotContext\x1aG\n" +
 	"\n" +
 	"ItemsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12#\n" +
@@ -176,15 +197,20 @@ var file_shopping_proto_goTypes = []any{
 	(*ShoppingItem)(nil), // 0: ShoppingItem
 	(*ShoppingList)(nil), // 1: ShoppingList
 	nil,                  // 2: ShoppingList.ItemsEntry
+	(*CCounter)(nil),     // 3: CCounter
+	(*DotContext)(nil),   // 4: DotContext
 }
 var file_shopping_proto_depIdxs = []int32{
-	2, // 0: ShoppingList.items:type_name -> ShoppingList.ItemsEntry
-	0, // 1: ShoppingList.ItemsEntry.value:type_name -> ShoppingItem
-	2, // [2:2] is the sub-list for method output_type
-	2, // [2:2] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	3, // 0: ShoppingItem.quantity:type_name -> CCounter
+	3, // 1: ShoppingItem.acquired:type_name -> CCounter
+	2, // 2: ShoppingList.items:type_name -> ShoppingList.ItemsEntry
+	4, // 3: ShoppingList.dot_context:type_name -> DotContext
+	0, // 4: ShoppingList.ItemsEntry.value:type_name -> ShoppingItem
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_shopping_proto_init() }
@@ -192,6 +218,7 @@ func file_shopping_proto_init() {
 	if File_shopping_proto != nil {
 		return
 	}
+	file_crdt_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{

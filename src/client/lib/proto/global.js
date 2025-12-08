@@ -243,8 +243,8 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
      * @exports IShoppingItem
      * @interface IShoppingItem
      * @property {string|null} [name] ShoppingItem name
-     * @property {number|null} [totalQuantity] ShoppingItem totalQuantity
-     * @property {number|null} [acquiredQuantity] ShoppingItem acquiredQuantity
+     * @property {ICCounter|null} [quantity] ShoppingItem quantity
+     * @property {ICCounter|null} [acquired] ShoppingItem acquired
      */
 
     /**
@@ -271,20 +271,20 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
     ShoppingItem.prototype.name = "";
 
     /**
-     * ShoppingItem totalQuantity.
-     * @member {number} totalQuantity
+     * ShoppingItem quantity.
+     * @member {ICCounter|null|undefined} quantity
      * @memberof ShoppingItem
      * @instance
      */
-    ShoppingItem.prototype.totalQuantity = 0;
+    ShoppingItem.prototype.quantity = null;
 
     /**
-     * ShoppingItem acquiredQuantity.
-     * @member {number} acquiredQuantity
+     * ShoppingItem acquired.
+     * @member {ICCounter|null|undefined} acquired
      * @memberof ShoppingItem
      * @instance
      */
-    ShoppingItem.prototype.acquiredQuantity = 0;
+    ShoppingItem.prototype.acquired = null;
 
     /**
      * Creates a new ShoppingItem instance using the specified properties.
@@ -312,10 +312,10 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
             writer = $Writer.create();
         if (message.name != null && Object.hasOwnProperty.call(message, "name"))
             writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
-        if (message.totalQuantity != null && Object.hasOwnProperty.call(message, "totalQuantity"))
-            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.totalQuantity);
-        if (message.acquiredQuantity != null && Object.hasOwnProperty.call(message, "acquiredQuantity"))
-            writer.uint32(/* id 3, wireType 0 =*/24).int32(message.acquiredQuantity);
+        if (message.quantity != null && Object.hasOwnProperty.call(message, "quantity"))
+            $root.CCounter.encode(message.quantity, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+        if (message.acquired != null && Object.hasOwnProperty.call(message, "acquired"))
+            $root.CCounter.encode(message.acquired, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
         return writer;
     };
 
@@ -357,11 +357,11 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
                     break;
                 }
             case 2: {
-                    message.totalQuantity = reader.int32();
+                    message.quantity = $root.CCounter.decode(reader, reader.uint32());
                     break;
                 }
             case 3: {
-                    message.acquiredQuantity = reader.int32();
+                    message.acquired = $root.CCounter.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -402,12 +402,16 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
         if (message.name != null && message.hasOwnProperty("name"))
             if (!$util.isString(message.name))
                 return "name: string expected";
-        if (message.totalQuantity != null && message.hasOwnProperty("totalQuantity"))
-            if (!$util.isInteger(message.totalQuantity))
-                return "totalQuantity: integer expected";
-        if (message.acquiredQuantity != null && message.hasOwnProperty("acquiredQuantity"))
-            if (!$util.isInteger(message.acquiredQuantity))
-                return "acquiredQuantity: integer expected";
+        if (message.quantity != null && message.hasOwnProperty("quantity")) {
+            let error = $root.CCounter.verify(message.quantity);
+            if (error)
+                return "quantity." + error;
+        }
+        if (message.acquired != null && message.hasOwnProperty("acquired")) {
+            let error = $root.CCounter.verify(message.acquired);
+            if (error)
+                return "acquired." + error;
+        }
         return null;
     };
 
@@ -425,10 +429,16 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
         let message = new $root.ShoppingItem();
         if (object.name != null)
             message.name = String(object.name);
-        if (object.totalQuantity != null)
-            message.totalQuantity = object.totalQuantity | 0;
-        if (object.acquiredQuantity != null)
-            message.acquiredQuantity = object.acquiredQuantity | 0;
+        if (object.quantity != null) {
+            if (typeof object.quantity !== "object")
+                throw TypeError(".ShoppingItem.quantity: object expected");
+            message.quantity = $root.CCounter.fromObject(object.quantity);
+        }
+        if (object.acquired != null) {
+            if (typeof object.acquired !== "object")
+                throw TypeError(".ShoppingItem.acquired: object expected");
+            message.acquired = $root.CCounter.fromObject(object.acquired);
+        }
         return message;
     };
 
@@ -447,15 +457,15 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
         let object = {};
         if (options.defaults) {
             object.name = "";
-            object.totalQuantity = 0;
-            object.acquiredQuantity = 0;
+            object.quantity = null;
+            object.acquired = null;
         }
         if (message.name != null && message.hasOwnProperty("name"))
             object.name = message.name;
-        if (message.totalQuantity != null && message.hasOwnProperty("totalQuantity"))
-            object.totalQuantity = message.totalQuantity;
-        if (message.acquiredQuantity != null && message.hasOwnProperty("acquiredQuantity"))
-            object.acquiredQuantity = message.acquiredQuantity;
+        if (message.quantity != null && message.hasOwnProperty("quantity"))
+            object.quantity = $root.CCounter.toObject(message.quantity, options);
+        if (message.acquired != null && message.hasOwnProperty("acquired"))
+            object.acquired = $root.CCounter.toObject(message.acquired, options);
         return object;
     };
 
@@ -494,9 +504,11 @@ export const ShoppingList = $root.ShoppingList = (() => {
      * Properties of a ShoppingList.
      * @exports IShoppingList
      * @interface IShoppingList
+     * @property {string|null} [replicaId] ShoppingList replicaId
      * @property {string|null} [id] ShoppingList id
      * @property {string|null} [name] ShoppingList name
      * @property {Object.<string,IShoppingItem>|null} [items] ShoppingList items
+     * @property {IDotContext|null} [dotContext] ShoppingList dotContext
      */
 
     /**
@@ -514,6 +526,14 @@ export const ShoppingList = $root.ShoppingList = (() => {
                 if (properties[keys[i]] != null)
                     this[keys[i]] = properties[keys[i]];
     }
+
+    /**
+     * ShoppingList replicaId.
+     * @member {string} replicaId
+     * @memberof ShoppingList
+     * @instance
+     */
+    ShoppingList.prototype.replicaId = "";
 
     /**
      * ShoppingList id.
@@ -540,6 +560,14 @@ export const ShoppingList = $root.ShoppingList = (() => {
     ShoppingList.prototype.items = $util.emptyObject;
 
     /**
+     * ShoppingList dotContext.
+     * @member {IDotContext|null|undefined} dotContext
+     * @memberof ShoppingList
+     * @instance
+     */
+    ShoppingList.prototype.dotContext = null;
+
+    /**
      * Creates a new ShoppingList instance using the specified properties.
      * @function create
      * @memberof ShoppingList
@@ -563,15 +591,19 @@ export const ShoppingList = $root.ShoppingList = (() => {
     ShoppingList.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
+        if (message.replicaId != null && Object.hasOwnProperty.call(message, "replicaId"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.replicaId);
         if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-            writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
+            writer.uint32(/* id 2, wireType 2 =*/18).string(message.id);
         if (message.name != null && Object.hasOwnProperty.call(message, "name"))
-            writer.uint32(/* id 2, wireType 2 =*/18).string(message.name);
+            writer.uint32(/* id 3, wireType 2 =*/26).string(message.name);
         if (message.items != null && Object.hasOwnProperty.call(message, "items"))
             for (let keys = Object.keys(message.items), i = 0; i < keys.length; ++i) {
-                writer.uint32(/* id 3, wireType 2 =*/26).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
+                writer.uint32(/* id 4, wireType 2 =*/34).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
                 $root.ShoppingItem.encode(message.items[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
             }
+        if (message.dotContext != null && Object.hasOwnProperty.call(message, "dotContext"))
+            $root.DotContext.encode(message.dotContext, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
         return writer;
     };
 
@@ -609,14 +641,18 @@ export const ShoppingList = $root.ShoppingList = (() => {
                 break;
             switch (tag >>> 3) {
             case 1: {
-                    message.id = reader.string();
+                    message.replicaId = reader.string();
                     break;
                 }
             case 2: {
-                    message.name = reader.string();
+                    message.id = reader.string();
                     break;
                 }
             case 3: {
+                    message.name = reader.string();
+                    break;
+                }
+            case 4: {
                     if (message.items === $util.emptyObject)
                         message.items = {};
                     let end2 = reader.uint32() + reader.pos;
@@ -637,6 +673,10 @@ export const ShoppingList = $root.ShoppingList = (() => {
                         }
                     }
                     message.items[key] = value;
+                    break;
+                }
+            case 5: {
+                    message.dotContext = $root.DotContext.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -674,6 +714,9 @@ export const ShoppingList = $root.ShoppingList = (() => {
     ShoppingList.verify = function verify(message) {
         if (typeof message !== "object" || message === null)
             return "object expected";
+        if (message.replicaId != null && message.hasOwnProperty("replicaId"))
+            if (!$util.isString(message.replicaId))
+                return "replicaId: string expected";
         if (message.id != null && message.hasOwnProperty("id"))
             if (!$util.isString(message.id))
                 return "id: string expected";
@@ -690,6 +733,11 @@ export const ShoppingList = $root.ShoppingList = (() => {
                     return "items." + error;
             }
         }
+        if (message.dotContext != null && message.hasOwnProperty("dotContext")) {
+            let error = $root.DotContext.verify(message.dotContext);
+            if (error)
+                return "dotContext." + error;
+        }
         return null;
     };
 
@@ -705,6 +753,8 @@ export const ShoppingList = $root.ShoppingList = (() => {
         if (object instanceof $root.ShoppingList)
             return object;
         let message = new $root.ShoppingList();
+        if (object.replicaId != null)
+            message.replicaId = String(object.replicaId);
         if (object.id != null)
             message.id = String(object.id);
         if (object.name != null)
@@ -718,6 +768,11 @@ export const ShoppingList = $root.ShoppingList = (() => {
                     throw TypeError(".ShoppingList.items: object expected");
                 message.items[keys[i]] = $root.ShoppingItem.fromObject(object.items[keys[i]]);
             }
+        }
+        if (object.dotContext != null) {
+            if (typeof object.dotContext !== "object")
+                throw TypeError(".ShoppingList.dotContext: object expected");
+            message.dotContext = $root.DotContext.fromObject(object.dotContext);
         }
         return message;
     };
@@ -738,9 +793,13 @@ export const ShoppingList = $root.ShoppingList = (() => {
         if (options.objects || options.defaults)
             object.items = {};
         if (options.defaults) {
+            object.replicaId = "";
             object.id = "";
             object.name = "";
+            object.dotContext = null;
         }
+        if (message.replicaId != null && message.hasOwnProperty("replicaId"))
+            object.replicaId = message.replicaId;
         if (message.id != null && message.hasOwnProperty("id"))
             object.id = message.id;
         if (message.name != null && message.hasOwnProperty("name"))
@@ -751,6 +810,8 @@ export const ShoppingList = $root.ShoppingList = (() => {
             for (let j = 0; j < keys2.length; ++j)
                 object.items[keys2[j]] = $root.ShoppingItem.toObject(message.items[keys2[j]], options);
         }
+        if (message.dotContext != null && message.hasOwnProperty("dotContext"))
+            object.dotContext = $root.DotContext.toObject(message.dotContext, options);
         return object;
     };
 
@@ -781,6 +842,1014 @@ export const ShoppingList = $root.ShoppingList = (() => {
     };
 
     return ShoppingList;
+})();
+
+export const Dot = $root.Dot = (() => {
+
+    /**
+     * Properties of a Dot.
+     * @exports IDot
+     * @interface IDot
+     * @property {string|null} [id] Dot id
+     * @property {number|null} [seq] Dot seq
+     */
+
+    /**
+     * Constructs a new Dot.
+     * @exports Dot
+     * @classdesc Represents a Dot.
+     * @implements IDot
+     * @constructor
+     * @param {IDot=} [properties] Properties to set
+     */
+    function Dot(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * Dot id.
+     * @member {string} id
+     * @memberof Dot
+     * @instance
+     */
+    Dot.prototype.id = "";
+
+    /**
+     * Dot seq.
+     * @member {number} seq
+     * @memberof Dot
+     * @instance
+     */
+    Dot.prototype.seq = 0;
+
+    /**
+     * Creates a new Dot instance using the specified properties.
+     * @function create
+     * @memberof Dot
+     * @static
+     * @param {IDot=} [properties] Properties to set
+     * @returns {Dot} Dot instance
+     */
+    Dot.create = function create(properties) {
+        return new Dot(properties);
+    };
+
+    /**
+     * Encodes the specified Dot message. Does not implicitly {@link Dot.verify|verify} messages.
+     * @function encode
+     * @memberof Dot
+     * @static
+     * @param {IDot} message Dot message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Dot.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
+        if (message.seq != null && Object.hasOwnProperty.call(message, "seq"))
+            writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.seq);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified Dot message, length delimited. Does not implicitly {@link Dot.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof Dot
+     * @static
+     * @param {IDot} message Dot message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Dot.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a Dot message from the specified reader or buffer.
+     * @function decode
+     * @memberof Dot
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {Dot} Dot
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Dot.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.Dot();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.id = reader.string();
+                    break;
+                }
+            case 2: {
+                    message.seq = reader.uint32();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a Dot message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof Dot
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {Dot} Dot
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Dot.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a Dot message.
+     * @function verify
+     * @memberof Dot
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    Dot.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.id != null && message.hasOwnProperty("id"))
+            if (!$util.isString(message.id))
+                return "id: string expected";
+        if (message.seq != null && message.hasOwnProperty("seq"))
+            if (!$util.isInteger(message.seq))
+                return "seq: integer expected";
+        return null;
+    };
+
+    /**
+     * Creates a Dot message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof Dot
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {Dot} Dot
+     */
+    Dot.fromObject = function fromObject(object) {
+        if (object instanceof $root.Dot)
+            return object;
+        let message = new $root.Dot();
+        if (object.id != null)
+            message.id = String(object.id);
+        if (object.seq != null)
+            message.seq = object.seq >>> 0;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a Dot message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof Dot
+     * @static
+     * @param {Dot} message Dot
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    Dot.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.id = "";
+            object.seq = 0;
+        }
+        if (message.id != null && message.hasOwnProperty("id"))
+            object.id = message.id;
+        if (message.seq != null && message.hasOwnProperty("seq"))
+            object.seq = message.seq;
+        return object;
+    };
+
+    /**
+     * Converts this Dot to JSON.
+     * @function toJSON
+     * @memberof Dot
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    Dot.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for Dot
+     * @function getTypeUrl
+     * @memberof Dot
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    Dot.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/Dot";
+    };
+
+    return Dot;
+})();
+
+export const DotContext = $root.DotContext = (() => {
+
+    /**
+     * Properties of a DotContext.
+     * @exports IDotContext
+     * @interface IDotContext
+     * @property {Object.<string,number>|null} [versionVector] DotContext versionVector
+     * @property {Array.<IDot>|null} [dots] DotContext dots
+     */
+
+    /**
+     * Constructs a new DotContext.
+     * @exports DotContext
+     * @classdesc Represents a DotContext.
+     * @implements IDotContext
+     * @constructor
+     * @param {IDotContext=} [properties] Properties to set
+     */
+    function DotContext(properties) {
+        this.versionVector = {};
+        this.dots = [];
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * DotContext versionVector.
+     * @member {Object.<string,number>} versionVector
+     * @memberof DotContext
+     * @instance
+     */
+    DotContext.prototype.versionVector = $util.emptyObject;
+
+    /**
+     * DotContext dots.
+     * @member {Array.<IDot>} dots
+     * @memberof DotContext
+     * @instance
+     */
+    DotContext.prototype.dots = $util.emptyArray;
+
+    /**
+     * Creates a new DotContext instance using the specified properties.
+     * @function create
+     * @memberof DotContext
+     * @static
+     * @param {IDotContext=} [properties] Properties to set
+     * @returns {DotContext} DotContext instance
+     */
+    DotContext.create = function create(properties) {
+        return new DotContext(properties);
+    };
+
+    /**
+     * Encodes the specified DotContext message. Does not implicitly {@link DotContext.verify|verify} messages.
+     * @function encode
+     * @memberof DotContext
+     * @static
+     * @param {IDotContext} message DotContext message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    DotContext.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.versionVector != null && Object.hasOwnProperty.call(message, "versionVector"))
+            for (let keys = Object.keys(message.versionVector), i = 0; i < keys.length; ++i)
+                writer.uint32(/* id 1, wireType 2 =*/10).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]).uint32(/* id 2, wireType 0 =*/16).uint32(message.versionVector[keys[i]]).ldelim();
+        if (message.dots != null && message.dots.length)
+            for (let i = 0; i < message.dots.length; ++i)
+                $root.Dot.encode(message.dots[i], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified DotContext message, length delimited. Does not implicitly {@link DotContext.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof DotContext
+     * @static
+     * @param {IDotContext} message DotContext message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    DotContext.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a DotContext message from the specified reader or buffer.
+     * @function decode
+     * @memberof DotContext
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {DotContext} DotContext
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    DotContext.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.DotContext(), key, value;
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    if (message.versionVector === $util.emptyObject)
+                        message.versionVector = {};
+                    let end2 = reader.uint32() + reader.pos;
+                    key = "";
+                    value = 0;
+                    while (reader.pos < end2) {
+                        let tag2 = reader.uint32();
+                        switch (tag2 >>> 3) {
+                        case 1:
+                            key = reader.string();
+                            break;
+                        case 2:
+                            value = reader.uint32();
+                            break;
+                        default:
+                            reader.skipType(tag2 & 7);
+                            break;
+                        }
+                    }
+                    message.versionVector[key] = value;
+                    break;
+                }
+            case 2: {
+                    if (!(message.dots && message.dots.length))
+                        message.dots = [];
+                    message.dots.push($root.Dot.decode(reader, reader.uint32()));
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a DotContext message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof DotContext
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {DotContext} DotContext
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    DotContext.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a DotContext message.
+     * @function verify
+     * @memberof DotContext
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    DotContext.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.versionVector != null && message.hasOwnProperty("versionVector")) {
+            if (!$util.isObject(message.versionVector))
+                return "versionVector: object expected";
+            let key = Object.keys(message.versionVector);
+            for (let i = 0; i < key.length; ++i)
+                if (!$util.isInteger(message.versionVector[key[i]]))
+                    return "versionVector: integer{k:string} expected";
+        }
+        if (message.dots != null && message.hasOwnProperty("dots")) {
+            if (!Array.isArray(message.dots))
+                return "dots: array expected";
+            for (let i = 0; i < message.dots.length; ++i) {
+                let error = $root.Dot.verify(message.dots[i]);
+                if (error)
+                    return "dots." + error;
+            }
+        }
+        return null;
+    };
+
+    /**
+     * Creates a DotContext message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof DotContext
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {DotContext} DotContext
+     */
+    DotContext.fromObject = function fromObject(object) {
+        if (object instanceof $root.DotContext)
+            return object;
+        let message = new $root.DotContext();
+        if (object.versionVector) {
+            if (typeof object.versionVector !== "object")
+                throw TypeError(".DotContext.versionVector: object expected");
+            message.versionVector = {};
+            for (let keys = Object.keys(object.versionVector), i = 0; i < keys.length; ++i)
+                message.versionVector[keys[i]] = object.versionVector[keys[i]] >>> 0;
+        }
+        if (object.dots) {
+            if (!Array.isArray(object.dots))
+                throw TypeError(".DotContext.dots: array expected");
+            message.dots = [];
+            for (let i = 0; i < object.dots.length; ++i) {
+                if (typeof object.dots[i] !== "object")
+                    throw TypeError(".DotContext.dots: object expected");
+                message.dots[i] = $root.Dot.fromObject(object.dots[i]);
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a DotContext message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof DotContext
+     * @static
+     * @param {DotContext} message DotContext
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    DotContext.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.arrays || options.defaults)
+            object.dots = [];
+        if (options.objects || options.defaults)
+            object.versionVector = {};
+        let keys2;
+        if (message.versionVector && (keys2 = Object.keys(message.versionVector)).length) {
+            object.versionVector = {};
+            for (let j = 0; j < keys2.length; ++j)
+                object.versionVector[keys2[j]] = message.versionVector[keys2[j]];
+        }
+        if (message.dots && message.dots.length) {
+            object.dots = [];
+            for (let j = 0; j < message.dots.length; ++j)
+                object.dots[j] = $root.Dot.toObject(message.dots[j], options);
+        }
+        return object;
+    };
+
+    /**
+     * Converts this DotContext to JSON.
+     * @function toJSON
+     * @memberof DotContext
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    DotContext.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for DotContext
+     * @function getTypeUrl
+     * @memberof DotContext
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    DotContext.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/DotContext";
+    };
+
+    return DotContext;
+})();
+
+export const DotKernel = $root.DotKernel = (() => {
+
+    /**
+     * Properties of a DotKernel.
+     * @exports IDotKernel
+     * @interface IDotKernel
+     * @property {Array.<IDot>|null} [dotKeys] DotKernel dotKeys
+     * @property {Array.<number|Long>|null} [dotValues] DotKernel dotValues
+     */
+
+    /**
+     * Constructs a new DotKernel.
+     * @exports DotKernel
+     * @classdesc Represents a DotKernel.
+     * @implements IDotKernel
+     * @constructor
+     * @param {IDotKernel=} [properties] Properties to set
+     */
+    function DotKernel(properties) {
+        this.dotKeys = [];
+        this.dotValues = [];
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * DotKernel dotKeys.
+     * @member {Array.<IDot>} dotKeys
+     * @memberof DotKernel
+     * @instance
+     */
+    DotKernel.prototype.dotKeys = $util.emptyArray;
+
+    /**
+     * DotKernel dotValues.
+     * @member {Array.<number|Long>} dotValues
+     * @memberof DotKernel
+     * @instance
+     */
+    DotKernel.prototype.dotValues = $util.emptyArray;
+
+    /**
+     * Creates a new DotKernel instance using the specified properties.
+     * @function create
+     * @memberof DotKernel
+     * @static
+     * @param {IDotKernel=} [properties] Properties to set
+     * @returns {DotKernel} DotKernel instance
+     */
+    DotKernel.create = function create(properties) {
+        return new DotKernel(properties);
+    };
+
+    /**
+     * Encodes the specified DotKernel message. Does not implicitly {@link DotKernel.verify|verify} messages.
+     * @function encode
+     * @memberof DotKernel
+     * @static
+     * @param {IDotKernel} message DotKernel message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    DotKernel.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.dotKeys != null && message.dotKeys.length)
+            for (let i = 0; i < message.dotKeys.length; ++i)
+                $root.Dot.encode(message.dotKeys[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        if (message.dotValues != null && message.dotValues.length) {
+            writer.uint32(/* id 2, wireType 2 =*/18).fork();
+            for (let i = 0; i < message.dotValues.length; ++i)
+                writer.int64(message.dotValues[i]);
+            writer.ldelim();
+        }
+        return writer;
+    };
+
+    /**
+     * Encodes the specified DotKernel message, length delimited. Does not implicitly {@link DotKernel.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof DotKernel
+     * @static
+     * @param {IDotKernel} message DotKernel message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    DotKernel.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a DotKernel message from the specified reader or buffer.
+     * @function decode
+     * @memberof DotKernel
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {DotKernel} DotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    DotKernel.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.DotKernel();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    if (!(message.dotKeys && message.dotKeys.length))
+                        message.dotKeys = [];
+                    message.dotKeys.push($root.Dot.decode(reader, reader.uint32()));
+                    break;
+                }
+            case 2: {
+                    if (!(message.dotValues && message.dotValues.length))
+                        message.dotValues = [];
+                    if ((tag & 7) === 2) {
+                        let end2 = reader.uint32() + reader.pos;
+                        while (reader.pos < end2)
+                            message.dotValues.push(reader.int64());
+                    } else
+                        message.dotValues.push(reader.int64());
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a DotKernel message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof DotKernel
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {DotKernel} DotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    DotKernel.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a DotKernel message.
+     * @function verify
+     * @memberof DotKernel
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    DotKernel.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.dotKeys != null && message.hasOwnProperty("dotKeys")) {
+            if (!Array.isArray(message.dotKeys))
+                return "dotKeys: array expected";
+            for (let i = 0; i < message.dotKeys.length; ++i) {
+                let error = $root.Dot.verify(message.dotKeys[i]);
+                if (error)
+                    return "dotKeys." + error;
+            }
+        }
+        if (message.dotValues != null && message.hasOwnProperty("dotValues")) {
+            if (!Array.isArray(message.dotValues))
+                return "dotValues: array expected";
+            for (let i = 0; i < message.dotValues.length; ++i)
+                if (!$util.isInteger(message.dotValues[i]) && !(message.dotValues[i] && $util.isInteger(message.dotValues[i].low) && $util.isInteger(message.dotValues[i].high)))
+                    return "dotValues: integer|Long[] expected";
+        }
+        return null;
+    };
+
+    /**
+     * Creates a DotKernel message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof DotKernel
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {DotKernel} DotKernel
+     */
+    DotKernel.fromObject = function fromObject(object) {
+        if (object instanceof $root.DotKernel)
+            return object;
+        let message = new $root.DotKernel();
+        if (object.dotKeys) {
+            if (!Array.isArray(object.dotKeys))
+                throw TypeError(".DotKernel.dotKeys: array expected");
+            message.dotKeys = [];
+            for (let i = 0; i < object.dotKeys.length; ++i) {
+                if (typeof object.dotKeys[i] !== "object")
+                    throw TypeError(".DotKernel.dotKeys: object expected");
+                message.dotKeys[i] = $root.Dot.fromObject(object.dotKeys[i]);
+            }
+        }
+        if (object.dotValues) {
+            if (!Array.isArray(object.dotValues))
+                throw TypeError(".DotKernel.dotValues: array expected");
+            message.dotValues = [];
+            for (let i = 0; i < object.dotValues.length; ++i)
+                if ($util.Long)
+                    (message.dotValues[i] = $util.Long.fromValue(object.dotValues[i])).unsigned = false;
+                else if (typeof object.dotValues[i] === "string")
+                    message.dotValues[i] = parseInt(object.dotValues[i], 10);
+                else if (typeof object.dotValues[i] === "number")
+                    message.dotValues[i] = object.dotValues[i];
+                else if (typeof object.dotValues[i] === "object")
+                    message.dotValues[i] = new $util.LongBits(object.dotValues[i].low >>> 0, object.dotValues[i].high >>> 0).toNumber();
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a DotKernel message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof DotKernel
+     * @static
+     * @param {DotKernel} message DotKernel
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    DotKernel.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.arrays || options.defaults) {
+            object.dotKeys = [];
+            object.dotValues = [];
+        }
+        if (message.dotKeys && message.dotKeys.length) {
+            object.dotKeys = [];
+            for (let j = 0; j < message.dotKeys.length; ++j)
+                object.dotKeys[j] = $root.Dot.toObject(message.dotKeys[j], options);
+        }
+        if (message.dotValues && message.dotValues.length) {
+            object.dotValues = [];
+            for (let j = 0; j < message.dotValues.length; ++j)
+                if (typeof message.dotValues[j] === "number")
+                    object.dotValues[j] = options.longs === String ? String(message.dotValues[j]) : message.dotValues[j];
+                else
+                    object.dotValues[j] = options.longs === String ? $util.Long.prototype.toString.call(message.dotValues[j]) : options.longs === Number ? new $util.LongBits(message.dotValues[j].low >>> 0, message.dotValues[j].high >>> 0).toNumber() : message.dotValues[j];
+        }
+        return object;
+    };
+
+    /**
+     * Converts this DotKernel to JSON.
+     * @function toJSON
+     * @memberof DotKernel
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    DotKernel.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for DotKernel
+     * @function getTypeUrl
+     * @memberof DotKernel
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    DotKernel.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/DotKernel";
+    };
+
+    return DotKernel;
+})();
+
+export const CCounter = $root.CCounter = (() => {
+
+    /**
+     * Properties of a CCounter.
+     * @exports ICCounter
+     * @interface ICCounter
+     * @property {IDotKernel|null} [dotKernel] CCounter dotKernel
+     */
+
+    /**
+     * Constructs a new CCounter.
+     * @exports CCounter
+     * @classdesc Represents a CCounter.
+     * @implements ICCounter
+     * @constructor
+     * @param {ICCounter=} [properties] Properties to set
+     */
+    function CCounter(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * CCounter dotKernel.
+     * @member {IDotKernel|null|undefined} dotKernel
+     * @memberof CCounter
+     * @instance
+     */
+    CCounter.prototype.dotKernel = null;
+
+    /**
+     * Creates a new CCounter instance using the specified properties.
+     * @function create
+     * @memberof CCounter
+     * @static
+     * @param {ICCounter=} [properties] Properties to set
+     * @returns {CCounter} CCounter instance
+     */
+    CCounter.create = function create(properties) {
+        return new CCounter(properties);
+    };
+
+    /**
+     * Encodes the specified CCounter message. Does not implicitly {@link CCounter.verify|verify} messages.
+     * @function encode
+     * @memberof CCounter
+     * @static
+     * @param {ICCounter} message CCounter message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    CCounter.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.dotKernel != null && Object.hasOwnProperty.call(message, "dotKernel"))
+            $root.DotKernel.encode(message.dotKernel, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified CCounter message, length delimited. Does not implicitly {@link CCounter.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof CCounter
+     * @static
+     * @param {ICCounter} message CCounter message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    CCounter.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a CCounter message from the specified reader or buffer.
+     * @function decode
+     * @memberof CCounter
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {CCounter} CCounter
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    CCounter.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.CCounter();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.dotKernel = $root.DotKernel.decode(reader, reader.uint32());
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a CCounter message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof CCounter
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {CCounter} CCounter
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    CCounter.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a CCounter message.
+     * @function verify
+     * @memberof CCounter
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    CCounter.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.dotKernel != null && message.hasOwnProperty("dotKernel")) {
+            let error = $root.DotKernel.verify(message.dotKernel);
+            if (error)
+                return "dotKernel." + error;
+        }
+        return null;
+    };
+
+    /**
+     * Creates a CCounter message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof CCounter
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {CCounter} CCounter
+     */
+    CCounter.fromObject = function fromObject(object) {
+        if (object instanceof $root.CCounter)
+            return object;
+        let message = new $root.CCounter();
+        if (object.dotKernel != null) {
+            if (typeof object.dotKernel !== "object")
+                throw TypeError(".CCounter.dotKernel: object expected");
+            message.dotKernel = $root.DotKernel.fromObject(object.dotKernel);
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a CCounter message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof CCounter
+     * @static
+     * @param {CCounter} message CCounter
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    CCounter.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            object.dotKernel = null;
+        if (message.dotKernel != null && message.hasOwnProperty("dotKernel"))
+            object.dotKernel = $root.DotKernel.toObject(message.dotKernel, options);
+        return object;
+    };
+
+    /**
+     * Converts this CCounter to JSON.
+     * @function toJSON
+     * @memberof CCounter
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    CCounter.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for CCounter
+     * @function getTypeUrl
+     * @memberof CCounter
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    CCounter.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/CCounter";
+    };
+
+    return CCounter;
 })();
 
 export { $root as default };

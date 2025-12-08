@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option go_package = "gitlab.up.pt/classes/sdle/2025/t2/g01";
+
+message Dot {
+    string id = 1;
+    uint32 seq = 2;
+}
+
+message DotContext {
+    map<string, uint32> version_vector = 1;
+    repeated Dot dots = 2;
+}
+
+message DotKernel {
+    repeated Dot dot_keys = 1;
+    repeated int64 dot_values = 2;
+}
+
+message CCounter {
+    DotKernel dot_kernel = 1;
+}

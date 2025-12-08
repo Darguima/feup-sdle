@@ -106,11 +106,11 @@ export interface IShoppingItem {
     /** ShoppingItem name */
     name?: (string|null);
 
-    /** ShoppingItem totalQuantity */
-    totalQuantity?: (number|null);
+    /** ShoppingItem quantity */
+    quantity?: (ICCounter|null);
 
-    /** ShoppingItem acquiredQuantity */
-    acquiredQuantity?: (number|null);
+    /** ShoppingItem acquired */
+    acquired?: (ICCounter|null);
 }
 
 /** Represents a ShoppingItem. */
@@ -125,11 +125,11 @@ export class ShoppingItem implements IShoppingItem {
     /** ShoppingItem name. */
     public name: string;
 
-    /** ShoppingItem totalQuantity. */
-    public totalQuantity: number;
+    /** ShoppingItem quantity. */
+    public quantity?: (ICCounter|null);
 
-    /** ShoppingItem acquiredQuantity. */
-    public acquiredQuantity: number;
+    /** ShoppingItem acquired. */
+    public acquired?: (ICCounter|null);
 
     /**
      * Creates a new ShoppingItem instance using the specified properties.
@@ -212,6 +212,9 @@ export class ShoppingItem implements IShoppingItem {
 /** Properties of a ShoppingList. */
 export interface IShoppingList {
 
+    /** ShoppingList replicaId */
+    replicaId?: (string|null);
+
     /** ShoppingList id */
     id?: (string|null);
 
@@ -220,6 +223,9 @@ export interface IShoppingList {
 
     /** ShoppingList items */
     items?: ({ [k: string]: IShoppingItem }|null);
+
+    /** ShoppingList dotContext */
+    dotContext?: (IDotContext|null);
 }
 
 /** Represents a ShoppingList. */
@@ -231,6 +237,9 @@ export class ShoppingList implements IShoppingList {
      */
     constructor(properties?: IShoppingList);
 
+    /** ShoppingList replicaId. */
+    public replicaId: string;
+
     /** ShoppingList id. */
     public id: string;
 
@@ -239,6 +248,9 @@ export class ShoppingList implements IShoppingList {
 
     /** ShoppingList items. */
     public items: { [k: string]: IShoppingItem };
+
+    /** ShoppingList dotContext. */
+    public dotContext?: (IDotContext|null);
 
     /**
      * Creates a new ShoppingList instance using the specified properties.
@@ -312,6 +324,412 @@ export class ShoppingList implements IShoppingList {
 
     /**
      * Gets the default type url for ShoppingList
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Properties of a Dot. */
+export interface IDot {
+
+    /** Dot id */
+    id?: (string|null);
+
+    /** Dot seq */
+    seq?: (number|null);
+}
+
+/** Represents a Dot. */
+export class Dot implements IDot {
+
+    /**
+     * Constructs a new Dot.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IDot);
+
+    /** Dot id. */
+    public id: string;
+
+    /** Dot seq. */
+    public seq: number;
+
+    /**
+     * Creates a new Dot instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns Dot instance
+     */
+    public static create(properties?: IDot): Dot;
+
+    /**
+     * Encodes the specified Dot message. Does not implicitly {@link Dot.verify|verify} messages.
+     * @param message Dot message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IDot, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified Dot message, length delimited. Does not implicitly {@link Dot.verify|verify} messages.
+     * @param message Dot message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IDot, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a Dot message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns Dot
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Dot;
+
+    /**
+     * Decodes a Dot message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns Dot
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Dot;
+
+    /**
+     * Verifies a Dot message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a Dot message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns Dot
+     */
+    public static fromObject(object: { [k: string]: any }): Dot;
+
+    /**
+     * Creates a plain object from a Dot message. Also converts values to other types if specified.
+     * @param message Dot
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: Dot, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this Dot to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for Dot
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Properties of a DotContext. */
+export interface IDotContext {
+
+    /** DotContext versionVector */
+    versionVector?: ({ [k: string]: number }|null);
+
+    /** DotContext dots */
+    dots?: (IDot[]|null);
+}
+
+/** Represents a DotContext. */
+export class DotContext implements IDotContext {
+
+    /**
+     * Constructs a new DotContext.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IDotContext);
+
+    /** DotContext versionVector. */
+    public versionVector: { [k: string]: number };
+
+    /** DotContext dots. */
+    public dots: IDot[];
+
+    /**
+     * Creates a new DotContext instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns DotContext instance
+     */
+    public static create(properties?: IDotContext): DotContext;
+
+    /**
+     * Encodes the specified DotContext message. Does not implicitly {@link DotContext.verify|verify} messages.
+     * @param message DotContext message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IDotContext, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified DotContext message, length delimited. Does not implicitly {@link DotContext.verify|verify} messages.
+     * @param message DotContext message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IDotContext, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a DotContext message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns DotContext
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): DotContext;
+
+    /**
+     * Decodes a DotContext message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns DotContext
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): DotContext;
+
+    /**
+     * Verifies a DotContext message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a DotContext message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns DotContext
+     */
+    public static fromObject(object: { [k: string]: any }): DotContext;
+
+    /**
+     * Creates a plain object from a DotContext message. Also converts values to other types if specified.
+     * @param message DotContext
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: DotContext, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this DotContext to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for DotContext
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Properties of a DotKernel. */
+export interface IDotKernel {
+
+    /** DotKernel dotKeys */
+    dotKeys?: (IDot[]|null);
+
+    /** DotKernel dotValues */
+    dotValues?: ((number|Long)[]|null);
+}
+
+/** Represents a DotKernel. */
+export class DotKernel implements IDotKernel {
+
+    /**
+     * Constructs a new DotKernel.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IDotKernel);
+
+    /** DotKernel dotKeys. */
+    public dotKeys: IDot[];
+
+    /** DotKernel dotValues. */
+    public dotValues: (number|Long)[];
+
+    /**
+     * Creates a new DotKernel instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns DotKernel instance
+     */
+    public static create(properties?: IDotKernel): DotKernel;
+
+    /**
+     * Encodes the specified DotKernel message. Does not implicitly {@link DotKernel.verify|verify} messages.
+     * @param message DotKernel message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified DotKernel message, length delimited. Does not implicitly {@link DotKernel.verify|verify} messages.
+     * @param message DotKernel message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a DotKernel message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns DotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): DotKernel;
+
+    /**
+     * Decodes a DotKernel message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns DotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): DotKernel;
+
+    /**
+     * Verifies a DotKernel message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a DotKernel message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns DotKernel
+     */
+    public static fromObject(object: { [k: string]: any }): DotKernel;
+
+    /**
+     * Creates a plain object from a DotKernel message. Also converts values to other types if specified.
+     * @param message DotKernel
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: DotKernel, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this DotKernel to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for DotKernel
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Properties of a CCounter. */
+export interface ICCounter {
+
+    /** CCounter dotKernel */
+    dotKernel?: (IDotKernel|null);
+}
+
+/** Represents a CCounter. */
+export class CCounter implements ICCounter {
+
+    /**
+     * Constructs a new CCounter.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: ICCounter);
+
+    /** CCounter dotKernel. */
+    public dotKernel?: (IDotKernel|null);
+
+    /**
+     * Creates a new CCounter instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns CCounter instance
+     */
+    public static create(properties?: ICCounter): CCounter;
+
+    /**
+     * Encodes the specified CCounter message. Does not implicitly {@link CCounter.verify|verify} messages.
+     * @param message CCounter message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: ICCounter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified CCounter message, length delimited. Does not implicitly {@link CCounter.verify|verify} messages.
+     * @param message CCounter message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: ICCounter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a CCounter message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns CCounter
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): CCounter;
+
+    /**
+     * Decodes a CCounter message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns CCounter
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): CCounter;
+
+    /**
+     * Verifies a CCounter message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a CCounter message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns CCounter
+     */
+    public static fromObject(object: { [k: string]: any }): CCounter;
+
+    /**
+     * Creates a plain object from a CCounter message. Also converts values to other types if specified.
+     * @param message CCounter
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: CCounter, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this CCounter to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for CCounter
      * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
      * @returns The default type url
      */
