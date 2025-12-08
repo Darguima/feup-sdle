@@ -2,8 +2,6 @@ package node
 
 import (
 	"errors"
-	"path/filepath"
-	"sdle-server/storage"
 	"time"
 
 	pb "sdle-server/proto"
@@ -12,45 +10,8 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
-type Node struct {
-	id      string
-	addr    string
-	store   storage.Store
-	repSock *zmq4.Socket
-}
-
-func New(id string, baseDir string) (*Node, error) {
-	addr := "tcp://" + id
-
-	dir := filepath.Join(baseDir, id)
-	store, err := storage.Open(dir)
-
-	if err != nil {
-		return nil, err
-	}
-
-	rep, err := zmq4.NewSocket(zmq4.REP)
-	if err != nil {
-		_ = store.Close()
-		return nil, err
-	}
-
-	if err := rep.Bind(addr); err != nil {
-		_ = rep.Close()
-		_ = store.Close()
-		return nil, err
-	}
-
-	return &Node{
-		id:      id,
-		addr:    addr,
-		store:   *store,
-		repSock: rep,
-	}, nil
-}
-
-func (n *Node) Start() error {
-	println("Node started at " + n.addr)
+func (n *Node) StartReceiving() error {
+	n.log("Socket started at " + n.addr)
 
 	for {
 		msgBytes, err := n.repSock.RecvBytes(0)
@@ -61,7 +22,7 @@ func (n *Node) Start() error {
 
 		var req pb.Request
 		if err := proto.Unmarshal(msgBytes, &req); err != nil {
-			_ = n.SendReplyError("failed to unmarshal request: " + err.Error())
+			_ = n.sendResponseError("failed to unmarshal request: " + err.Error())
 			continue
 		}
 
@@ -92,13 +53,12 @@ func (n *Node) Start() error {
 			n.handleHas(&req)
 
 		default:
-			_ = n.SendReplyError("unknown request type")
+			_ = n.sendResponseError("unknown request type")
 		}
 	}
 }
 
-func (n *Node) SendRequest(peerAddr string, request proto.Message, timeout time.Duration) (*pb.Reply, error) {
-	// println("Node " + n.id + " sending request to " + peerAddr)
+func (n *Node) sendRequest(peerAddr string, request proto.Message, timeout time.Duration) (*pb.Response, error) {
 	reqSock, err := zmq4.NewSocket(zmq4.REQ)
 	if err != nil {
 		return nil, err
@@ -118,14 +78,13 @@ func (n *Node) SendRequest(peerAddr string, request proto.Message, timeout time.
 	if _, err := reqSock.SendBytes(buffer, 0); err != nil {
 		return nil, err
 	}
-	replyBytes, err := reqSock.RecvBytes(0)
-
+	responseBytes, err := reqSock.RecvBytes(0)
 	if err != nil {
 		return nil, err
 	}
 
-	var resp pb.Reply
-	if err := proto.Unmarshal(replyBytes, &resp); err != nil {
+	var resp pb.Response
+	if err := proto.Unmarshal(responseBytes, &resp); err != nil {
 		return nil, err
 	}
 
@@ -135,27 +94,27 @@ func (n *Node) SendRequest(peerAddr string, request proto.Message, timeout time.
 	return &resp, nil
 }
 
-func (n *Node) SendPing(peerAddr string) (*pb.Reply, error) {
+func (n *Node) sendPing(peerAddr string) (*pb.Response, error) {
 	pingReq := &pb.Request{
 		Origin: n.addr,
 		RequestType: &pb.Request_Ping{
 			Ping: &pb.RequestPing{},
 		},
 	}
-	return n.SendRequest(peerAddr, pingReq, 0)
+	return n.sendRequest(peerAddr, pingReq, 5*time.Second)
 }
 
-func (n *Node) SendFetchRing(peerAddr string) (*pb.Reply, error) {
+func (n *Node) sendFetchRing(peerAddr string) (*pb.Response, error) {
 	req := &pb.Request{
 		Origin: n.addr,
 		RequestType: &pb.Request_FetchRing{
 			FetchRing: &pb.RequestFetchRing{},
 		},
 	}
-	return n.SendRequest(peerAddr, req, 0)
+	return n.sendRequest(peerAddr, req, 5*time.Second)
 }
 
-func (n *Node) SendGetHashSpace(peerAddr string, startHashSpace int, endHashSpace int) (*pb.Reply, error) {
+func (n *Node) sendGetHashSpace(peerAddr string, startHashSpace int, endHashSpace int) (*pb.Response, error) {
 	req := &pb.Request{
 		Origin: n.addr,
 		RequestType: &pb.Request_GetHashSpace{
@@ -165,37 +124,79 @@ func (n *Node) SendGetHashSpace(peerAddr string, startHashSpace int, endHashSpac
 			},
 		},
 	}
-	return n.SendRequest(peerAddr, req, 0)
+	return n.sendRequest(peerAddr, req, 5*time.Second)
 }
 
-func (n *Node) SendJoinGossip(peerAddr string, newNodeAddr string, tokens []uint64) (*pb.Reply, error) {
+func (n *Node) sendJoinGossip(peerAddr string, newNodeID string, tokens []uint64) (*pb.Response, error) {
 	req := &pb.Request{
 		Origin: n.addr,
 		RequestType: &pb.Request_GossipJoin{
 			GossipJoin: &pb.RequestGossipJoin{
-				NewNodeAddr: newNodeAddr,
-				Tokens:      tokens,
+				NewNodeId: newNodeID,
+				Tokens:    tokens,
 			},
 		},
 	}
-	return n.SendRequest(peerAddr, req, 0)
+	return n.sendRequest(peerAddr, req, 5*time.Second)
 }
 
-func (n *Node) SendReplyOK(value []byte) error {
-	resp := &pb.Reply{Ok: true, Value: value, Error: ""}
+func (n *Node) sendGet(peerAddr string, key string) (*pb.Response, error) {
+	req := &pb.Request{
+		Origin: n.id,
+		RequestType: &pb.Request_Get{
+			Get: &pb.RequestGet{Key: key},
+		},
+	}
+	return n.sendRequest(peerAddr, req, 5*time.Second)
+}
+
+func (n *Node) sendPut(peerAddr string, key string, value []byte) (*pb.Response, error) {
+	req := &pb.Request{
+		Origin: n.id,
+		RequestType: &pb.Request_Put{
+			Put: &pb.RequestPut{Key: key, Value: value},
+		},
+	}
+	return n.sendRequest(peerAddr, req, 5*time.Second)
+}
+
+func (n *Node) sendDelete(peerAddr string, key string) (*pb.Response, error) {
+	req := &pb.Request{
+		Origin: n.id,
+		RequestType: &pb.Request_Delete{
+			Delete: &pb.RequestDelete{Key: key},
+		},
+	}
+	return n.sendRequest(peerAddr, req, 5*time.Second)
+}
+
+func (n *Node) sendHas(peerAddr string, key string) (*pb.Response, error) {
+	req := &pb.Request{
+		Origin: n.id,
+		RequestType: &pb.Request_Has{
+			Has: &pb.RequestHas{Key: key},
+		},
+	}
+	return n.sendRequest(peerAddr, req, 5*time.Second)
+}
+
+func (n *Node) sendResponseOK(response *pb.Response) error {
+
+	response.Ok = true
+
+	buffer, _ := proto.Marshal(response)
+	_, err := n.repSock.SendBytes(buffer, 0)
+	return err
+}
+
+func (n *Node) sendResponseError(errStr string) error {
+	resp := &pb.Response{Ok: false, Error: errStr}
 	buffer, _ := proto.Marshal(resp)
 	_, err := n.repSock.SendBytes(buffer, 0)
 	return err
 }
 
-func (n *Node) SendReplyError(errStr string) error {
-	resp := &pb.Reply{Ok: false, Error: errStr}
-	buffer, _ := proto.Marshal(resp)
-	_, err := n.repSock.SendBytes(buffer, 0)
-	return err
-}
-
-func (n *Node) Stop() error {
+func (n *Node) StopReceiving() error {
 	var firstErr error
 	if n.repSock != nil {
 		if err := n.repSock.Close(); err != nil {
@@ -207,8 +208,4 @@ func (n *Node) Stop() error {
 		firstErr = err
 	}
 	return firstErr
-}
-
-func (n *Node) GetAddress() string {
-	return n.addr
 }
