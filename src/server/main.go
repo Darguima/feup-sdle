@@ -25,7 +25,7 @@ func create_node(id string) *node.Node {
 func main() {
 	// Server nodes list
 	nodes := []*node.Node{}
-	for i := 5000; i < 5020; i++ {
+	for i := 5000; i < 5004; i++ {
 		node_id := fmt.Sprintf("localhost:%d", i)
 		node := create_node(node_id)
 		nodes = append(nodes, node)
@@ -50,12 +50,8 @@ func main() {
 	// Check ring view of each node
 	println("\n=== Ring View After Stabilization ===")
 	for _, nd := range nodes {
-		view, err := nd.GetRingView()
-		if err != nil {
-			println("Error getting ring view:", err.Error())
-			continue
-		}
-		println("Node", nd.GetAddress(), "sees ring:", view)
+		view := nd.GetRingView()
+		println("Node", nd.GetID(), "sees ", view.ToString())
 	}
 
 	// Wait for shutdown signal

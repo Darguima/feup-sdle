@@ -57,16 +57,6 @@ func NewNode(id string, baseDir string) (*Node, error) {
 		return nil, err
 	}
 
-	n := &Node{
-		id:       id,
-		addr:     addr,
-		wsAddr:   wsAddr,
-		ringView: ringView,
-		store:    *store,
-		repSock:  rep,
-		stopCh:   make(chan struct{}),
-	}
-
 	// Configure websockets
 	host, portStr, err := net.SplitHostPort(id)
 	if err != nil {
@@ -78,6 +68,17 @@ func NewNode(id string, baseDir string) (*Node, error) {
 	}
 	wsPort := port + 3000 // 5000 -> 8000, etc
 	wsAddr := net.JoinHostPort(host, strconv.Itoa(wsPort))
+
+	// Create node instance
+	n := &Node{
+		id:       id,
+		addr:     addr,
+		wsAddr:   wsAddr,
+		ringView: ringView,
+		store:    *store,
+		repSock:  rep,
+		stopCh:   make(chan struct{}),
+	}
 
 	// Setup WebSocket server
 	wsHandler := websocket.NewWebSocketHandler(n)
@@ -92,9 +93,10 @@ func NewNode(id string, baseDir string) (*Node, error) {
 	return n, nil
 }
 
+// Starts completely the node (ZMQ receiver and WebSocket server)
 func (n *Node) Start(errCh chan<- error) {
 	n.wg.Add(2)
-	go n.startReceiving(errCh)
+	go n.startZMQLoop(errCh)
 	go func() {
 		defer n.wg.Done()
 		n.log("starting WebSocket server at " + n.wsAddr)
@@ -104,7 +106,8 @@ func (n *Node) Start(errCh chan<- error) {
 	}()
 }
 
-func (n *Node) startReceiving(errCh chan<- error) {
+// ZMQ message receiving loop
+func (n *Node) startZMQLoop(errCh chan<- error) {
 	defer n.wg.Done()
 	n.log("ZMQ socket started at " + n.addr)
 
@@ -170,6 +173,7 @@ func (n *Node) startReceiving(errCh chan<- error) {
 	}
 }
 
+// Stops the node gracefully
 func (n *Node) Stop() error {
 	close(n.stopCh) // Signal all goroutines to stop
 
@@ -197,7 +201,7 @@ func (n *Node) Stop() error {
 }
 
 // Get the current ring view from a target node and update the local ring view
-func (n *Node) UpdateRingView(targetAddr string) error {
+func (n *Node) updateRingView(targetAddr string) error {
 	resp, err := n.sendFetchRing(targetAddr)
 
 	if err != nil {
@@ -206,7 +210,7 @@ func (n *Node) UpdateRingView(targetAddr string) error {
 
 	fetchRingResp := resp.GetFetchRing()
 	if fetchRingResp == nil {
-		return nil
+		return fmt.Errorf("invalid FetchRing response")
 	}
 
 	// Create new RingView from received tokenToNode map
@@ -220,9 +224,18 @@ func (n *Node) UpdateRingView(targetAddr string) error {
 
 // Adds the new node to the ring - first get the current ring view from a target node, then imports the data for its tokens and finally adds itself to the ring (using gossip to inform other nodes)
 func (n *Node) JoinToRing(targetAddr string) error {
-	n.UpdateRingView(targetAddr)
+	err := n.updateRingView(targetAddr)
 
-	tokens := n.ringView.JoinToRing(n.GetID())
+	if err != nil {
+		return err
+	}
+
+	tokens, added := n.ringView.JoinToRing(n.GetID())
+
+	if !added {
+		n.log("already part of the ring, no action taken.")
+		return nil
+	}
 
 	n.log("joined the ring with tokens: " + fmt.Sprint(tokens))
 
@@ -246,7 +259,7 @@ func (n *Node) JoinToRing(targetAddr string) error {
 		n.log("Gossip Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
 	}
 
-	return nil
+	return err
 }
 
 func (n *Node) GetAddress() string {

@@ -30,7 +30,7 @@ func New() *RingView {
 	}
 }
 
-// NewFromTokenMap creates a new RingView from a tokenToNode map
+// Creates a new RingView from a tokenToNode map
 func NewFromTokenMap(tokenToNode map[uint64]string) *RingView {
 	// Create a new empty RingView
 	rv := New()
@@ -56,13 +56,13 @@ func NewFromTokenMap(tokenToNode map[uint64]string) *RingView {
 }
 
 // Adds a fresh new node to the ring and generates its tokens (used when a new node is being created)
-func (r *RingView) JoinToRing(nodeId string) (tokens []uint64) {
+func (r *RingView) JoinToRing(nodeId string) (tokens []uint64, added bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	// Check if node already exists
 	if slices.Contains(r.nodes, nodeId) {
-		return // Node already exists
+		return nil, false // Node already exists
 	}
 
 	tokens = make([]uint64, 0, r.nTokens)
@@ -91,19 +91,20 @@ func (r *RingView) JoinToRing(nodeId string) (tokens []uint64) {
 	slices.Sort(r.nodes)
 	slices.Sort(r.tokens)
 
-	return tokens
+	return tokens, true
 }
 
-// Adds a node with pre-defined tokens to the ring (used when node info is received from other nodes)
+// Adds a node with pre-defined tokens to the ring (used when node info is received from other nodes). Returns false if the node already exists.
 func (r *RingView) AddNode(nodeId string, tokens []uint64) bool {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	// Check if node already exists
 	if slices.Contains(r.nodes, nodeId) {
-		return false // Node already exists
+		return false
 	}
 
+	// Add tokens the the ring
 	for _, h := range tokens {
 		r.tokenToNode[h] = nodeId
 		r.tokens = append(r.tokens, h)
@@ -116,6 +117,7 @@ func (r *RingView) AddNode(nodeId string, tokens []uint64) bool {
 	return true
 }
 
+// Looks up the node responsible for the given key, and returns (NodeID, success)
 func (r *RingView) Lookup(key string) (string, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -136,6 +138,7 @@ func (r *RingView) Lookup(key string) (string, bool) {
 	return nodeId, true
 }
 
+// Returns the list of neighbor nodes to gossip with, given an origin node
 func (r *RingView) GetGossipNeighborsNodes(originNode string) []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -167,7 +170,7 @@ func hashKey(s string) uint64 {
 	return binary.BigEndian.Uint64(sum[:8])
 }
 
-// GetTokenToNode returns a copy of the tokenToNode map
+// Returns a copy of the tokenToNode map
 func (r *RingView) GetTokenToNode() map[uint64]string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -194,6 +197,7 @@ func (r *RingView) ToString() string {
 	return result
 }
 
+// Returns a copy of the known node IDs
 func (r *RingView) GetKnownIds() []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
