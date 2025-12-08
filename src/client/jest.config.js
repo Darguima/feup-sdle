@@ -7,7 +7,7 @@ module.exports = {
   testEnvironment: "node",
   transform: {
     ...tsJestTransformCfg,
-    '^.+\\.js$': 'babel-jest',
+    "^.+\\.m?[tj]sx?$": "ts-jest",
   },
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1"
