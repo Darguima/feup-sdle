@@ -34,7 +34,7 @@ type Node struct {
 }
 
 func NewNode(id string, baseDir string) (*Node, error) {
-	addr := idToAddr(id)
+	addr := nodeIdToZMQAddr(id)
 
 	// Prepare ring view, storage, and ZMQ socket
 	ringView := ringview.New()
@@ -230,7 +230,7 @@ func (n *Node) JoinToRing(targetAddr string) error {
 		return err
 	}
 
-	tokens, added := n.ringView.JoinToRing(n.GetID())
+	tokens, transferredHashSpaces, added := n.ringView.JoinToRing(n.GetID())
 
 	if !added {
 		n.log("already part of the ring, no action taken.")
@@ -239,21 +239,15 @@ func (n *Node) JoinToRing(targetAddr string) error {
 
 	n.log("joined the ring with tokens: " + fmt.Sprint(tokens))
 
-	for _, token := range tokens {
-		// TODO:
-		// The code should find the node responsible for the given token,
-		// request the data for that token from the responsible node,
-		// and then store the received data in the local storage.
-
-		n.log("would request data for token " + fmt.Sprint(token) + " from the responsible node.")
-
+	for _, transferredHashSpace := range transferredHashSpaces {
+		n.log(" (fake) importing data for token range " + fmt.Sprintf("[%d - %d]", transferredHashSpace.Start, transferredHashSpace.End) + " from " + transferredHashSpace.PreviousOwnerId)
 	}
 
 	neighborsGossip := n.ringView.GetGossipNeighborsNodes(n.GetID())
 	n.log("Starting gossip to inform other nodes about my joining. Neighbors: " + fmt.Sprint(neighborsGossip))
 
 	for _, nodeId := range neighborsGossip {
-		nodeAddr := idToAddr(nodeId)
+		nodeAddr := nodeIdToZMQAddr(nodeId)
 		resp, err := n.sendJoinGossip(nodeAddr, n.GetID(), tokens)
 
 		n.log("Gossip Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
@@ -270,7 +264,7 @@ func (n *Node) GetID() string {
 	return n.id
 }
 
-func idToAddr(id string) string {
+func nodeIdToZMQAddr(id string) string {
 	return "tcp://" + id
 }
 

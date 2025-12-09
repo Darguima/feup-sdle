@@ -58,7 +58,7 @@ func (n *Node) handleGossipJoin(req *pb.Request) error {
 	// Propagate gossip asynchronously so we don't block the response
 	go func() {
 		for _, nodeId := range gossipAddrs {
-			nodeAddr := idToAddr(nodeId)
+			nodeAddr := nodeIdToZMQAddr(nodeId)
 			resp, err := n.sendJoinGossip(nodeAddr, gossipReq.NewNodeId, gossipReq.Tokens)
 
 			n.log("Gossip (start node: " + gossipReq.NewNodeId + "; response from:" + nodeAddr + ") Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")

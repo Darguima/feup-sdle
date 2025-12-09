@@ -22,7 +22,7 @@ func (n *Node) Get(key string) ([]byte, error) {
 
 	// Forward the request to the responsible node.
 	n.log("Forwarding GET request for key '" + key + "' to node " + responsibleNodeId + ".")
-	responsibleNodeAddr := idToAddr(responsibleNodeId)
+	responsibleNodeAddr := nodeIdToZMQAddr(responsibleNodeId)
 	resp, err := n.sendGet(responsibleNodeAddr, key)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (n *Node) Put(key string, value []byte) error {
 
 	// Forward the request to the responsible node.
 	n.log("Forwarding PUT request for key '" + key + "' to node " + responsibleNodeId + ".")
-	responsibleNodeAddr := idToAddr(responsibleNodeId)
+	responsibleNodeAddr := nodeIdToZMQAddr(responsibleNodeId)
 	_, err := n.sendPut(responsibleNodeAddr, key, value)
 	return err
 }
@@ -68,7 +68,7 @@ func (n *Node) Delete(key string) error {
 
 	// Forward the request to the responsible node.
 	n.log("Forwarding DELETE request for key '" + key + "' to node " + responsibleNodeId + ".")
-	responsibleNodeAddr := idToAddr(responsibleNodeId)
+	responsibleNodeAddr := nodeIdToZMQAddr(responsibleNodeId)
 	_, err := n.sendDelete(responsibleNodeAddr, key)
 	return err
 }
@@ -89,7 +89,7 @@ func (n *Node) Has(key string) (bool, error) {
 
 	// Forward the request to the responsible node.
 	n.log("Forwarding HAS request for key '" + key + "' to node " + responsibleNodeId + ".")
-	responsibleNodeAddr := idToAddr(responsibleNodeId)
+	responsibleNodeAddr := nodeIdToZMQAddr(responsibleNodeId)
 	resp, err := n.sendHas(responsibleNodeAddr, key)
 	if err != nil {
 		return false, err
