@@ -27,6 +27,15 @@ func (dk *DotKernel[V]) SetContext(ctx *DotContext) {
 
 func (dk *DotKernel[V]) DotAdd(id string, value V) Dot {
 	dot := dk.dotContext.MakeDot(id)
+
+	// Remove old entry for the same replica
+	for otherDot := range dk.dotValues {
+		if otherDot.id == id {
+			delete(dk.dotValues, otherDot)
+			break
+		}
+	}
+
 	dk.dotValues[dot] = value
 	return dot
 }
@@ -89,8 +98,8 @@ func (dk *DotKernel[V]) Join(other *DotKernel[V]) {
 	}
 
 	for dot, value := range other.dotValues {
-		// If dot is not present locally, add it
-		if _, ok := dk.dotValues[dot]; !ok {
+		// If dot is not known locally, add it
+		if !dk.dotContext.Knows(dot) {
 			dk.dotValues[dot] = value
 		}
 	}

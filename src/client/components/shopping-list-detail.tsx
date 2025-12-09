@@ -17,6 +17,8 @@ import { useProtocolSocket } from "./provider/protocol-socket";
 import { ShoppingListDetailSkeleton } from "./shopping-list-detail-skeleton";
 import { ShoppingList } from "@/types";
 import { db } from "@/lib/storage/db";
+import WebProtocolSocket from "@/lib/protocol/web-protocol-socket";
+import GetShoppingListRequest from "@/lib/protocol/get-shopping-list-request";
 
 interface ShoppingListDetailProps {
 	listId: string;
@@ -35,10 +37,11 @@ export function ShoppingListDetail({
 	const socket = useProtocolSocket();
 
 	const refreshList = useCallback(async () => {
-		const list = await db.getList(listId);
+		const dbList = await db.getList(listId);
 
-		if (list) {
-			setList(list);
+		if (dbList) {
+			setList(dbList);
+			setNotFound(false);
 		} else {
 			setNotFound(true);
 		}
@@ -48,6 +51,25 @@ export function ShoppingListDetail({
 	useEffect(() => {
 		refreshList();
 	}, [refreshList]);
+
+	useEffect(() => {
+		if (socket instanceof WebProtocolSocket) {
+			socket.setOnShoppingListCallback(async (receivedList: ShoppingList) => {
+				if (receivedList.getListId() !== listId) return;
+
+				let oldList = await db.getList(listId);
+				if (!oldList) {  // Create an empty list for merging
+					oldList = new ShoppingList(await db.getClientId(), listId, receivedList.getName());
+				}
+				oldList.join(receivedList);
+
+				await db.updateList(oldList);
+				await refreshList();
+			});
+
+			socket.send(new GetShoppingListRequest(listId));
+		}
+	}, [listId, socket]);
 
 	const updateList = useCallback(async (updatedList: ShoppingList, delta: ShoppingList) => {
 		await db.updateList(updatedList);

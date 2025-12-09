@@ -75,7 +75,13 @@ func (h *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 
 				// Send the shopping list back to the client
-				respBytes, err := proto.Marshal(list)
+				serverResp := &pb.ServerResponse{
+					ResponseType: &pb.ServerResponse_ShoppingList{
+						ShoppingList: list,
+					},
+				}
+				
+				respBytes, err := proto.Marshal(serverResp)
 				if err != nil {
 					log.Println("Failed to marshal shopping list:", err)
 					continue

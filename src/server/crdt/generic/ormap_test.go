@@ -281,9 +281,12 @@ func TestORMap_JoinIdempotent(t *testing.T) {
 	ormap1.Get("key1").Inc(5)
 
 	ormap2 := ormap1.Clone()
+	t.Logf("ORMap 1: %v", ormap1)
+	t.Logf("ORMap 2: %v", ormap2)
 	ormap1.Join(ormap2)
 
 	if !equalORMaps(ormap1, ormap2) {
+		t.Logf("ORMap 1: %v", ormap1)
 		t.Errorf("Expected ORMap to be unchanged after joining with itself")
 	}
 }

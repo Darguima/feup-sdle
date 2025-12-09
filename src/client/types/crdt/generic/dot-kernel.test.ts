@@ -186,6 +186,23 @@ describe("DotKernel", () => {
         expect(kernel1["dotValues"].has(new Dot("node3", 1).toKey())).toBe(false);
     });
 
+    test("should erase old dots after joining", () => {
+        const kernel1 = new DotKernel<string>();
+        const dot1 = kernel1.dotAdd("node1", "value1");
+
+        const kernel2 = kernel1.clone();
+        const dot2 = kernel2.dotAdd("node1", "value2");
+
+        const kernel3 = kernel1.clone();
+        const dot3 = kernel3.dotAdd("node2", "value1");
+
+        kernel2.join(kernel3);
+
+        expect(kernel2["dotValues"].size).toBe(2);
+        expect(kernel2["dotValues"].has(dot1.toKey())).toBe(false);
+
+    });
+
     test("should clone a kernel", () => {
         kernel.dotAdd("node1", "value1");
         kernel.dotAdd("node2", "value2");

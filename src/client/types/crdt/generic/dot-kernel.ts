@@ -25,6 +25,17 @@ export default class DotKernel<T> {
 
     public dotAdd(id: string, value: T): Dot {
         const dot = this.dotContext.makeDot(id);
+
+        // Remove old entry for the same replica
+        for (const otherDotKey of this.dotValues.keys()) {
+            const otherDot = Dot.fromKey(otherDotKey);
+
+            if (otherDot.id === id) {
+                this.dotValues.delete(otherDotKey);
+                break;
+            }
+        }
+
         this.dotValues.set(dot.toKey(), value);
         return dot;
     }
@@ -80,7 +91,7 @@ export default class DotKernel<T> {
 
     // Merges the kernel with another, preferring the values of other on conflicts
     public join(other: DotKernel<T>): void {
-        this.dotValues.forEach((_ , dotKey) => {
+        this.dotValues.forEach((_, dotKey) => {
             const dot = Dot.fromKey(dotKey);
 
             // If dot is not present in other and is known by other, it means it was removed
@@ -90,8 +101,8 @@ export default class DotKernel<T> {
         });
 
         other.dotValues.forEach((value, dotKey) => {
-            // If dot is not present locally, add it
-            if (!this.dotValues.has(dotKey)) {
+            // If dot is not known locally, add it
+            if (!this.dotContext.knows(Dot.fromKey(dotKey))) {
                 this.dotValues.set(dotKey, value);
             }
         });

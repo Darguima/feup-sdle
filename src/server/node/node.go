@@ -287,7 +287,7 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 		proto.Unmarshal(oldListData, &oldListProto)
 		oldList = crdt.ShoppingListFromProto(&oldListProto)
 	} else {
-		oldList = crdt.NewShoppingList(delta.ReplicaID(), delta.ListID(), delta.Name())
+		oldList = crdt.NewShoppingList(n.id, delta.ListID(), delta.Name())
 	}
 
 	oldList.Join(delta)
@@ -295,7 +295,7 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 	newListProto := oldList.ToProto()
 	newListData, err := proto.Marshal(newListProto)
 
-	if err == nil {
+	if err != nil {
 		return err
 	}
 

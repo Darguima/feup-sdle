@@ -27,7 +27,6 @@ export function ShoppingListHome({ onSelect }: ShoppingListHomeProps) {
 
 	useEffect(() => {
 		const fetchLists = async () => {
-			await new Promise((resolve) => setTimeout(resolve, 50)); // give time for store to init
 			setLists(await db.getAllLists());
 		};
 		fetchLists();

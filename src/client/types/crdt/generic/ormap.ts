@@ -86,13 +86,17 @@ export default class ORMap<K, V extends ORMapValue<V>> {
         // Need this to allow concurrent joins under a shared context
         const originalContext = this.dotContext.clone();
 
-        this.valueMap.forEach((value, _) => {
-            // Must invalidate local entries known by the other context
-            const emptyValue = this.newEmpty(this.replicaId);
-            emptyValue.setContext(other.dotContext);
-            value.join(emptyValue);
+        this.valueMap.forEach((value, key) => {
+            if (!other.valueMap.has(key)) {
+                // Since the entry is missing in other, we need to join with an empty value
+                // to reset values present in the other context
 
-            this.dotContext.copy(originalContext);
+                const emptyValue = this.newEmpty(this.replicaId);
+                emptyValue.setContext(other.dotContext);
+                value.join(emptyValue);
+
+                this.dotContext.copy(originalContext);
+            }
         });
 
         other.valueMap.forEach((otherValue, key) => {

@@ -47,7 +47,7 @@ class DB {
 		return this.dbPromise;
 	}
 
-	private async getClientId(): Promise<string> {
+	public async getClientId(): Promise<string> {
 		const db = await this.getDB();
 		let clientId = await db.get(CLIENT_ID, "id");
 		if (!clientId) {
