@@ -97,14 +97,117 @@ export class GetShoppingListRequest implements IGetShoppingListRequest {
     public static getTypeUrl(typeUrlPrefix?: string): string;
 }
 
+/** Properties of a SubscribeShoppingListRequest. */
+export interface ISubscribeShoppingListRequest {
+
+    /** SubscribeShoppingListRequest id */
+    id?: (string|null);
+}
+
+/** Represents a SubscribeShoppingListRequest. */
+export class SubscribeShoppingListRequest implements ISubscribeShoppingListRequest {
+
+    /**
+     * Constructs a new SubscribeShoppingListRequest.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: ISubscribeShoppingListRequest);
+
+    /** SubscribeShoppingListRequest id. */
+    public id: string;
+
+    /**
+     * Creates a new SubscribeShoppingListRequest instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns SubscribeShoppingListRequest instance
+     */
+    public static create(properties?: ISubscribeShoppingListRequest): SubscribeShoppingListRequest;
+
+    /**
+     * Encodes the specified SubscribeShoppingListRequest message. Does not implicitly {@link SubscribeShoppingListRequest.verify|verify} messages.
+     * @param message SubscribeShoppingListRequest message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: ISubscribeShoppingListRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified SubscribeShoppingListRequest message, length delimited. Does not implicitly {@link SubscribeShoppingListRequest.verify|verify} messages.
+     * @param message SubscribeShoppingListRequest message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: ISubscribeShoppingListRequest, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a SubscribeShoppingListRequest message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns SubscribeShoppingListRequest
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): SubscribeShoppingListRequest;
+
+    /**
+     * Decodes a SubscribeShoppingListRequest message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns SubscribeShoppingListRequest
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): SubscribeShoppingListRequest;
+
+    /**
+     * Verifies a SubscribeShoppingListRequest message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a SubscribeShoppingListRequest message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns SubscribeShoppingListRequest
+     */
+    public static fromObject(object: { [k: string]: any }): SubscribeShoppingListRequest;
+
+    /**
+     * Creates a plain object from a SubscribeShoppingListRequest message. Also converts values to other types if specified.
+     * @param message SubscribeShoppingListRequest
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: SubscribeShoppingListRequest, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this SubscribeShoppingListRequest to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for SubscribeShoppingListRequest
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
 /** Properties of a ClientRequest. */
 export interface IClientRequest {
+
+    /** ClientRequest messageId */
+    messageId?: (string|null);
 
     /** ClientRequest shoppingList */
     shoppingList?: (IShoppingList|null);
 
     /** ClientRequest getShoppingList */
     getShoppingList?: (IGetShoppingListRequest|null);
+
+    /** ClientRequest subscribeShoppingList */
+    subscribeShoppingList?: (ISubscribeShoppingListRequest|null);
 }
 
 /** Represents a ClientRequest. */
@@ -116,14 +219,20 @@ export class ClientRequest implements IClientRequest {
      */
     constructor(properties?: IClientRequest);
 
+    /** ClientRequest messageId. */
+    public messageId: string;
+
     /** ClientRequest shoppingList. */
     public shoppingList?: (IShoppingList|null);
 
     /** ClientRequest getShoppingList. */
     public getShoppingList?: (IGetShoppingListRequest|null);
 
+    /** ClientRequest subscribeShoppingList. */
+    public subscribeShoppingList?: (ISubscribeShoppingListRequest|null);
+
     /** ClientRequest requestType. */
-    public requestType?: ("shoppingList"|"getShoppingList");
+    public requestType?: ("shoppingList"|"getShoppingList"|"subscribeShoppingList");
 
     /**
      * Creates a new ClientRequest instance using the specified properties.
@@ -206,6 +315,9 @@ export class ClientRequest implements IClientRequest {
 /** Properties of a ServerResponse. */
 export interface IServerResponse {
 
+    /** ServerResponse messageId */
+    messageId?: (string|null);
+
     /** ServerResponse shoppingList */
     shoppingList?: (IShoppingList|null);
 }
@@ -218,6 +330,9 @@ export class ServerResponse implements IServerResponse {
      * @param [properties] Properties to set
      */
     constructor(properties?: IServerResponse);
+
+    /** ServerResponse messageId. */
+    public messageId: string;
 
     /** ServerResponse shoppingList. */
     public shoppingList?: (IShoppingList|null);

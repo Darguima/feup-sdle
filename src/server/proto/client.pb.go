@@ -65,12 +65,58 @@ func (x *GetShoppingListRequest) GetId() string {
 	return ""
 }
 
+type SubscribeShoppingListRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubscribeShoppingListRequest) Reset() {
+	*x = SubscribeShoppingListRequest{}
+	mi := &file_client_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubscribeShoppingListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubscribeShoppingListRequest) ProtoMessage() {}
+
+func (x *SubscribeShoppingListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_client_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubscribeShoppingListRequest.ProtoReflect.Descriptor instead.
+func (*SubscribeShoppingListRequest) Descriptor() ([]byte, []int) {
+	return file_client_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *SubscribeShoppingListRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
 type ClientRequest struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	MessageId string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	// Types that are valid to be assigned to RequestType:
 	//
 	//	*ClientRequest_ShoppingList
 	//	*ClientRequest_GetShoppingList_
+	//	*ClientRequest_SubscribeShoppingList
 	RequestType   isClientRequest_RequestType `protobuf_oneof:"request_type"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -78,7 +124,7 @@ type ClientRequest struct {
 
 func (x *ClientRequest) Reset() {
 	*x = ClientRequest{}
-	mi := &file_client_proto_msgTypes[1]
+	mi := &file_client_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -90,7 +136,7 @@ func (x *ClientRequest) String() string {
 func (*ClientRequest) ProtoMessage() {}
 
 func (x *ClientRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_client_proto_msgTypes[1]
+	mi := &file_client_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -103,7 +149,14 @@ func (x *ClientRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ClientRequest.ProtoReflect.Descriptor instead.
 func (*ClientRequest) Descriptor() ([]byte, []int) {
-	return file_client_proto_rawDescGZIP(), []int{1}
+	return file_client_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ClientRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
 }
 
 func (x *ClientRequest) GetRequestType() isClientRequest_RequestType {
@@ -131,24 +184,40 @@ func (x *ClientRequest) GetGetShoppingList_() *GetShoppingListRequest {
 	return nil
 }
 
+func (x *ClientRequest) GetSubscribeShoppingList() *SubscribeShoppingListRequest {
+	if x != nil {
+		if x, ok := x.RequestType.(*ClientRequest_SubscribeShoppingList); ok {
+			return x.SubscribeShoppingList
+		}
+	}
+	return nil
+}
+
 type isClientRequest_RequestType interface {
 	isClientRequest_RequestType()
 }
 
 type ClientRequest_ShoppingList struct {
-	ShoppingList *ShoppingList `protobuf:"bytes,1,opt,name=shopping_list,json=shoppingList,proto3,oneof"`
+	ShoppingList *ShoppingList `protobuf:"bytes,2,opt,name=shopping_list,json=shoppingList,proto3,oneof"`
 }
 
 type ClientRequest_GetShoppingList_ struct {
-	GetShoppingList_ *GetShoppingListRequest `protobuf:"bytes,2,opt,name=get_shopping_list,json=getShoppingList,proto3,oneof"`
+	GetShoppingList_ *GetShoppingListRequest `protobuf:"bytes,3,opt,name=get_shopping_list,json=getShoppingList,proto3,oneof"`
+}
+
+type ClientRequest_SubscribeShoppingList struct {
+	SubscribeShoppingList *SubscribeShoppingListRequest `protobuf:"bytes,4,opt,name=subscribe_shopping_list,json=subscribeShoppingList,proto3,oneof"`
 }
 
 func (*ClientRequest_ShoppingList) isClientRequest_RequestType() {}
 
 func (*ClientRequest_GetShoppingList_) isClientRequest_RequestType() {}
 
+func (*ClientRequest_SubscribeShoppingList) isClientRequest_RequestType() {}
+
 type ServerResponse struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	MessageId string                 `protobuf:"bytes,1,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
 	// Types that are valid to be assigned to ResponseType:
 	//
 	//	*ServerResponse_ShoppingList
@@ -159,7 +228,7 @@ type ServerResponse struct {
 
 func (x *ServerResponse) Reset() {
 	*x = ServerResponse{}
-	mi := &file_client_proto_msgTypes[2]
+	mi := &file_client_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -171,7 +240,7 @@ func (x *ServerResponse) String() string {
 func (*ServerResponse) ProtoMessage() {}
 
 func (x *ServerResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_client_proto_msgTypes[2]
+	mi := &file_client_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -184,7 +253,14 @@ func (x *ServerResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerResponse.ProtoReflect.Descriptor instead.
 func (*ServerResponse) Descriptor() ([]byte, []int) {
-	return file_client_proto_rawDescGZIP(), []int{2}
+	return file_client_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *ServerResponse) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
 }
 
 func (x *ServerResponse) GetResponseType() isServerResponse_ResponseType {
@@ -208,7 +284,7 @@ type isServerResponse_ResponseType interface {
 }
 
 type ServerResponse_ShoppingList struct {
-	ShoppingList *ShoppingList `protobuf:"bytes,1,opt,name=shopping_list,json=shoppingList,proto3,oneof"`
+	ShoppingList *ShoppingList `protobuf:"bytes,2,opt,name=shopping_list,json=shoppingList,proto3,oneof"`
 }
 
 func (*ServerResponse_ShoppingList) isServerResponse_ResponseType() {}
@@ -219,13 +295,20 @@ const file_client_proto_rawDesc = "" +
 	"\n" +
 	"\fclient.proto\x1a\x0eshopping.proto\"(\n" +
 	"\x16GetShoppingListRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\tR\x02id\"\x9c\x01\n" +
-	"\rClientRequest\x124\n" +
-	"\rshopping_list\x18\x01 \x01(\v2\r.ShoppingListH\x00R\fshoppingList\x12E\n" +
-	"\x11get_shopping_list\x18\x02 \x01(\v2\x17.GetShoppingListRequestH\x00R\x0fgetShoppingListB\x0e\n" +
-	"\frequest_type\"W\n" +
-	"\x0eServerResponse\x124\n" +
-	"\rshopping_list\x18\x01 \x01(\v2\r.ShoppingListH\x00R\fshoppingListB\x0f\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\".\n" +
+	"\x1cSubscribeShoppingListRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"\x94\x02\n" +
+	"\rClientRequest\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\x124\n" +
+	"\rshopping_list\x18\x02 \x01(\v2\r.ShoppingListH\x00R\fshoppingList\x12E\n" +
+	"\x11get_shopping_list\x18\x03 \x01(\v2\x17.GetShoppingListRequestH\x00R\x0fgetShoppingList\x12W\n" +
+	"\x17subscribe_shopping_list\x18\x04 \x01(\v2\x1d.SubscribeShoppingListRequestH\x00R\x15subscribeShoppingListB\x0e\n" +
+	"\frequest_type\"v\n" +
+	"\x0eServerResponse\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x01 \x01(\tR\tmessageId\x124\n" +
+	"\rshopping_list\x18\x02 \x01(\v2\r.ShoppingListH\x00R\fshoppingListB\x0f\n" +
 	"\rresponse_typeB'Z%gitlab.up.pt/classes/sdle/2025/t2/g01b\x06proto3"
 
 var (
@@ -240,22 +323,24 @@ func file_client_proto_rawDescGZIP() []byte {
 	return file_client_proto_rawDescData
 }
 
-var file_client_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_client_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_client_proto_goTypes = []any{
-	(*GetShoppingListRequest)(nil), // 0: GetShoppingListRequest
-	(*ClientRequest)(nil),          // 1: ClientRequest
-	(*ServerResponse)(nil),         // 2: ServerResponse
-	(*ShoppingList)(nil),           // 3: ShoppingList
+	(*GetShoppingListRequest)(nil),       // 0: GetShoppingListRequest
+	(*SubscribeShoppingListRequest)(nil), // 1: SubscribeShoppingListRequest
+	(*ClientRequest)(nil),                // 2: ClientRequest
+	(*ServerResponse)(nil),               // 3: ServerResponse
+	(*ShoppingList)(nil),                 // 4: ShoppingList
 }
 var file_client_proto_depIdxs = []int32{
-	3, // 0: ClientRequest.shopping_list:type_name -> ShoppingList
+	4, // 0: ClientRequest.shopping_list:type_name -> ShoppingList
 	0, // 1: ClientRequest.get_shopping_list:type_name -> GetShoppingListRequest
-	3, // 2: ServerResponse.shopping_list:type_name -> ShoppingList
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	1, // 2: ClientRequest.subscribe_shopping_list:type_name -> SubscribeShoppingListRequest
+	4, // 3: ServerResponse.shopping_list:type_name -> ShoppingList
+	4, // [4:4] is the sub-list for method output_type
+	4, // [4:4] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_client_proto_init() }
@@ -264,11 +349,12 @@ func file_client_proto_init() {
 		return
 	}
 	file_shopping_proto_init()
-	file_client_proto_msgTypes[1].OneofWrappers = []any{
+	file_client_proto_msgTypes[2].OneofWrappers = []any{
 		(*ClientRequest_ShoppingList)(nil),
 		(*ClientRequest_GetShoppingList_)(nil),
+		(*ClientRequest_SubscribeShoppingList)(nil),
 	}
-	file_client_proto_msgTypes[2].OneofWrappers = []any{
+	file_client_proto_msgTypes[3].OneofWrappers = []any{
 		(*ServerResponse_ShoppingList)(nil),
 	}
 	type x struct{}
@@ -277,7 +363,7 @@ func file_client_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_client_proto_rawDesc), len(file_client_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
