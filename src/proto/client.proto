@@ -8,15 +8,24 @@ message GetShoppingListRequest {
     string id = 1;
 }
 
+message SubscribeShoppingListRequest {
+    string id = 1;
+}
+
 message ClientRequest {
+    string message_id = 1;
+
     oneof request_type {
-        ShoppingList shopping_list = 1;
-        GetShoppingListRequest get_shopping_list = 2;
+        ShoppingList shopping_list = 2;
+        GetShoppingListRequest get_shopping_list = 3;
+        SubscribeShoppingListRequest subscribe_shopping_list = 4;
     }
 }
 
 message ServerResponse {
+    string message_id = 1;
+
     oneof response_type {
-        ShoppingList shopping_list = 1;
+        ShoppingList shopping_list = 2;
     }
 }

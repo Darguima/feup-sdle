@@ -212,14 +212,221 @@ export const GetShoppingListRequest = $root.GetShoppingListRequest = (() => {
     return GetShoppingListRequest;
 })();
 
+export const SubscribeShoppingListRequest = $root.SubscribeShoppingListRequest = (() => {
+
+    /**
+     * Properties of a SubscribeShoppingListRequest.
+     * @exports ISubscribeShoppingListRequest
+     * @interface ISubscribeShoppingListRequest
+     * @property {string|null} [id] SubscribeShoppingListRequest id
+     */
+
+    /**
+     * Constructs a new SubscribeShoppingListRequest.
+     * @exports SubscribeShoppingListRequest
+     * @classdesc Represents a SubscribeShoppingListRequest.
+     * @implements ISubscribeShoppingListRequest
+     * @constructor
+     * @param {ISubscribeShoppingListRequest=} [properties] Properties to set
+     */
+    function SubscribeShoppingListRequest(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * SubscribeShoppingListRequest id.
+     * @member {string} id
+     * @memberof SubscribeShoppingListRequest
+     * @instance
+     */
+    SubscribeShoppingListRequest.prototype.id = "";
+
+    /**
+     * Creates a new SubscribeShoppingListRequest instance using the specified properties.
+     * @function create
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {ISubscribeShoppingListRequest=} [properties] Properties to set
+     * @returns {SubscribeShoppingListRequest} SubscribeShoppingListRequest instance
+     */
+    SubscribeShoppingListRequest.create = function create(properties) {
+        return new SubscribeShoppingListRequest(properties);
+    };
+
+    /**
+     * Encodes the specified SubscribeShoppingListRequest message. Does not implicitly {@link SubscribeShoppingListRequest.verify|verify} messages.
+     * @function encode
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {ISubscribeShoppingListRequest} message SubscribeShoppingListRequest message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    SubscribeShoppingListRequest.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified SubscribeShoppingListRequest message, length delimited. Does not implicitly {@link SubscribeShoppingListRequest.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {ISubscribeShoppingListRequest} message SubscribeShoppingListRequest message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    SubscribeShoppingListRequest.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a SubscribeShoppingListRequest message from the specified reader or buffer.
+     * @function decode
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {SubscribeShoppingListRequest} SubscribeShoppingListRequest
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    SubscribeShoppingListRequest.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.SubscribeShoppingListRequest();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.id = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a SubscribeShoppingListRequest message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {SubscribeShoppingListRequest} SubscribeShoppingListRequest
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    SubscribeShoppingListRequest.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a SubscribeShoppingListRequest message.
+     * @function verify
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    SubscribeShoppingListRequest.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.id != null && message.hasOwnProperty("id"))
+            if (!$util.isString(message.id))
+                return "id: string expected";
+        return null;
+    };
+
+    /**
+     * Creates a SubscribeShoppingListRequest message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {SubscribeShoppingListRequest} SubscribeShoppingListRequest
+     */
+    SubscribeShoppingListRequest.fromObject = function fromObject(object) {
+        if (object instanceof $root.SubscribeShoppingListRequest)
+            return object;
+        let message = new $root.SubscribeShoppingListRequest();
+        if (object.id != null)
+            message.id = String(object.id);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a SubscribeShoppingListRequest message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {SubscribeShoppingListRequest} message SubscribeShoppingListRequest
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    SubscribeShoppingListRequest.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            object.id = "";
+        if (message.id != null && message.hasOwnProperty("id"))
+            object.id = message.id;
+        return object;
+    };
+
+    /**
+     * Converts this SubscribeShoppingListRequest to JSON.
+     * @function toJSON
+     * @memberof SubscribeShoppingListRequest
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    SubscribeShoppingListRequest.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for SubscribeShoppingListRequest
+     * @function getTypeUrl
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    SubscribeShoppingListRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/SubscribeShoppingListRequest";
+    };
+
+    return SubscribeShoppingListRequest;
+})();
+
 export const ClientRequest = $root.ClientRequest = (() => {
 
     /**
      * Properties of a ClientRequest.
      * @exports IClientRequest
      * @interface IClientRequest
+     * @property {string|null} [messageId] ClientRequest messageId
      * @property {IShoppingList|null} [shoppingList] ClientRequest shoppingList
      * @property {IGetShoppingListRequest|null} [getShoppingList] ClientRequest getShoppingList
+     * @property {ISubscribeShoppingListRequest|null} [subscribeShoppingList] ClientRequest subscribeShoppingList
      */
 
     /**
@@ -238,6 +445,14 @@ export const ClientRequest = $root.ClientRequest = (() => {
     }
 
     /**
+     * ClientRequest messageId.
+     * @member {string} messageId
+     * @memberof ClientRequest
+     * @instance
+     */
+    ClientRequest.prototype.messageId = "";
+
+    /**
      * ClientRequest shoppingList.
      * @member {IShoppingList|null|undefined} shoppingList
      * @memberof ClientRequest
@@ -253,17 +468,25 @@ export const ClientRequest = $root.ClientRequest = (() => {
      */
     ClientRequest.prototype.getShoppingList = null;
 
+    /**
+     * ClientRequest subscribeShoppingList.
+     * @member {ISubscribeShoppingListRequest|null|undefined} subscribeShoppingList
+     * @memberof ClientRequest
+     * @instance
+     */
+    ClientRequest.prototype.subscribeShoppingList = null;
+
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
     /**
      * ClientRequest requestType.
-     * @member {"shoppingList"|"getShoppingList"|undefined} requestType
+     * @member {"shoppingList"|"getShoppingList"|"subscribeShoppingList"|undefined} requestType
      * @memberof ClientRequest
      * @instance
      */
     Object.defineProperty(ClientRequest.prototype, "requestType", {
-        get: $util.oneOfGetter($oneOfFields = ["shoppingList", "getShoppingList"]),
+        get: $util.oneOfGetter($oneOfFields = ["shoppingList", "getShoppingList", "subscribeShoppingList"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -291,10 +514,14 @@ export const ClientRequest = $root.ClientRequest = (() => {
     ClientRequest.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
+        if (message.messageId != null && Object.hasOwnProperty.call(message, "messageId"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.messageId);
         if (message.shoppingList != null && Object.hasOwnProperty.call(message, "shoppingList"))
-            $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
         if (message.getShoppingList != null && Object.hasOwnProperty.call(message, "getShoppingList"))
-            $root.GetShoppingListRequest.encode(message.getShoppingList, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+            $root.GetShoppingListRequest.encode(message.getShoppingList, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+        if (message.subscribeShoppingList != null && Object.hasOwnProperty.call(message, "subscribeShoppingList"))
+            $root.SubscribeShoppingListRequest.encode(message.subscribeShoppingList, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
         return writer;
     };
 
@@ -332,11 +559,19 @@ export const ClientRequest = $root.ClientRequest = (() => {
                 break;
             switch (tag >>> 3) {
             case 1: {
-                    message.shoppingList = $root.ShoppingList.decode(reader, reader.uint32());
+                    message.messageId = reader.string();
                     break;
                 }
             case 2: {
+                    message.shoppingList = $root.ShoppingList.decode(reader, reader.uint32());
+                    break;
+                }
+            case 3: {
                     message.getShoppingList = $root.GetShoppingListRequest.decode(reader, reader.uint32());
+                    break;
+                }
+            case 4: {
+                    message.subscribeShoppingList = $root.SubscribeShoppingListRequest.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -375,6 +610,9 @@ export const ClientRequest = $root.ClientRequest = (() => {
         if (typeof message !== "object" || message === null)
             return "object expected";
         let properties = {};
+        if (message.messageId != null && message.hasOwnProperty("messageId"))
+            if (!$util.isString(message.messageId))
+                return "messageId: string expected";
         if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
             properties.requestType = 1;
             {
@@ -393,6 +631,16 @@ export const ClientRequest = $root.ClientRequest = (() => {
                     return "getShoppingList." + error;
             }
         }
+        if (message.subscribeShoppingList != null && message.hasOwnProperty("subscribeShoppingList")) {
+            if (properties.requestType === 1)
+                return "requestType: multiple values";
+            properties.requestType = 1;
+            {
+                let error = $root.SubscribeShoppingListRequest.verify(message.subscribeShoppingList);
+                if (error)
+                    return "subscribeShoppingList." + error;
+            }
+        }
         return null;
     };
 
@@ -408,6 +656,8 @@ export const ClientRequest = $root.ClientRequest = (() => {
         if (object instanceof $root.ClientRequest)
             return object;
         let message = new $root.ClientRequest();
+        if (object.messageId != null)
+            message.messageId = String(object.messageId);
         if (object.shoppingList != null) {
             if (typeof object.shoppingList !== "object")
                 throw TypeError(".ClientRequest.shoppingList: object expected");
@@ -417,6 +667,11 @@ export const ClientRequest = $root.ClientRequest = (() => {
             if (typeof object.getShoppingList !== "object")
                 throw TypeError(".ClientRequest.getShoppingList: object expected");
             message.getShoppingList = $root.GetShoppingListRequest.fromObject(object.getShoppingList);
+        }
+        if (object.subscribeShoppingList != null) {
+            if (typeof object.subscribeShoppingList !== "object")
+                throw TypeError(".ClientRequest.subscribeShoppingList: object expected");
+            message.subscribeShoppingList = $root.SubscribeShoppingListRequest.fromObject(object.subscribeShoppingList);
         }
         return message;
     };
@@ -434,6 +689,10 @@ export const ClientRequest = $root.ClientRequest = (() => {
         if (!options)
             options = {};
         let object = {};
+        if (options.defaults)
+            object.messageId = "";
+        if (message.messageId != null && message.hasOwnProperty("messageId"))
+            object.messageId = message.messageId;
         if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
             object.shoppingList = $root.ShoppingList.toObject(message.shoppingList, options);
             if (options.oneofs)
@@ -443,6 +702,11 @@ export const ClientRequest = $root.ClientRequest = (() => {
             object.getShoppingList = $root.GetShoppingListRequest.toObject(message.getShoppingList, options);
             if (options.oneofs)
                 object.requestType = "getShoppingList";
+        }
+        if (message.subscribeShoppingList != null && message.hasOwnProperty("subscribeShoppingList")) {
+            object.subscribeShoppingList = $root.SubscribeShoppingListRequest.toObject(message.subscribeShoppingList, options);
+            if (options.oneofs)
+                object.requestType = "subscribeShoppingList";
         }
         return object;
     };
@@ -482,6 +746,7 @@ export const ServerResponse = $root.ServerResponse = (() => {
      * Properties of a ServerResponse.
      * @exports IServerResponse
      * @interface IServerResponse
+     * @property {string|null} [messageId] ServerResponse messageId
      * @property {IShoppingList|null} [shoppingList] ServerResponse shoppingList
      */
 
@@ -499,6 +764,14 @@ export const ServerResponse = $root.ServerResponse = (() => {
                 if (properties[keys[i]] != null)
                     this[keys[i]] = properties[keys[i]];
     }
+
+    /**
+     * ServerResponse messageId.
+     * @member {string} messageId
+     * @memberof ServerResponse
+     * @instance
+     */
+    ServerResponse.prototype.messageId = "";
 
     /**
      * ServerResponse shoppingList.
@@ -546,8 +819,10 @@ export const ServerResponse = $root.ServerResponse = (() => {
     ServerResponse.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
+        if (message.messageId != null && Object.hasOwnProperty.call(message, "messageId"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.messageId);
         if (message.shoppingList != null && Object.hasOwnProperty.call(message, "shoppingList"))
-            $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
         return writer;
     };
 
@@ -585,6 +860,10 @@ export const ServerResponse = $root.ServerResponse = (() => {
                 break;
             switch (tag >>> 3) {
             case 1: {
+                    message.messageId = reader.string();
+                    break;
+                }
+            case 2: {
                     message.shoppingList = $root.ShoppingList.decode(reader, reader.uint32());
                     break;
                 }
@@ -624,6 +903,9 @@ export const ServerResponse = $root.ServerResponse = (() => {
         if (typeof message !== "object" || message === null)
             return "object expected";
         let properties = {};
+        if (message.messageId != null && message.hasOwnProperty("messageId"))
+            if (!$util.isString(message.messageId))
+                return "messageId: string expected";
         if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
             properties.responseType = 1;
             {
@@ -647,6 +929,8 @@ export const ServerResponse = $root.ServerResponse = (() => {
         if (object instanceof $root.ServerResponse)
             return object;
         let message = new $root.ServerResponse();
+        if (object.messageId != null)
+            message.messageId = String(object.messageId);
         if (object.shoppingList != null) {
             if (typeof object.shoppingList !== "object")
                 throw TypeError(".ServerResponse.shoppingList: object expected");
@@ -668,6 +952,10 @@ export const ServerResponse = $root.ServerResponse = (() => {
         if (!options)
             options = {};
         let object = {};
+        if (options.defaults)
+            object.messageId = "";
+        if (message.messageId != null && message.hasOwnProperty("messageId"))
+            object.messageId = message.messageId;
         if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
             object.shoppingList = $root.ShoppingList.toObject(message.shoppingList, options);
             if (options.oneofs)
