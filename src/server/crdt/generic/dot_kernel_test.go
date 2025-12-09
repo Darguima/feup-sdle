@@ -293,6 +293,26 @@ func TestDotKernel_JoinIndependence(t *testing.T) {
 	}
 }
 
+func TestDotKernel_JoinIgnoresOldDots(t *testing.T) {
+	dk1 := NewDotKernel[string]()
+	dk1.DotAdd("node1", "value1")
+
+	dk2 := dk1.Clone()
+	dk2.DotAdd("node1", "value2")
+
+	dk3 := dk1.Clone()
+	dk3.DotAdd("node2", "value3")
+
+	dk2.Join(dk3)
+
+	if len(dk2.dotValues) != 2 {
+		t.Errorf("Expected dk2.dotValues to have 2 entries, got %d", len(dk2.dotValues))
+	}
+	if _, ok := dk2.dotValues[NewDot("node1", 1)]; ok {
+		t.Errorf("Expected dk2.dotValues to not contain dot (node1, 1) after joining with dk3")
+	}
+}
+
 func TestDotKernel_Clone(t *testing.T) {
 	kernel := NewDotKernel[string]()
 	kernel.DotAdd("node1", "value1")
