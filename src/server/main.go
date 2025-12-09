@@ -25,7 +25,7 @@ func create_node(id string) *node.Node {
 func main() {
 	// Server nodes list
 	nodes := []*node.Node{}
-	for i := 4000; i < 4004; i++ {
+	for i := 5000; i < 5004; i++ {
 		node_id := fmt.Sprintf("localhost:%d", i)
 		node := create_node(node_id)
 		nodes = append(nodes, node)
