@@ -8,7 +8,10 @@ import (
 
 // coordinateReplicatedPut orchestrates a replicated write operation.
 // This node acts as the coordinator and replicates the data to N nodes.
-// Returns success if W writes succeed (sloppy quorum with hinted handoff).
+// Strategy:
+// 1. Attempt to write to all N nodes in preference list
+// 2. For any failed nodes, use hinted handoff to ensure N total replicas
+// 3. Return success if W writes succeed (sloppy quorum)
 func (n *Node) coordinateReplicatedPut(key string, value []byte) error {
 	prefList := n.ringView.GetPreferenceList(key, n.replConfig.N)
 
@@ -16,14 +19,14 @@ func (n *Node) coordinateReplicatedPut(key string, value []byte) error {
 		return fmt.Errorf("no nodes available for key")
 	}
 
-	n.log(fmt.Sprintf("Coordinating PUT for key '%s' to preference list: %v (W=%d)",
-		key, prefList.Nodes, n.replConfig.W))
+	n.log(fmt.Sprintf("Coordinating PUT for key '%s' to preference list: %v (N=%d, W=%d)",
+		key, prefList.Nodes, n.replConfig.N, n.replConfig.W))
 
 	successCount := 0
 	failedNodes := []string{}
 	successfulNodes := []string{}
 
-	// Try to write to all nodes in preference list
+	// STEP 1: Attempt to write to ALL N nodes in preference list (don't stop early)
 	for _, nodeId := range prefList.Nodes {
 		var err error
 
@@ -51,30 +54,30 @@ func (n *Node) coordinateReplicatedPut(key string, value []byte) error {
 		} else {
 			failedNodes = append(failedNodes, nodeId)
 		}
-
-		// Early success if W writes achieved
-		if successCount >= n.replConfig.W {
-			n.log(fmt.Sprintf("Write quorum W=%d achieved with nodes: %v", n.replConfig.W, successfulNodes))
-			return nil
-		}
 	}
 
-	// If we didn't reach W with preference list, try hinted handoff (sloppy quorum)
-	if successCount < n.replConfig.W {
-		n.log(fmt.Sprintf("Only %d/%d writes succeeded, attempting hinted handoff for failed nodes: %v",
-			successCount, n.replConfig.W, failedNodes))
+	n.log(fmt.Sprintf("Preference list writes: %d/%d successful", successCount, n.replConfig.N))
 
-		additionalWrites := n.attemptHintedHandoff(key, value, failedNodes)
-		successCount += additionalWrites
+	// STEP 2: Use hinted handoff for ALL failed nodes to ensure N total replicas
+	if len(failedNodes) > 0 {
+		n.log(fmt.Sprintf("Attempting hinted handoff for %d failed nodes: %v",
+			len(failedNodes), failedNodes))
 
-		if successCount >= n.replConfig.W {
-			n.log(fmt.Sprintf("Write quorum W=%d achieved with hinted handoff", n.replConfig.W))
-			return nil
-		}
+		hintsStored := n.attemptHintedHandoff(key, value, failedNodes)
+		successCount += hintsStored
+
+		n.log(fmt.Sprintf("Hinted handoff: stored %d/%d hints", hintsStored, len(failedNodes)))
 	}
 
-	return fmt.Errorf("%w: only %d/%d writes succeeded",
-		replication.ErrInsufficientReplicas, successCount, n.replConfig.W)
+	// STEP 3: Final check - did we achieve W replicas?
+	if successCount >= n.replConfig.W {
+		n.log(fmt.Sprintf("✓ SUCCESS: W=%d achieved with %d total replicas (N=%d)",
+			n.replConfig.W, successCount, n.replConfig.N))
+		return nil
+	}
+
+	return fmt.Errorf("%w: only %d/%d replicas achieved (W=%d required)",
+		replication.ErrInsufficientReplicas, successCount, n.replConfig.N, n.replConfig.W)
 }
 
 // Tries to store hints on additional nodes beyond the preference list
