@@ -99,13 +99,17 @@ func (ormap *ORMap[K, V]) Reset() *ORMap[K, V] {
 func (ormap *ORMap[K, V]) Join(other *ORMap[K, V]) {
 	originalContext := ormap.dotContext.Clone()
 
-	for _, value := range ormap.valueMap {
-		// Must invalidate local entries known by the other context
-		emptyValue := ormap.newEmpty(ormap.replicaId)
-		emptyValue.SetContext(other.dotContext)
-		value.Join(emptyValue)
-		
-		ormap.dotContext.Copy(originalContext)
+	for key, value := range ormap.valueMap {
+		if _, ok := other.valueMap[key]; !ok {
+			// Since the entry is missing in other, we need to join with an empty value
+			// to reset values present in the other context
+
+			emptyValue := ormap.newEmpty(ormap.replicaId)
+			emptyValue.SetContext(other.dotContext)
+			value.Join(emptyValue)
+
+			ormap.dotContext.Copy(originalContext)
+		}
 	}
 
 	for key, otherValue := range other.valueMap {
@@ -131,7 +135,7 @@ func (ormap *ORMap[K, V]) Join(other *ORMap[K, V]) {
 }
 
 func (ormap *ORMap[K, V]) Clone() *ORMap[K, V] {
-	clone := NewORMap[K, V](ormap.replicaId, ormap.newEmpty)
+	clone := NewORMap[K](ormap.replicaId, ormap.newEmpty)
 	clone.dotContext = ormap.dotContext.Clone()
 
 	for key, value := range ormap.valueMap {
