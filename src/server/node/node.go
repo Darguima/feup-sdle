@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"path/filepath"
 	"sdle-server/communication/websocket"
-	crdt "sdle-server/crdt/shopping"
 	pb "sdle-server/proto"
 	"sdle-server/ringview"
 	"sdle-server/storage"
@@ -256,14 +255,6 @@ func (n *Node) JoinToRing(targetAddr string) error {
 	return err
 }
 
-func (n *Node) GetAddress() string {
-	return n.addr
-}
-
-func (n *Node) GetID() string {
-	return n.id
-}
-
 func nodeIdToZMQAddr(id string) string {
 	return "tcp://" + id
 }
@@ -272,52 +263,14 @@ func (n *Node) log(msg string) {
 	fmt.Printf("[Node %s]: %s\n", n.id, msg)
 }
 
+func (n *Node) GetAddress() string {
+	return n.addr
+}
+
+func (n *Node) GetID() string {
+	return n.id
+}
+
 func (n *Node) GetRingView() *ringview.RingView {
 	return n.ringView
-}
-
-func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
-	n.log(fmt.Sprintf("received shopping list %s", delta.ListID()))
-
-	var oldList *crdt.ShoppingList
-
-	if oldListData, err := n.store.Get([]byte("shoppinglist_" + delta.ListID())); err == nil {
-		var oldListProto pb.ShoppingList
-
-		proto.Unmarshal(oldListData, &oldListProto)
-		oldList = crdt.ShoppingListFromProto(&oldListProto)
-	} else {
-		oldList = crdt.NewShoppingList(n.id, delta.ListID(), delta.Name())
-	}
-
-	oldList.Join(delta)
-
-	newListProto := oldList.ToProto()
-	newListData, err := proto.Marshal(newListProto)
-
-	if err != nil {
-		return err
-	}
-
-	if err := n.store.Put([]byte("shoppinglist_"+delta.ListID()), newListData); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (n *Node) GetShoppingList(id string) (*pb.ShoppingList, error) {
-	n.log(fmt.Sprintf("get shopping list %s", id))
-
-	listData, err := n.store.Get([]byte("shoppinglist_" + id))
-	if err != nil {
-		return nil, err
-	}
-
-	var listProto pb.ShoppingList
-	if err := proto.Unmarshal(listData, &listProto); err != nil {
-		return nil, err
-	}
-
-	return &listProto, nil
 }
