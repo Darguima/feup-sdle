@@ -42,11 +42,21 @@ export function ShoppingListDetail({
 
 		if (dbList) {
 			setList(dbList);
-			setNotFound(false);
 		} else {
 			setNotFound(true);
 		}
+
 		setLoading(false);
+	}, [listId]);
+
+	useEffect(() => {
+		refreshList();
+	}, [refreshList]);
+
+	const updateList = useCallback(async (updatedList: ShoppingList, delta: ShoppingList) => {
+		await db.updateList(updatedList);
+		socket.send(delta, () => {});
+		await refreshList();
 	}, [listId]);
 
 	useEffect(() => {
@@ -64,25 +74,9 @@ export function ShoppingListDetail({
 				await refreshList();
 			});
 
-			db.getList(listId).then((dbList) => {
-				if (dbList) {
-					socket.send(dbList, () => {});
-				}
-				socket.send(new GetShoppingListRequest(listId), (error) => {
-					if (error === ErrorCode.NOT_FOUND) {
-						setNotFound(true);
-						setLoading(false);
-					}
-				});
-			});
+			socket.send(new GetShoppingListRequest(listId), () => {});
 		}
 	}, [listId, socket]);
-
-	const updateList = useCallback(async (updatedList: ShoppingList, delta: ShoppingList) => {
-		await db.updateList(updatedList);
-		socket.send(delta, () => {});
-		await refreshList();
-	}, [listId]);
 
 	const handleAddItem = async (e: React.FormEvent) => {
 		e.preventDefault();
