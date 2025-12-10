@@ -1,4 +1,4 @@
-package websocket
+package communication
 
 import (
 	"log"
@@ -112,6 +112,14 @@ func (h *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				if err := conn.WriteMessage(websocket.BinaryMessage, respBytes); err != nil {
 					log.Println("Error writing message:", err)
 					break
+				}
+
+			case *pb.ClientRequest_SubscribeShoppingList:
+				subscribeReq := req.GetSubscribeShoppingList()
+
+				err := h.node.HandleSubscribeShoppingList(subscribeReq.GetId(), req.MessageId, conn)
+				if err != nil {
+					log.Println("Error handling subscribe shopping list:", err)
 				}
 
 			default:

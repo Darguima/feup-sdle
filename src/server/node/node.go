@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 	"path/filepath"
-	"sdle-server/communication/websocket"
+	"sdle-server/communication"
 	crdt "sdle-server/crdt/shopping"
 	pb "sdle-server/proto"
 	"sdle-server/ringview"
@@ -17,6 +17,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gorilla/websocket"
 	"github.com/pebbe/zmq4"
 	"google.golang.org/protobuf/proto"
 )
@@ -72,13 +73,13 @@ func NewNode(id string, baseDir string) (*Node, error) {
 
 	// Create node instance
 	n := &Node{
-		id:       id,
-		addr:     addr,
-		wsAddr:   wsAddr,
-		ringView: ringView,
-		store:    *store,
-		repSock:  rep,
-		stopCh:   make(chan struct{}),
+		id:            id,
+		addr:          addr,
+		wsAddr:        wsAddr,
+		ringView:      ringView,
+		store:         *store,
+		repSock:       rep,
+		stopCh:        make(chan struct{}),
 		subController: NewSubController(nil), // Will set node reference later
 	}
 
@@ -86,7 +87,7 @@ func NewNode(id string, baseDir string) (*Node, error) {
 	n.subController.SetNode(n)
 
 	// Setup WebSocket server
-	wsHandler := websocket.NewWebSocketHandler(n)
+	wsHandler := communication.NewWebSocketHandler(n)
 	mux := http.NewServeMux()
 	mux.Handle("/ws", wsHandler)
 
@@ -329,16 +330,33 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 		return err
 	}
 
-	if err := n.store.Put([]byte("shoppinglist_" + delta.ListID()), newListData); err != nil {
+	if err := n.store.Put([]byte("shoppinglist_"+delta.ListID()), newListData); err != nil {
 		return err
 	}
 
-	deltaData, err := proto.Marshal(delta.ToProto())
+	n.subController.NotifySubscribers(delta.ListID(), *delta)
+
+	return nil
+}
+
+func (n *Node) GetShoppingList(id string) (*pb.ShoppingList, error) {
+	n.log(fmt.Sprintf("get shopping list %s", id))
+
+	listData, err := n.store.Get([]byte("shoppinglist_" + id))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	n.subController.NotifySubscribers(delta.ListID(), deltaData)
+	var listProto pb.ShoppingList
+	if err := proto.Unmarshal(listData, &listProto); err != nil {
+		return nil, err
+	}
 
+	return &listProto, nil
+}
+
+func (n *Node) HandleSubscribeShoppingList(listID string, messageID string, conn *websocket.Conn) error {
+	n.log(fmt.Sprintf("handle subscribe shopping list %s", listID))
+	n.subController.AddSubscriber(listID, messageID, conn)
 	return nil
 }

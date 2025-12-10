@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { ClientRequest } from "../proto/client";
 import ProtocolRequest from "./protocol-entity";
 
@@ -11,7 +10,7 @@ export default class SubscribeShoppingListRequest implements ProtocolRequest {
 
     public toClientRequest(): ClientRequest {
         return ClientRequest.create({
-            messageId: randomUUID(),
+            messageId: crypto.randomUUID(),
             subscribeShoppingList: {
                 id: this.listId
             }

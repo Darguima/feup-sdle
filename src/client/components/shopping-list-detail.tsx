@@ -19,6 +19,7 @@ import { ShoppingList } from "@/types";
 import { db } from "@/lib/storage/db";
 import GetShoppingListRequest from "@/lib/protocol/get-shopping-list-request";
 import { ServerResponse } from "@/lib/proto/client";
+import SubscribeShoppingListRequest from "@/lib/protocol/subscribe-shopping-list-request";
 
 interface ShoppingListDetailProps {
 	listId: string;
@@ -74,7 +75,18 @@ export function ShoppingListDetail({
 		}
 
 		return true;
-	}, [listId, refreshList]);
+	}, [handleReceivedList]);
+
+	const handleSubscribeResponse = useCallback(async (serverResponse: ServerResponse) => {
+		switch (serverResponse.responseType) {
+			case "shoppingList":
+				const list = ShoppingList.fromProto(serverResponse.shoppingList!);
+				await handleReceivedList(list);
+				break;
+		}
+
+		return false; // Keep the handler for future updates
+	}, [handleReceivedList]);
 
 
 	const updateList = useCallback(async (updatedList: ShoppingList, delta: ShoppingList) => {
@@ -85,7 +97,8 @@ export function ShoppingListDetail({
 
 	useEffect(() => {
 			socket.send(new GetShoppingListRequest(listId), handleServerResponse);
-	}, [socket, listId, handleServerResponse]);
+			socket.send(new SubscribeShoppingListRequest(listId), handleSubscribeResponse);
+	}, [socket, listId, handleServerResponse, handleSubscribeResponse]);
 
 
 	const handleAddItem = async (e: React.FormEvent) => {
