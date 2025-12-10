@@ -1,6 +1,7 @@
-import { ErrorCode } from "../proto/client";
+import { ServerResponse } from "../proto/client";
 import ProtocolRequest from "./protocol-entity";
 
 export default interface ProtocolSocket {
-    send(entity: ProtocolRequest, onError: (error: ErrorCode) => void): void;
+    send(entity: ProtocolRequest, onRes: (response: ServerResponse) => Promise<boolean>): void;
+    // onRes returns whether the handler is done and can be removed
 }

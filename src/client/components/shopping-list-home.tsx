@@ -40,10 +40,7 @@ export function ShoppingListHome({ onSelect, onDelete }: ShoppingListHomeProps) 
 		if (!listName.trim()) return;
 
 		const newList = await db.createList(listName);
-		socket.send(newList, () => {});
 
-		setLists(await db.getAllLists());
-		setListName("");
 		onSelect(newList);
 	};
 

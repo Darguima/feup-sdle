@@ -8,12 +8,24 @@ import { createContext, useContext, useRef } from "react";
 const ProtocolSocketContext = createContext<ProtocolSocket>(new NullProtocolSocket());
 
 export const WebProtocolSocketProvider = ({ children }: { children: React.ReactNode }) => {
-  const socketRef = useRef<ProtocolSocket | null>(null);
+  const socketRef = useRef<ProtocolSocket>(new NullProtocolSocket());
 
-  if (!socketRef.current) {
-    // Initialize the WebSocket connection only once
+  const initSocket = () => {
     const websocket = new WebSocket("ws://localhost:8000/ws");
-    socketRef.current = new WebProtocolSocket(websocket);
+    socketRef.current = new WebProtocolSocket(websocket, onError);
+  }
+
+  const onError = (event: Event) => {
+    console.error("Connection failed to server: ", event);
+
+    setTimeout(() => {
+      initSocket();
+    }, 5000);
+  }
+
+  if (!(socketRef.current instanceof WebProtocolSocket)) {
+    // Initialize the WebSocket connection only once
+    initSocket();
   }
 
   return (

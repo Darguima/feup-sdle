@@ -1,15 +1,13 @@
-import { ShoppingList } from "@/types";
-import { ClientRequest, ErrorCode, ServerResponse, ShoppingList as ShoppingListProto } from "../proto/client";
+import { ClientRequest, ServerResponse, ShoppingList as ShoppingListProto } from "../proto/client";
 import ProtocolRequest from "./protocol-entity";
 import ProtocolSocket from "./protocol-socket";
 
 class WebProtocolSocket implements ProtocolSocket {
     private socket: WebSocket;
     private isOpen: Promise<void>;
-    private onShoppingList: (list: ShoppingList) => void = () => { };
-    private errorHandlers: Map<string, (error: ErrorCode) => void> = new Map();
+    private resHandlers: Map<string, (response: ServerResponse) => Promise<boolean>> = new Map();
 
-    constructor(ws: WebSocket) {
+    constructor(ws: WebSocket, onError: (event: Event) => void) {
         this.socket = ws;
 
         this.isOpen = new Promise((resolve, reject) => {
@@ -18,10 +16,7 @@ class WebProtocolSocket implements ProtocolSocket {
                 resolve();
             };
 
-            this.socket.onerror = (event: Event) => {
-                console.error("WebSocket error on " + this.socket.url, event);
-                reject(new Error("WebSocket connection failed"));
-            };
+            this.socket.onerror = onError;
         });
 
         // Create a Promise that resolves when the WebSocket is open
@@ -35,20 +30,15 @@ class WebProtocolSocket implements ProtocolSocket {
 
         console.log("Received message via WebSocket:", response);
 
-        const errorHandler = this.errorHandlers.get(response.messageId);
-        this.errorHandlers.delete(response.messageId);
+        const handler = this.resHandlers.get(response.messageId!);
+        if (!handler) {
+            console.warn("No handler found for message ID:", response.messageId);
+            return;
+        }
 
-        switch (response.responseType) {
-            case "shoppingList":
-                const shoppingList = ShoppingList.fromProto(response.shoppingList as ShoppingListProto)
-                this.onShoppingList(shoppingList);
-                break;
-
-            case "error":
-                if (errorHandler) {
-                    errorHandler(response.error!);
-                }
-                break;
+        const done = await handler(response);
+        if (done) {
+            this.resHandlers.delete(response.messageId!);
         }
     }
 
@@ -56,7 +46,7 @@ class WebProtocolSocket implements ProtocolSocket {
         console.log("WebSocket connection closed on " + this.socket.url, event);
     }
 
-    async send(request: ProtocolRequest, onError: (error: ErrorCode) => void): Promise<void> {
+    async send(request: ProtocolRequest, onRes: (response: ServerResponse) => Promise<boolean>): Promise<void> {
         // Wait for the WebSocket to be open
         await this.isOpen;
 
@@ -70,12 +60,8 @@ class WebProtocolSocket implements ProtocolSocket {
 
         console.log("Sending entity via WebSocket:", buffer);
 
-        this.errorHandlers.set(clientReq.messageId!, onError);
+        this.resHandlers.set(clientReq.messageId!, onRes);
         this.socket.send(buffer);
-    }
-
-    setOnShoppingListCallback(callback: (list: ShoppingList) => void): void {
-        this.onShoppingList = callback;
     }
 }
 
