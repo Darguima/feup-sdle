@@ -14,6 +14,7 @@ export default class GetShoppingListRequest implements ProtocolEntity {
 
     public toClientRequest(): IClientRequest {
         return ClientRequest.create({
+            messageId: crypto.randomUUID(),
             getShoppingList: {
                 id: this.listId
             }
