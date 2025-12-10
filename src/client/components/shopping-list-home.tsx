@@ -19,17 +19,19 @@ import { ShoppingListCard } from "./shopping-list-card";
 
 interface ShoppingListHomeProps {
 	onSelect: (list: ShoppingList) => void;
+	onDelete: (list: ShoppingList) => Promise<void>;
 }
 
-export function ShoppingListHome({ onSelect }: ShoppingListHomeProps) {
+export function ShoppingListHome({ onSelect, onDelete }: ShoppingListHomeProps) {
 	const [lists, setLists] = useState<ShoppingList[]>([]);
 	const [listName, setListName] = useState("");
 	const socket = useProtocolSocket();
 
-	useEffect(() => {
-		const fetchLists = async () => {
+	const fetchLists = async () => {
 			setLists(await db.getAllLists());
 		};
+
+	useEffect(() => {
 		fetchLists();
 	}, []);
 
@@ -86,6 +88,10 @@ export function ShoppingListHome({ onSelect }: ShoppingListHomeProps) {
 									key={list.getListId()}
 									list={list}
 									onSelect={onSelect}
+									onDelete={async (list) => {
+										await onDelete(list)
+										fetchLists()
+									}}
 								/>
 							)}
 						</div>

@@ -1,15 +1,16 @@
 import { ShoppingList } from "@/types";
-import { ShoppingCart } from "lucide-react";
+import { Trash2 } from "lucide-react";
+import { Button } from "./ui/button";
 
 interface ShoppingListCardProps {
   list: ShoppingList;
   onSelect: (list: ShoppingList) => void;
+  onDelete: (list: ShoppingList) => Promise<void>;
 }
 
-export function ShoppingListCard({ list, onSelect }: ShoppingListCardProps) {
+export function ShoppingListCard({ list, onSelect, onDelete }: ShoppingListCardProps) {
   return <>
-    <button
-      type="button"
+    <div
       key={list.getListId()}
       onClick={() => onSelect(list)}
       className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent transition-colors"
@@ -24,8 +25,20 @@ export function ShoppingListCard({ list, onSelect }: ShoppingListCardProps) {
             {list.getItems().length === 1 ? "item" : "items"}
           </p>
         </div>
-        <ShoppingCart className="w-5 h-5 text-muted-foreground" />
+        <div className="flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={event => {
+              event.stopPropagation();
+              onDelete(list)
+            }}
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
-    </button>
+    </div>
   </>
 }
