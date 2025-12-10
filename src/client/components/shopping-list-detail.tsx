@@ -41,10 +41,9 @@ export function ShoppingListDetail({
 
 		if (dbList) {
 			setList(dbList);
-		} else {
-			setNotFound(true);
 		}
 
+		setNotFound(dbList === undefined);
 		setLoading(false);
 	}, [listId]);
 
@@ -127,7 +126,6 @@ export function ShoppingListDetail({
 
 		updateList(list, delta);
 	};
-	
 
 	if (loading) {
 		return <ShoppingListDetailSkeleton />;
