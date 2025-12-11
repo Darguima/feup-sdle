@@ -7,8 +7,8 @@ message Request {
   oneof request_type {
     RequestPing ping = 11;
     RequestFetchRing fetch_ring = 12;
-    RequestGetHashSpace get_hash_space = 13;
-    RequestGossipJoin gossip_join = 14;
+    RequestGossipJoin gossip_join = 13;
+    RequestGetHashSpace get_hash_space = 14;
     RequestGet get = 15;
     RequestPut put = 16;
     RequestDelete delete = 17;
@@ -25,14 +25,14 @@ message RequestPing {
 message RequestFetchRing {
 }
 
-message RequestGetHashSpace {
-  uint64 start_hash_space = 1;
-  uint64 end_hash_space = 2;
-}
-
 message RequestGossipJoin {
   string new_node_id = 1;
   repeated uint64 tokens = 2;
+}
+
+message RequestGetHashSpace {
+  uint64 start_hash_space = 1;
+  uint64 end_hash_space = 2;
 }
 
 // CRUD requests
@@ -63,8 +63,8 @@ message Response {
   oneof response_type {
     ResponsePing ping = 11;
     ResponseFetchRing fetch_ring = 12;
-    ResponseGetHashSpace get_hash_space = 13;
-    ResponseGossipJoin gossip_join = 14;
+    ResponseGossipJoin gossip_join = 13;
+    ResponseGetHashSpace get_hash_space = 14;
     ResponseGet get = 15;
     ResponsePut put = 16;
     ResponseDelete delete = 17;
@@ -80,10 +80,11 @@ message ResponseFetchRing {
   map<uint64, string> token_to_node = 1;
 }
 
-message ResponseGetHashSpace {
+message ResponseGossipJoin {
 }
 
-message ResponseGossipJoin {
+message ResponseGetHashSpace {
+  map<string, bytes> hashSpaceValues = 1;
 }
 
 message ResponseGet {
@@ -99,4 +100,3 @@ message ResponseDelete {
 message ResponseHas {
   bool has_key = 1;
 }
-

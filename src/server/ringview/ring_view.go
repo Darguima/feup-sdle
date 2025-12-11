@@ -11,26 +11,31 @@ import (
 )
 
 const N_TOKENS_PER_NODE = 3
+const HASH_SPACE_SIZE = 64
 
 type RingView struct {
-	nTokens     int               // number of tokens per node
 	tokens      []uint64          // sorted list of tokens
 	tokenToNode map[uint64]string // maps each token to its node
 	nodes       []string          // list of node IDs
 	mu          sync.RWMutex      // mutex for concurrent access
 }
 
+type TransferredHashSpace struct {
+	Start           uint64
+	End             uint64
+	PreviousOwnerId string
+}
+
 func New() *RingView {
 
 	return &RingView{
-		nTokens:     N_TOKENS_PER_NODE,
 		tokens:      make([]uint64, 0),
 		nodes:       make([]string, 0),
 		tokenToNode: make(map[uint64]string),
 	}
 }
 
-// NewFromTokenMap creates a new RingView from a tokenToNode map
+// Creates a new RingView from a tokenToNode map
 func NewFromTokenMap(tokenToNode map[uint64]string) *RingView {
 	// Create a new empty RingView
 	rv := New()
@@ -55,67 +60,122 @@ func NewFromTokenMap(tokenToNode map[uint64]string) *RingView {
 	return rv
 }
 
-// Adds a fresh new node to the ring and generates its tokens (used when a new node is being created)
-func (r *RingView) JoinToRing(nodeId string) (tokens []uint64) {
+// Adds a node to the Ring, generating new tokens for it. If the hashSpace needs to be transferred from other nodes, it is returned as a list of transferredHashSpace structs.
+func (r *RingView) JoinToRing(nodeId string) (tokens []uint64, transferredHashSpaces []TransferredHashSpace, added bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	// Check if node already exists
 	if slices.Contains(r.nodes, nodeId) {
-		return // Node already exists
+		return nil, nil, false
 	}
 
-	tokens = make([]uint64, 0, r.nTokens)
+	// If this is the first node, there will not be needed to transfer any hash space
+	isFirstNode := len(r.tokens) == 0
 
-	for i := 0; i < r.nTokens; i++ {
-		counter := 0
+	generated_tokens := make([]uint64, 0, N_TOKENS_PER_NODE)
+	transferredHashSpaces = make([]TransferredHashSpace, 0, N_TOKENS_PER_NODE)
 
-		var h uint64
+	for range N_TOKENS_PER_NODE {
+		newToken := r.generateNewToken(nodeId, generated_tokens)
+		generated_tokens = append(generated_tokens, newToken)
+	}
 
-		for {
-			virtualKey := nodeId + "#" + strconv.Itoa(i) + "#" + strconv.Itoa(counter)
-			h = hashKey(virtualKey)
-			if _, exists := r.tokenToNode[h]; !exists {
-				tokens = append(tokens, h)
-				break
-			}
-			counter++
+	// Sort the generated tokens - this will help determining the hash spaces later
+	slices.Sort(generated_tokens)
+
+	// Calculate previous owners (loops can't be merged)
+	previousOwners := make([]string, 0, N_TOKENS_PER_NODE)
+	if !isFirstNode {
+		for _, token := range generated_tokens {
+			nextDefinedTokenIdx, _ := r.getNextDefinedTokenIdx(token)
+			nextDefinedToken := r.tokens[nextDefinedTokenIdx]
+
+			previousOwnerId := r.tokenToNode[nextDefinedToken]
+			previousOwners = append(previousOwners, previousOwnerId)
+		}
+	}
+
+	// Calculate new hash space ranges and add tokens to the ring
+	for i, token := range generated_tokens {
+		if !isFirstNode {
+			previousDefinedTokenIdx, _ := r.getPreviousDefinedTokenIdx(token)
+			previousDefinedToken := r.tokens[previousDefinedTokenIdx]
+
+			start := previousDefinedToken + 1
+			end := token
+
+			transferredHashSpaces = append(transferredHashSpaces, TransferredHashSpace{
+				Start:           start,
+				End:             end,
+				PreviousOwnerId: previousOwners[i],
+			})
 		}
 
-		r.tokenToNode[h] = nodeId
-		r.tokens = append(r.tokens, h)
-
+		r.tokenToNode[token] = nodeId
+		r.tokens = append(r.tokens, token)
+		slices.Sort(r.tokens)
 	}
 
 	r.nodes = append(r.nodes, nodeId)
 	slices.Sort(r.nodes)
-	slices.Sort(r.tokens)
 
-	return tokens
+	return generated_tokens, transferredHashSpaces, true
 }
 
-// Adds a node with pre-defined tokens to the ring (used when node info is received from other nodes)
-func (r *RingView) AddNode(nodeId string, tokens []uint64) bool {
+// Adds a node with pre-defined tokens to the ring (used when node info is received from other nodes). Returns false if the node already exists.
+func (r *RingView) AddNode(nodeId string, tokens []uint64) (added bool) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
 	// Check if node already exists
 	if slices.Contains(r.nodes, nodeId) {
-		return false // Node already exists
+		return false
 	}
 
+	// Add tokens the the ring
 	for _, h := range tokens {
 		r.tokenToNode[h] = nodeId
 		r.tokens = append(r.tokens, h)
 	}
 
 	r.nodes = append(r.nodes, nodeId)
+
 	slices.Sort(r.nodes)
 	slices.Sort(r.tokens)
 
 	return true
 }
 
+// Given a token, returns the index of the previous defined token in the ring (wraps around). Returns (-1, false) if there are no tokens.
+func (r *RingView) getPreviousDefinedTokenIdx(token uint64) (int, bool) {
+	nextDefinedTokenIdx, ok := r.getNextDefinedTokenIdx(token)
+
+	if !ok {
+		return -1, false
+	}
+
+	previousDefinedTokenIdx := (nextDefinedTokenIdx - 1 + len(r.tokens)) % len(r.tokens)
+
+	return previousDefinedTokenIdx, true
+}
+
+// Given a token, returns the index of the next defined token in the ring (wraps around). Returns (-1, false) if there are no tokens.
+func (r *RingView) getNextDefinedTokenIdx(token uint64) (int, bool) {
+	if len(r.tokens) == 0 {
+		return -1, false
+	}
+
+	nextDefinedTokenIdx := sort.Search(len(r.tokens), func(i int) bool { return r.tokens[i] >= uint64(token) })
+
+	if nextDefinedTokenIdx == len(r.tokens) {
+		nextDefinedTokenIdx = 0
+	}
+
+	return nextDefinedTokenIdx, true
+}
+
+// Returns the node ID responsible for the given key. Returns false if the ring is empty.
 func (r *RingView) Lookup(key string) (string, bool) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -124,11 +184,11 @@ func (r *RingView) Lookup(key string) (string, bool) {
 		return "", false
 	}
 
-	h := hashKey(key)
-	nextDefinedToken := sort.Search(len(r.tokens), func(i int) bool { return r.tokens[i] >= h })
+	keyHash := HashKey(key)
+	nextDefinedToken, err := r.getNextDefinedTokenIdx(keyHash)
 
-	if nextDefinedToken == len(r.tokens) {
-		nextDefinedToken = 0
+	if err {
+		return "", false
 	}
 
 	nodeId := r.tokenToNode[r.tokens[nextDefinedToken]]
@@ -136,6 +196,7 @@ func (r *RingView) Lookup(key string) (string, bool) {
 	return nodeId, true
 }
 
+// Returns the list of neighbor nodes to gossip with, given an origin node
 func (r *RingView) GetGossipNeighborsNodes(originNode string) []string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -162,12 +223,7 @@ func (r *RingView) GetGossipNeighborsNodes(originNode string) []string {
 	return neighbors
 }
 
-func hashKey(s string) uint64 {
-	sum := sha1.Sum([]byte(s))
-	return binary.BigEndian.Uint64(sum[:8])
-}
-
-// GetTokenToNode returns a copy of the tokenToNode map
+// Returns a copy of the tokenToNode map
 func (r *RingView) GetTokenToNode() map[uint64]string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -177,6 +233,17 @@ func (r *RingView) GetTokenToNode() map[uint64]string {
 	return tokenToNodeCopy
 }
 
+// Returns a copy of the known node IDs
+func (r *RingView) GetKnownIds() []string {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	idsCopy := make([]string, len(r.nodes))
+	copy(idsCopy, r.nodes)
+	return idsCopy
+}
+
+// Returns a string representation of the RingView
 func (r *RingView) ToString() string {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -186,19 +253,36 @@ func (r *RingView) ToString() string {
 	}
 
 	result := "RingView:"
-
-	for t, n := range r.tokenToNode {
+	for _, t := range r.tokens { // tokens are kept sorted
+		n := r.tokenToNode[t]
 		result += "\n\t" + strconv.FormatUint(t, 10) + " -> " + n
 	}
 
 	return result
 }
 
-func (r *RingView) GetKnownIds() []string {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
+// Hashes a string key into the hash space
+func HashKey(s string) uint64 {
+	sum := sha1.Sum([]byte(s))
+	return binary.BigEndian.Uint64(sum[:8]) % HASH_SPACE_SIZE
+}
 
-	idsCopy := make([]string, len(r.nodes))
-	copy(idsCopy, r.nodes)
-	return idsCopy
+// Generates a new unique token for a node based on the node ID and a counter (counter should be unique per node)
+func (r *RingView) generateNewToken(nodeId string, additionalUsedIds []uint64) uint64 {
+	var newToken uint64
+
+	usedIds := append(r.tokens, additionalUsedIds...)
+
+	counter := 0
+
+	for {
+		virtualKey := nodeId + "#" + strconv.Itoa(counter)
+		newToken = HashKey(virtualKey)
+		if !slices.Contains(usedIds, newToken) {
+			break
+		}
+		counter++
+	}
+
+	return newToken
 }

@@ -28,8 +28,8 @@ type Request struct {
 	//
 	//	*Request_Ping
 	//	*Request_FetchRing
-	//	*Request_GetHashSpace
 	//	*Request_GossipJoin
+	//	*Request_GetHashSpace
 	//	*Request_Get
 	//	*Request_Put
 	//	*Request_Delete
@@ -101,19 +101,19 @@ func (x *Request) GetFetchRing() *RequestFetchRing {
 	return nil
 }
 
-func (x *Request) GetGetHashSpace() *RequestGetHashSpace {
+func (x *Request) GetGossipJoin() *RequestGossipJoin {
 	if x != nil {
-		if x, ok := x.RequestType.(*Request_GetHashSpace); ok {
-			return x.GetHashSpace
+		if x, ok := x.RequestType.(*Request_GossipJoin); ok {
+			return x.GossipJoin
 		}
 	}
 	return nil
 }
 
-func (x *Request) GetGossipJoin() *RequestGossipJoin {
+func (x *Request) GetGetHashSpace() *RequestGetHashSpace {
 	if x != nil {
-		if x, ok := x.RequestType.(*Request_GossipJoin); ok {
-			return x.GossipJoin
+		if x, ok := x.RequestType.(*Request_GetHashSpace); ok {
+			return x.GetHashSpace
 		}
 	}
 	return nil
@@ -167,12 +167,12 @@ type Request_FetchRing struct {
 	FetchRing *RequestFetchRing `protobuf:"bytes,12,opt,name=fetch_ring,json=fetchRing,proto3,oneof"`
 }
 
-type Request_GetHashSpace struct {
-	GetHashSpace *RequestGetHashSpace `protobuf:"bytes,13,opt,name=get_hash_space,json=getHashSpace,proto3,oneof"`
+type Request_GossipJoin struct {
+	GossipJoin *RequestGossipJoin `protobuf:"bytes,13,opt,name=gossip_join,json=gossipJoin,proto3,oneof"`
 }
 
-type Request_GossipJoin struct {
-	GossipJoin *RequestGossipJoin `protobuf:"bytes,14,opt,name=gossip_join,json=gossipJoin,proto3,oneof"`
+type Request_GetHashSpace struct {
+	GetHashSpace *RequestGetHashSpace `protobuf:"bytes,14,opt,name=get_hash_space,json=getHashSpace,proto3,oneof"`
 }
 
 type Request_Get struct {
@@ -195,9 +195,9 @@ func (*Request_Ping) isRequest_RequestType() {}
 
 func (*Request_FetchRing) isRequest_RequestType() {}
 
-func (*Request_GetHashSpace) isRequest_RequestType() {}
-
 func (*Request_GossipJoin) isRequest_RequestType() {}
+
+func (*Request_GetHashSpace) isRequest_RequestType() {}
 
 func (*Request_Get) isRequest_RequestType() {}
 
@@ -279,58 +279,6 @@ func (*RequestFetchRing) Descriptor() ([]byte, []int) {
 	return file_node_proto_rawDescGZIP(), []int{2}
 }
 
-type RequestGetHashSpace struct {
-	state          protoimpl.MessageState `protogen:"open.v1"`
-	StartHashSpace uint64                 `protobuf:"varint,1,opt,name=start_hash_space,json=startHashSpace,proto3" json:"start_hash_space,omitempty"`
-	EndHashSpace   uint64                 `protobuf:"varint,2,opt,name=end_hash_space,json=endHashSpace,proto3" json:"end_hash_space,omitempty"`
-	unknownFields  protoimpl.UnknownFields
-	sizeCache      protoimpl.SizeCache
-}
-
-func (x *RequestGetHashSpace) Reset() {
-	*x = RequestGetHashSpace{}
-	mi := &file_node_proto_msgTypes[3]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *RequestGetHashSpace) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*RequestGetHashSpace) ProtoMessage() {}
-
-func (x *RequestGetHashSpace) ProtoReflect() protoreflect.Message {
-	mi := &file_node_proto_msgTypes[3]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use RequestGetHashSpace.ProtoReflect.Descriptor instead.
-func (*RequestGetHashSpace) Descriptor() ([]byte, []int) {
-	return file_node_proto_rawDescGZIP(), []int{3}
-}
-
-func (x *RequestGetHashSpace) GetStartHashSpace() uint64 {
-	if x != nil {
-		return x.StartHashSpace
-	}
-	return 0
-}
-
-func (x *RequestGetHashSpace) GetEndHashSpace() uint64 {
-	if x != nil {
-		return x.EndHashSpace
-	}
-	return 0
-}
-
 type RequestGossipJoin struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	NewNodeId     string                 `protobuf:"bytes,1,opt,name=new_node_id,json=newNodeId,proto3" json:"new_node_id,omitempty"`
@@ -341,7 +289,7 @@ type RequestGossipJoin struct {
 
 func (x *RequestGossipJoin) Reset() {
 	*x = RequestGossipJoin{}
-	mi := &file_node_proto_msgTypes[4]
+	mi := &file_node_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -353,7 +301,7 @@ func (x *RequestGossipJoin) String() string {
 func (*RequestGossipJoin) ProtoMessage() {}
 
 func (x *RequestGossipJoin) ProtoReflect() protoreflect.Message {
-	mi := &file_node_proto_msgTypes[4]
+	mi := &file_node_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -366,7 +314,7 @@ func (x *RequestGossipJoin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RequestGossipJoin.ProtoReflect.Descriptor instead.
 func (*RequestGossipJoin) Descriptor() ([]byte, []int) {
-	return file_node_proto_rawDescGZIP(), []int{4}
+	return file_node_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *RequestGossipJoin) GetNewNodeId() string {
@@ -381,6 +329,58 @@ func (x *RequestGossipJoin) GetTokens() []uint64 {
 		return x.Tokens
 	}
 	return nil
+}
+
+type RequestGetHashSpace struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	StartHashSpace uint64                 `protobuf:"varint,1,opt,name=start_hash_space,json=startHashSpace,proto3" json:"start_hash_space,omitempty"`
+	EndHashSpace   uint64                 `protobuf:"varint,2,opt,name=end_hash_space,json=endHashSpace,proto3" json:"end_hash_space,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
+}
+
+func (x *RequestGetHashSpace) Reset() {
+	*x = RequestGetHashSpace{}
+	mi := &file_node_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *RequestGetHashSpace) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RequestGetHashSpace) ProtoMessage() {}
+
+func (x *RequestGetHashSpace) ProtoReflect() protoreflect.Message {
+	mi := &file_node_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RequestGetHashSpace.ProtoReflect.Descriptor instead.
+func (*RequestGetHashSpace) Descriptor() ([]byte, []int) {
+	return file_node_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RequestGetHashSpace) GetStartHashSpace() uint64 {
+	if x != nil {
+		return x.StartHashSpace
+	}
+	return 0
+}
+
+func (x *RequestGetHashSpace) GetEndHashSpace() uint64 {
+	if x != nil {
+		return x.EndHashSpace
+	}
+	return 0
 }
 
 type RequestGet struct {
@@ -576,8 +576,8 @@ type Response struct {
 	//
 	//	*Response_Ping
 	//	*Response_FetchRing
-	//	*Response_GetHashSpace
 	//	*Response_GossipJoin
+	//	*Response_GetHashSpace
 	//	*Response_Get
 	//	*Response_Put
 	//	*Response_Delete
@@ -663,19 +663,19 @@ func (x *Response) GetFetchRing() *ResponseFetchRing {
 	return nil
 }
 
-func (x *Response) GetGetHashSpace() *ResponseGetHashSpace {
+func (x *Response) GetGossipJoin() *ResponseGossipJoin {
 	if x != nil {
-		if x, ok := x.ResponseType.(*Response_GetHashSpace); ok {
-			return x.GetHashSpace
+		if x, ok := x.ResponseType.(*Response_GossipJoin); ok {
+			return x.GossipJoin
 		}
 	}
 	return nil
 }
 
-func (x *Response) GetGossipJoin() *ResponseGossipJoin {
+func (x *Response) GetGetHashSpace() *ResponseGetHashSpace {
 	if x != nil {
-		if x, ok := x.ResponseType.(*Response_GossipJoin); ok {
-			return x.GossipJoin
+		if x, ok := x.ResponseType.(*Response_GetHashSpace); ok {
+			return x.GetHashSpace
 		}
 	}
 	return nil
@@ -729,12 +729,12 @@ type Response_FetchRing struct {
 	FetchRing *ResponseFetchRing `protobuf:"bytes,12,opt,name=fetch_ring,json=fetchRing,proto3,oneof"`
 }
 
-type Response_GetHashSpace struct {
-	GetHashSpace *ResponseGetHashSpace `protobuf:"bytes,13,opt,name=get_hash_space,json=getHashSpace,proto3,oneof"`
+type Response_GossipJoin struct {
+	GossipJoin *ResponseGossipJoin `protobuf:"bytes,13,opt,name=gossip_join,json=gossipJoin,proto3,oneof"`
 }
 
-type Response_GossipJoin struct {
-	GossipJoin *ResponseGossipJoin `protobuf:"bytes,14,opt,name=gossip_join,json=gossipJoin,proto3,oneof"`
+type Response_GetHashSpace struct {
+	GetHashSpace *ResponseGetHashSpace `protobuf:"bytes,14,opt,name=get_hash_space,json=getHashSpace,proto3,oneof"`
 }
 
 type Response_Get struct {
@@ -757,9 +757,9 @@ func (*Response_Ping) isResponse_ResponseType() {}
 
 func (*Response_FetchRing) isResponse_ResponseType() {}
 
-func (*Response_GetHashSpace) isResponse_ResponseType() {}
-
 func (*Response_GossipJoin) isResponse_ResponseType() {}
+
+func (*Response_GetHashSpace) isResponse_ResponseType() {}
 
 func (*Response_Get) isResponse_ResponseType() {}
 
@@ -857,42 +857,6 @@ func (x *ResponseFetchRing) GetTokenToNode() map[uint64]string {
 	return nil
 }
 
-type ResponseGetHashSpace struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *ResponseGetHashSpace) Reset() {
-	*x = ResponseGetHashSpace{}
-	mi := &file_node_proto_msgTypes[12]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *ResponseGetHashSpace) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*ResponseGetHashSpace) ProtoMessage() {}
-
-func (x *ResponseGetHashSpace) ProtoReflect() protoreflect.Message {
-	mi := &file_node_proto_msgTypes[12]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use ResponseGetHashSpace.ProtoReflect.Descriptor instead.
-func (*ResponseGetHashSpace) Descriptor() ([]byte, []int) {
-	return file_node_proto_rawDescGZIP(), []int{12}
-}
-
 type ResponseGossipJoin struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
@@ -901,7 +865,7 @@ type ResponseGossipJoin struct {
 
 func (x *ResponseGossipJoin) Reset() {
 	*x = ResponseGossipJoin{}
-	mi := &file_node_proto_msgTypes[13]
+	mi := &file_node_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -913,7 +877,7 @@ func (x *ResponseGossipJoin) String() string {
 func (*ResponseGossipJoin) ProtoMessage() {}
 
 func (x *ResponseGossipJoin) ProtoReflect() protoreflect.Message {
-	mi := &file_node_proto_msgTypes[13]
+	mi := &file_node_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -926,7 +890,51 @@ func (x *ResponseGossipJoin) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ResponseGossipJoin.ProtoReflect.Descriptor instead.
 func (*ResponseGossipJoin) Descriptor() ([]byte, []int) {
+	return file_node_proto_rawDescGZIP(), []int{12}
+}
+
+type ResponseGetHashSpace struct {
+	state           protoimpl.MessageState `protogen:"open.v1"`
+	HashSpaceValues map[string][]byte      `protobuf:"bytes,1,rep,name=hashSpaceValues,proto3" json:"hashSpaceValues,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	unknownFields   protoimpl.UnknownFields
+	sizeCache       protoimpl.SizeCache
+}
+
+func (x *ResponseGetHashSpace) Reset() {
+	*x = ResponseGetHashSpace{}
+	mi := &file_node_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ResponseGetHashSpace) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ResponseGetHashSpace) ProtoMessage() {}
+
+func (x *ResponseGetHashSpace) ProtoReflect() protoreflect.Message {
+	mi := &file_node_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ResponseGetHashSpace.ProtoReflect.Descriptor instead.
+func (*ResponseGetHashSpace) Descriptor() ([]byte, []int) {
 	return file_node_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ResponseGetHashSpace) GetHashSpaceValues() map[string][]byte {
+	if x != nil {
+		return x.HashSpaceValues
+	}
+	return nil
 }
 
 type ResponseGet struct {
@@ -1099,23 +1107,23 @@ const file_node_proto_rawDesc = "" +
 	"\x06origin\x18\x01 \x01(\tR\x06origin\x12\"\n" +
 	"\x04ping\x18\v \x01(\v2\f.RequestPingH\x00R\x04ping\x122\n" +
 	"\n" +
-	"fetch_ring\x18\f \x01(\v2\x11.RequestFetchRingH\x00R\tfetchRing\x12<\n" +
-	"\x0eget_hash_space\x18\r \x01(\v2\x14.RequestGetHashSpaceH\x00R\fgetHashSpace\x125\n" +
-	"\vgossip_join\x18\x0e \x01(\v2\x12.RequestGossipJoinH\x00R\n" +
-	"gossipJoin\x12\x1f\n" +
+	"fetch_ring\x18\f \x01(\v2\x11.RequestFetchRingH\x00R\tfetchRing\x125\n" +
+	"\vgossip_join\x18\r \x01(\v2\x12.RequestGossipJoinH\x00R\n" +
+	"gossipJoin\x12<\n" +
+	"\x0eget_hash_space\x18\x0e \x01(\v2\x14.RequestGetHashSpaceH\x00R\fgetHashSpace\x12\x1f\n" +
 	"\x03get\x18\x0f \x01(\v2\v.RequestGetH\x00R\x03get\x12\x1f\n" +
 	"\x03put\x18\x10 \x01(\v2\v.RequestPutH\x00R\x03put\x12(\n" +
 	"\x06delete\x18\x11 \x01(\v2\x0e.RequestDeleteH\x00R\x06delete\x12\x1f\n" +
 	"\x03has\x18\x12 \x01(\v2\v.RequestHasH\x00R\x03hasB\x0e\n" +
 	"\frequest_type\"\r\n" +
 	"\vRequestPing\"\x12\n" +
-	"\x10RequestFetchRing\"e\n" +
-	"\x13RequestGetHashSpace\x12(\n" +
-	"\x10start_hash_space\x18\x01 \x01(\x04R\x0estartHashSpace\x12$\n" +
-	"\x0eend_hash_space\x18\x02 \x01(\x04R\fendHashSpace\"K\n" +
+	"\x10RequestFetchRing\"K\n" +
 	"\x11RequestGossipJoin\x12\x1e\n" +
 	"\vnew_node_id\x18\x01 \x01(\tR\tnewNodeId\x12\x16\n" +
-	"\x06tokens\x18\x02 \x03(\x04R\x06tokens\"\x1e\n" +
+	"\x06tokens\x18\x02 \x03(\x04R\x06tokens\"e\n" +
+	"\x13RequestGetHashSpace\x12(\n" +
+	"\x10start_hash_space\x18\x01 \x01(\x04R\x0estartHashSpace\x12$\n" +
+	"\x0eend_hash_space\x18\x02 \x01(\x04R\fendHashSpace\"\x1e\n" +
 	"\n" +
 	"RequestGet\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\"4\n" +
@@ -1134,10 +1142,10 @@ const file_node_proto_rawDesc = "" +
 	"\x05error\x18\x03 \x01(\tR\x05error\x12#\n" +
 	"\x04ping\x18\v \x01(\v2\r.ResponsePingH\x00R\x04ping\x123\n" +
 	"\n" +
-	"fetch_ring\x18\f \x01(\v2\x12.ResponseFetchRingH\x00R\tfetchRing\x12=\n" +
-	"\x0eget_hash_space\x18\r \x01(\v2\x15.ResponseGetHashSpaceH\x00R\fgetHashSpace\x126\n" +
-	"\vgossip_join\x18\x0e \x01(\v2\x13.ResponseGossipJoinH\x00R\n" +
-	"gossipJoin\x12 \n" +
+	"fetch_ring\x18\f \x01(\v2\x12.ResponseFetchRingH\x00R\tfetchRing\x126\n" +
+	"\vgossip_join\x18\r \x01(\v2\x13.ResponseGossipJoinH\x00R\n" +
+	"gossipJoin\x12=\n" +
+	"\x0eget_hash_space\x18\x0e \x01(\v2\x15.ResponseGetHashSpaceH\x00R\fgetHashSpace\x12 \n" +
 	"\x03get\x18\x0f \x01(\v2\f.ResponseGetH\x00R\x03get\x12 \n" +
 	"\x03put\x18\x10 \x01(\v2\f.ResponsePutH\x00R\x03put\x12)\n" +
 	"\x06delete\x18\x11 \x01(\v2\x0f.ResponseDeleteH\x00R\x06delete\x12 \n" +
@@ -1149,9 +1157,13 @@ const file_node_proto_rawDesc = "" +
 	"\rtoken_to_node\x18\x01 \x03(\v2#.ResponseFetchRing.TokenToNodeEntryR\vtokenToNode\x1a>\n" +
 	"\x10TokenToNodeEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\x04R\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x16\n" +
-	"\x14ResponseGetHashSpace\"\x14\n" +
-	"\x12ResponseGossipJoin\"#\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x14\n" +
+	"\x12ResponseGossipJoin\"\xb0\x01\n" +
+	"\x14ResponseGetHashSpace\x12T\n" +
+	"\x0fhashSpaceValues\x18\x01 \x03(\v2*.ResponseGetHashSpace.HashSpaceValuesEntryR\x0fhashSpaceValues\x1aB\n" +
+	"\x14HashSpaceValuesEntry\x12\x10\n" +
+	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
+	"\x05value\x18\x02 \x01(\fR\x05value:\x028\x01\"#\n" +
 	"\vResponseGet\x12\x14\n" +
 	"\x05value\x18\x01 \x01(\fR\x05value\"\r\n" +
 	"\vResponsePut\"\x10\n" +
@@ -1171,13 +1183,13 @@ func file_node_proto_rawDescGZIP() []byte {
 	return file_node_proto_rawDescData
 }
 
-var file_node_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_node_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_node_proto_goTypes = []any{
 	(*Request)(nil),              // 0: Request
 	(*RequestPing)(nil),          // 1: RequestPing
 	(*RequestFetchRing)(nil),     // 2: RequestFetchRing
-	(*RequestGetHashSpace)(nil),  // 3: RequestGetHashSpace
-	(*RequestGossipJoin)(nil),    // 4: RequestGossipJoin
+	(*RequestGossipJoin)(nil),    // 3: RequestGossipJoin
+	(*RequestGetHashSpace)(nil),  // 4: RequestGetHashSpace
 	(*RequestGet)(nil),           // 5: RequestGet
 	(*RequestPut)(nil),           // 6: RequestPut
 	(*RequestDelete)(nil),        // 7: RequestDelete
@@ -1185,37 +1197,39 @@ var file_node_proto_goTypes = []any{
 	(*Response)(nil),             // 9: Response
 	(*ResponsePing)(nil),         // 10: ResponsePing
 	(*ResponseFetchRing)(nil),    // 11: ResponseFetchRing
-	(*ResponseGetHashSpace)(nil), // 12: ResponseGetHashSpace
-	(*ResponseGossipJoin)(nil),   // 13: ResponseGossipJoin
+	(*ResponseGossipJoin)(nil),   // 12: ResponseGossipJoin
+	(*ResponseGetHashSpace)(nil), // 13: ResponseGetHashSpace
 	(*ResponseGet)(nil),          // 14: ResponseGet
 	(*ResponsePut)(nil),          // 15: ResponsePut
 	(*ResponseDelete)(nil),       // 16: ResponseDelete
 	(*ResponseHas)(nil),          // 17: ResponseHas
 	nil,                          // 18: ResponseFetchRing.TokenToNodeEntry
+	nil,                          // 19: ResponseGetHashSpace.HashSpaceValuesEntry
 }
 var file_node_proto_depIdxs = []int32{
 	1,  // 0: Request.ping:type_name -> RequestPing
 	2,  // 1: Request.fetch_ring:type_name -> RequestFetchRing
-	3,  // 2: Request.get_hash_space:type_name -> RequestGetHashSpace
-	4,  // 3: Request.gossip_join:type_name -> RequestGossipJoin
+	3,  // 2: Request.gossip_join:type_name -> RequestGossipJoin
+	4,  // 3: Request.get_hash_space:type_name -> RequestGetHashSpace
 	5,  // 4: Request.get:type_name -> RequestGet
 	6,  // 5: Request.put:type_name -> RequestPut
 	7,  // 6: Request.delete:type_name -> RequestDelete
 	8,  // 7: Request.has:type_name -> RequestHas
 	10, // 8: Response.ping:type_name -> ResponsePing
 	11, // 9: Response.fetch_ring:type_name -> ResponseFetchRing
-	12, // 10: Response.get_hash_space:type_name -> ResponseGetHashSpace
-	13, // 11: Response.gossip_join:type_name -> ResponseGossipJoin
+	12, // 10: Response.gossip_join:type_name -> ResponseGossipJoin
+	13, // 11: Response.get_hash_space:type_name -> ResponseGetHashSpace
 	14, // 12: Response.get:type_name -> ResponseGet
 	15, // 13: Response.put:type_name -> ResponsePut
 	16, // 14: Response.delete:type_name -> ResponseDelete
 	17, // 15: Response.has:type_name -> ResponseHas
 	18, // 16: ResponseFetchRing.token_to_node:type_name -> ResponseFetchRing.TokenToNodeEntry
-	17, // [17:17] is the sub-list for method output_type
-	17, // [17:17] is the sub-list for method input_type
-	17, // [17:17] is the sub-list for extension type_name
-	17, // [17:17] is the sub-list for extension extendee
-	0,  // [0:17] is the sub-list for field type_name
+	19, // 17: ResponseGetHashSpace.hashSpaceValues:type_name -> ResponseGetHashSpace.HashSpaceValuesEntry
+	18, // [18:18] is the sub-list for method output_type
+	18, // [18:18] is the sub-list for method input_type
+	18, // [18:18] is the sub-list for extension type_name
+	18, // [18:18] is the sub-list for extension extendee
+	0,  // [0:18] is the sub-list for field type_name
 }
 
 func init() { file_node_proto_init() }
@@ -1226,8 +1240,8 @@ func file_node_proto_init() {
 	file_node_proto_msgTypes[0].OneofWrappers = []any{
 		(*Request_Ping)(nil),
 		(*Request_FetchRing)(nil),
-		(*Request_GetHashSpace)(nil),
 		(*Request_GossipJoin)(nil),
+		(*Request_GetHashSpace)(nil),
 		(*Request_Get)(nil),
 		(*Request_Put)(nil),
 		(*Request_Delete)(nil),
@@ -1236,8 +1250,8 @@ func file_node_proto_init() {
 	file_node_proto_msgTypes[9].OneofWrappers = []any{
 		(*Response_Ping)(nil),
 		(*Response_FetchRing)(nil),
-		(*Response_GetHashSpace)(nil),
 		(*Response_GossipJoin)(nil),
+		(*Response_GetHashSpace)(nil),
 		(*Response_Get)(nil),
 		(*Response_Put)(nil),
 		(*Response_Delete)(nil),
@@ -1249,7 +1263,7 @@ func file_node_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_node_proto_rawDesc), len(file_node_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   19,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

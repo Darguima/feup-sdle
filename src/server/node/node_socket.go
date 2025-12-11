@@ -11,7 +11,6 @@ import (
 )
 
 func (n *Node) sendRequest(peerAddr string, request proto.Message, timeout time.Duration) (*pb.Response, error) {
-	// println("Node " + n.id + " sending request to " + peerAddr)
 	reqSock, err := zmq4.NewSocket(zmq4.REQ)
 	if err != nil {
 		return nil, err
@@ -32,7 +31,6 @@ func (n *Node) sendRequest(peerAddr string, request proto.Message, timeout time.
 		return nil, err
 	}
 	responseBytes, err := reqSock.RecvBytes(0)
-
 	if err != nil {
 		return nil, err
 	}
@@ -68,13 +66,13 @@ func (n *Node) sendFetchRing(peerAddr string) (*pb.Response, error) {
 	return n.sendRequest(peerAddr, req, 5*time.Second)
 }
 
-func (n *Node) sendGetHashSpace(peerAddr string, startHashSpace int, endHashSpace int) (*pb.Response, error) {
+func (n *Node) sendGetHashSpace(peerAddr string, startHashSpace uint64, endHashSpace uint64) (*pb.Response, error) {
 	req := &pb.Request{
 		Origin: n.addr,
 		RequestType: &pb.Request_GetHashSpace{
 			GetHashSpace: &pb.RequestGetHashSpace{
-				StartHashSpace: uint64(startHashSpace),
-				EndHashSpace:   uint64(endHashSpace),
+				StartHashSpace: startHashSpace,
+				EndHashSpace:   endHashSpace,
 			},
 		},
 	}
