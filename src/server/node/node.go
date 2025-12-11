@@ -99,6 +99,10 @@ func NewNode(id string, baseDir string) (*Node, error) {
 	return n, nil
 }
 
+func (n *Node) ID() string {
+	return n.id
+}
+
 // Starts completely the node (ZMQ receiver and WebSocket server)
 func (n *Node) Start(errCh chan<- error) {
 	n.wg.Add(2)
@@ -316,9 +320,9 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 		var oldListProto pb.ShoppingList
 
 		proto.Unmarshal(oldListData, &oldListProto)
-		oldList = crdt.ShoppingListFromProto(&oldListProto)
+		oldList = crdt.ShoppingListFromProto(&oldListProto, n.id)
 	} else {
-		oldList = crdt.NewShoppingList(n.id, delta.ListID(), delta.Name())
+		oldList = crdt.NewShoppingList(n.id, delta.ListID())
 	}
 
 	oldList.Join(delta)

@@ -113,19 +113,6 @@ func (ormap *ORMap[K, V]) Join(other *ORMap[K, V]) {
 	}
 
 	for key, otherValue := range other.valueMap {
-		// if localValue, ok := ormap.valueMap[key]; ok {
-		// 	localValue.Join(otherValue)
-		// 	ormap.dotContext.Copy(originalContext)
-
-		// } else {
-		// 	newValue := otherValue.NewEmpty(ormap.id)
-		// 	newValue.SetContext(ormap.dotContext)
-		// 	newValue.Join(otherValue)
-
-		// 	ormap.valueMap[key] = newValue
-		// 	ormap.dotContext.Copy(originalContext)
-		// }
-
 		localValue := ormap.Get(key)
 		localValue.Join(otherValue)
 		ormap.dotContext.Copy(originalContext)

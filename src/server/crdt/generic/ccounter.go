@@ -92,7 +92,7 @@ func (cc *CCounter) ToProto() *g01.CCounter {
 }
 
 func CCounterFromProto(protoCounter *g01.CCounter, replicaId string, ctx *DotContext) *CCounter {
-	dotKernel := DotKernelFromProto(protoCounter.GetDotKernel(), ctx)
+	dotKernel := IntDotKernelFromProto(protoCounter.GetDotKernel(), ctx)
 
 	return &CCounter{
 		replicaID: replicaId,

@@ -1,5 +1,10 @@
 package crdt
 
+import (
+	"fmt"
+	g01 "sdle-server/proto"
+)
+
 type EWFlag struct {
 	replicaID string
 	dotKernel *DotKernel[struct{}]
@@ -53,4 +58,23 @@ func (flag *EWFlag) Clone() *EWFlag {
 	clone := NewEWFlag(flag.replicaID)
 	clone.dotKernel = flag.dotKernel.Clone()
 	return clone
+}
+
+func (flag *EWFlag) String() string {
+	return fmt.Sprintf("EWFlag{replicaID: %s, dotKernel: %v}", flag.replicaID, flag.dotKernel)
+}
+
+func (flag *EWFlag) ToProto() *g01.EWFlag {
+	return &g01.EWFlag{
+		DotKernel: (*EmptyDotKernel)(flag.dotKernel).ToProto(),
+	}
+}
+
+func EWFlagFromProto(protoFlag *g01.EWFlag, replicaId string, ctx *DotContext) *EWFlag {
+	dotKernel := EmptyDotKernelFromProto(protoFlag.GetDotKernel(), ctx)
+
+	return &EWFlag{
+		replicaID: replicaId,
+		dotKernel: (*DotKernel[struct{}])(dotKernel),
+	}
 }

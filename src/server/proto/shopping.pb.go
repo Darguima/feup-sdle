@@ -23,9 +23,10 @@ const (
 
 type ShoppingItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Name          string                 `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	Quantity      *CCounter              `protobuf:"bytes,2,opt,name=quantity,proto3" json:"quantity,omitempty"`
-	Acquired      *CCounter              `protobuf:"bytes,3,opt,name=acquired,proto3" json:"acquired,omitempty"`
+	Name          *StringMVReg           `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
+	NonErased     *EWFlag                `protobuf:"bytes,2,opt,name=nonErased,proto3" json:"nonErased,omitempty"`
+	Quantity      *CCounter              `protobuf:"bytes,3,opt,name=quantity,proto3" json:"quantity,omitempty"`
+	Acquired      *CCounter              `protobuf:"bytes,4,opt,name=acquired,proto3" json:"acquired,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -60,11 +61,18 @@ func (*ShoppingItem) Descriptor() ([]byte, []int) {
 	return file_shopping_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ShoppingItem) GetName() string {
+func (x *ShoppingItem) GetName() *StringMVReg {
 	if x != nil {
 		return x.Name
 	}
-	return ""
+	return nil
+}
+
+func (x *ShoppingItem) GetNonErased() *EWFlag {
+	if x != nil {
+		return x.NonErased
+	}
+	return nil
 }
 
 func (x *ShoppingItem) GetQuantity() *CCounter {
@@ -83,11 +91,10 @@ func (x *ShoppingItem) GetAcquired() *CCounter {
 
 type ShoppingList struct {
 	state         protoimpl.MessageState   `protogen:"open.v1"`
-	ReplicaId     string                   `protobuf:"bytes,1,opt,name=replica_id,json=replicaId,proto3" json:"replica_id,omitempty"`
-	Id            string                   `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
-	Name          string                   `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Items         map[string]*ShoppingItem `protobuf:"bytes,4,rep,name=items,proto3" json:"items,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	DotContext    *DotContext              `protobuf:"bytes,5,opt,name=dot_context,json=dotContext,proto3" json:"dot_context,omitempty"`
+	Id            string                   `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name          *StringMVReg             `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Items         map[string]*ShoppingItem `protobuf:"bytes,3,rep,name=items,proto3" json:"items,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	DotContext    *DotContext              `protobuf:"bytes,4,opt,name=dot_context,json=dotContext,proto3" json:"dot_context,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -122,13 +129,6 @@ func (*ShoppingList) Descriptor() ([]byte, []int) {
 	return file_shopping_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *ShoppingList) GetReplicaId() string {
-	if x != nil {
-		return x.ReplicaId
-	}
-	return ""
-}
-
 func (x *ShoppingList) GetId() string {
 	if x != nil {
 		return x.Id
@@ -136,11 +136,11 @@ func (x *ShoppingList) GetId() string {
 	return ""
 }
 
-func (x *ShoppingList) GetName() string {
+func (x *ShoppingList) GetName() *StringMVReg {
 	if x != nil {
 		return x.Name
 	}
-	return ""
+	return nil
 }
 
 func (x *ShoppingList) GetItems() map[string]*ShoppingItem {
@@ -162,18 +162,17 @@ var File_shopping_proto protoreflect.FileDescriptor
 const file_shopping_proto_rawDesc = "" +
 	"\n" +
 	"\x0eshopping.proto\x1a\n" +
-	"crdt.proto\"p\n" +
-	"\fShoppingItem\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12%\n" +
-	"\bquantity\x18\x02 \x01(\v2\t.CCounterR\bquantity\x12%\n" +
-	"\bacquired\x18\x03 \x01(\v2\t.CCounterR\bacquired\"\xf8\x01\n" +
-	"\fShoppingList\x12\x1d\n" +
-	"\n" +
-	"replica_id\x18\x01 \x01(\tR\treplicaId\x12\x0e\n" +
-	"\x02id\x18\x02 \x01(\tR\x02id\x12\x12\n" +
-	"\x04name\x18\x03 \x01(\tR\x04name\x12.\n" +
-	"\x05items\x18\x04 \x03(\v2\x18.ShoppingList.ItemsEntryR\x05items\x12,\n" +
-	"\vdot_context\x18\x05 \x01(\v2\v.DotContextR\n" +
+	"crdt.proto\"\xa5\x01\n" +
+	"\fShoppingItem\x12 \n" +
+	"\x04name\x18\x01 \x01(\v2\f.StringMVRegR\x04name\x12%\n" +
+	"\tnonErased\x18\x02 \x01(\v2\a.EWFlagR\tnonErased\x12%\n" +
+	"\bquantity\x18\x03 \x01(\v2\t.CCounterR\bquantity\x12%\n" +
+	"\bacquired\x18\x04 \x01(\v2\t.CCounterR\bacquired\"\xe7\x01\n" +
+	"\fShoppingList\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12 \n" +
+	"\x04name\x18\x02 \x01(\v2\f.StringMVRegR\x04name\x12.\n" +
+	"\x05items\x18\x03 \x03(\v2\x18.ShoppingList.ItemsEntryR\x05items\x12,\n" +
+	"\vdot_context\x18\x04 \x01(\v2\v.DotContextR\n" +
 	"dotContext\x1aG\n" +
 	"\n" +
 	"ItemsEntry\x12\x10\n" +
@@ -197,20 +196,25 @@ var file_shopping_proto_goTypes = []any{
 	(*ShoppingItem)(nil), // 0: ShoppingItem
 	(*ShoppingList)(nil), // 1: ShoppingList
 	nil,                  // 2: ShoppingList.ItemsEntry
-	(*CCounter)(nil),     // 3: CCounter
-	(*DotContext)(nil),   // 4: DotContext
+	(*StringMVReg)(nil),  // 3: StringMVReg
+	(*EWFlag)(nil),       // 4: EWFlag
+	(*CCounter)(nil),     // 5: CCounter
+	(*DotContext)(nil),   // 6: DotContext
 }
 var file_shopping_proto_depIdxs = []int32{
-	3, // 0: ShoppingItem.quantity:type_name -> CCounter
-	3, // 1: ShoppingItem.acquired:type_name -> CCounter
-	2, // 2: ShoppingList.items:type_name -> ShoppingList.ItemsEntry
-	4, // 3: ShoppingList.dot_context:type_name -> DotContext
-	0, // 4: ShoppingList.ItemsEntry.value:type_name -> ShoppingItem
-	5, // [5:5] is the sub-list for method output_type
-	5, // [5:5] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	3, // 0: ShoppingItem.name:type_name -> StringMVReg
+	4, // 1: ShoppingItem.nonErased:type_name -> EWFlag
+	5, // 2: ShoppingItem.quantity:type_name -> CCounter
+	5, // 3: ShoppingItem.acquired:type_name -> CCounter
+	3, // 4: ShoppingList.name:type_name -> StringMVReg
+	2, // 5: ShoppingList.items:type_name -> ShoppingList.ItemsEntry
+	6, // 6: ShoppingList.dot_context:type_name -> DotContext
+	0, // 7: ShoppingList.ItemsEntry.value:type_name -> ShoppingItem
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_shopping_proto_init() }

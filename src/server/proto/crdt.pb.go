@@ -125,7 +125,7 @@ func (x *DotContext) GetDots() []*Dot {
 	return nil
 }
 
-type DotKernel struct {
+type IntDotKernel struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	DotKeys       []*Dot                 `protobuf:"bytes,1,rep,name=dot_keys,json=dotKeys,proto3" json:"dot_keys,omitempty"`
 	DotValues     []int64                `protobuf:"varint,2,rep,packed,name=dot_values,json=dotValues,proto3" json:"dot_values,omitempty"`
@@ -133,20 +133,20 @@ type DotKernel struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *DotKernel) Reset() {
-	*x = DotKernel{}
+func (x *IntDotKernel) Reset() {
+	*x = IntDotKernel{}
 	mi := &file_crdt_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *DotKernel) String() string {
+func (x *IntDotKernel) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*DotKernel) ProtoMessage() {}
+func (*IntDotKernel) ProtoMessage() {}
 
-func (x *DotKernel) ProtoReflect() protoreflect.Message {
+func (x *IntDotKernel) ProtoReflect() protoreflect.Message {
 	mi := &file_crdt_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -158,35 +158,131 @@ func (x *DotKernel) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use DotKernel.ProtoReflect.Descriptor instead.
-func (*DotKernel) Descriptor() ([]byte, []int) {
+// Deprecated: Use IntDotKernel.ProtoReflect.Descriptor instead.
+func (*IntDotKernel) Descriptor() ([]byte, []int) {
 	return file_crdt_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *DotKernel) GetDotKeys() []*Dot {
+func (x *IntDotKernel) GetDotKeys() []*Dot {
 	if x != nil {
 		return x.DotKeys
 	}
 	return nil
 }
 
-func (x *DotKernel) GetDotValues() []int64 {
+func (x *IntDotKernel) GetDotValues() []int64 {
 	if x != nil {
 		return x.DotValues
 	}
 	return nil
 }
 
+type StringDotKernel struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DotKeys       []*Dot                 `protobuf:"bytes,1,rep,name=dot_keys,json=dotKeys,proto3" json:"dot_keys,omitempty"`
+	DotValues     []string               `protobuf:"bytes,2,rep,name=dot_values,json=dotValues,proto3" json:"dot_values,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StringDotKernel) Reset() {
+	*x = StringDotKernel{}
+	mi := &file_crdt_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StringDotKernel) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StringDotKernel) ProtoMessage() {}
+
+func (x *StringDotKernel) ProtoReflect() protoreflect.Message {
+	mi := &file_crdt_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StringDotKernel.ProtoReflect.Descriptor instead.
+func (*StringDotKernel) Descriptor() ([]byte, []int) {
+	return file_crdt_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *StringDotKernel) GetDotKeys() []*Dot {
+	if x != nil {
+		return x.DotKeys
+	}
+	return nil
+}
+
+func (x *StringDotKernel) GetDotValues() []string {
+	if x != nil {
+		return x.DotValues
+	}
+	return nil
+}
+
+type EmptyDotKernel struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DotKeys       []*Dot                 `protobuf:"bytes,1,rep,name=dot_keys,json=dotKeys,proto3" json:"dot_keys,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EmptyDotKernel) Reset() {
+	*x = EmptyDotKernel{}
+	mi := &file_crdt_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EmptyDotKernel) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EmptyDotKernel) ProtoMessage() {}
+
+func (x *EmptyDotKernel) ProtoReflect() protoreflect.Message {
+	mi := &file_crdt_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EmptyDotKernel.ProtoReflect.Descriptor instead.
+func (*EmptyDotKernel) Descriptor() ([]byte, []int) {
+	return file_crdt_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *EmptyDotKernel) GetDotKeys() []*Dot {
+	if x != nil {
+		return x.DotKeys
+	}
+	return nil
+}
+
 type CCounter struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	DotKernel     *DotKernel             `protobuf:"bytes,1,opt,name=dot_kernel,json=dotKernel,proto3" json:"dot_kernel,omitempty"`
+	DotKernel     *IntDotKernel          `protobuf:"bytes,1,opt,name=dot_kernel,json=dotKernel,proto3" json:"dot_kernel,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CCounter) Reset() {
 	*x = CCounter{}
-	mi := &file_crdt_proto_msgTypes[3]
+	mi := &file_crdt_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -198,7 +294,7 @@ func (x *CCounter) String() string {
 func (*CCounter) ProtoMessage() {}
 
 func (x *CCounter) ProtoReflect() protoreflect.Message {
-	mi := &file_crdt_proto_msgTypes[3]
+	mi := &file_crdt_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -211,10 +307,98 @@ func (x *CCounter) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CCounter.ProtoReflect.Descriptor instead.
 func (*CCounter) Descriptor() ([]byte, []int) {
-	return file_crdt_proto_rawDescGZIP(), []int{3}
+	return file_crdt_proto_rawDescGZIP(), []int{5}
 }
 
-func (x *CCounter) GetDotKernel() *DotKernel {
+func (x *CCounter) GetDotKernel() *IntDotKernel {
+	if x != nil {
+		return x.DotKernel
+	}
+	return nil
+}
+
+type StringMVReg struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DotKernel     *StringDotKernel       `protobuf:"bytes,1,opt,name=dot_kernel,json=dotKernel,proto3" json:"dot_kernel,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *StringMVReg) Reset() {
+	*x = StringMVReg{}
+	mi := &file_crdt_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *StringMVReg) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*StringMVReg) ProtoMessage() {}
+
+func (x *StringMVReg) ProtoReflect() protoreflect.Message {
+	mi := &file_crdt_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use StringMVReg.ProtoReflect.Descriptor instead.
+func (*StringMVReg) Descriptor() ([]byte, []int) {
+	return file_crdt_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *StringMVReg) GetDotKernel() *StringDotKernel {
+	if x != nil {
+		return x.DotKernel
+	}
+	return nil
+}
+
+type EWFlag struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	DotKernel     *EmptyDotKernel        `protobuf:"bytes,1,opt,name=dot_kernel,json=dotKernel,proto3" json:"dot_kernel,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EWFlag) Reset() {
+	*x = EWFlag{}
+	mi := &file_crdt_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EWFlag) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EWFlag) ProtoMessage() {}
+
+func (x *EWFlag) ProtoReflect() protoreflect.Message {
+	mi := &file_crdt_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EWFlag.ProtoReflect.Descriptor instead.
+func (*EWFlag) Descriptor() ([]byte, []int) {
+	return file_crdt_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *EWFlag) GetDotKernel() *EmptyDotKernel {
 	if x != nil {
 		return x.DotKernel
 	}
@@ -236,15 +420,26 @@ const file_crdt_proto_rawDesc = "" +
 	"\x04dots\x18\x02 \x03(\v2\x04.DotR\x04dots\x1a@\n" +
 	"\x12VersionVectorEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"K\n" +
-	"\tDotKernel\x12\x1f\n" +
+	"\x05value\x18\x02 \x01(\rR\x05value:\x028\x01\"N\n" +
+	"\fIntDotKernel\x12\x1f\n" +
 	"\bdot_keys\x18\x01 \x03(\v2\x04.DotR\adotKeys\x12\x1d\n" +
 	"\n" +
-	"dot_values\x18\x02 \x03(\x03R\tdotValues\"5\n" +
-	"\bCCounter\x12)\n" +
+	"dot_values\x18\x02 \x03(\x03R\tdotValues\"Q\n" +
+	"\x0fStringDotKernel\x12\x1f\n" +
+	"\bdot_keys\x18\x01 \x03(\v2\x04.DotR\adotKeys\x12\x1d\n" +
 	"\n" +
-	"dot_kernel\x18\x01 \x01(\v2\n" +
-	".DotKernelR\tdotKernelB'Z%gitlab.up.pt/classes/sdle/2025/t2/g01b\x06proto3"
+	"dot_values\x18\x02 \x03(\tR\tdotValues\"1\n" +
+	"\x0eEmptyDotKernel\x12\x1f\n" +
+	"\bdot_keys\x18\x01 \x03(\v2\x04.DotR\adotKeys\"8\n" +
+	"\bCCounter\x12,\n" +
+	"\n" +
+	"dot_kernel\x18\x01 \x01(\v2\r.IntDotKernelR\tdotKernel\">\n" +
+	"\vStringMVReg\x12/\n" +
+	"\n" +
+	"dot_kernel\x18\x01 \x01(\v2\x10.StringDotKernelR\tdotKernel\"8\n" +
+	"\x06EWFlag\x12.\n" +
+	"\n" +
+	"dot_kernel\x18\x01 \x01(\v2\x0f.EmptyDotKernelR\tdotKernelB'Z%gitlab.up.pt/classes/sdle/2025/t2/g01b\x06proto3"
 
 var (
 	file_crdt_proto_rawDescOnce sync.Once
@@ -258,24 +453,32 @@ func file_crdt_proto_rawDescGZIP() []byte {
 	return file_crdt_proto_rawDescData
 }
 
-var file_crdt_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_crdt_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_crdt_proto_goTypes = []any{
-	(*Dot)(nil),        // 0: Dot
-	(*DotContext)(nil), // 1: DotContext
-	(*DotKernel)(nil),  // 2: DotKernel
-	(*CCounter)(nil),   // 3: CCounter
-	nil,                // 4: DotContext.VersionVectorEntry
+	(*Dot)(nil),             // 0: Dot
+	(*DotContext)(nil),      // 1: DotContext
+	(*IntDotKernel)(nil),    // 2: IntDotKernel
+	(*StringDotKernel)(nil), // 3: StringDotKernel
+	(*EmptyDotKernel)(nil),  // 4: EmptyDotKernel
+	(*CCounter)(nil),        // 5: CCounter
+	(*StringMVReg)(nil),     // 6: StringMVReg
+	(*EWFlag)(nil),          // 7: EWFlag
+	nil,                     // 8: DotContext.VersionVectorEntry
 }
 var file_crdt_proto_depIdxs = []int32{
-	4, // 0: DotContext.version_vector:type_name -> DotContext.VersionVectorEntry
+	8, // 0: DotContext.version_vector:type_name -> DotContext.VersionVectorEntry
 	0, // 1: DotContext.dots:type_name -> Dot
-	0, // 2: DotKernel.dot_keys:type_name -> Dot
-	2, // 3: CCounter.dot_kernel:type_name -> DotKernel
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	0, // 2: IntDotKernel.dot_keys:type_name -> Dot
+	0, // 3: StringDotKernel.dot_keys:type_name -> Dot
+	0, // 4: EmptyDotKernel.dot_keys:type_name -> Dot
+	2, // 5: CCounter.dot_kernel:type_name -> IntDotKernel
+	3, // 6: StringMVReg.dot_kernel:type_name -> StringDotKernel
+	4, // 7: EWFlag.dot_kernel:type_name -> EmptyDotKernel
+	8, // [8:8] is the sub-list for method output_type
+	8, // [8:8] is the sub-list for method input_type
+	8, // [8:8] is the sub-list for extension type_name
+	8, // [8:8] is the sub-list for extension extendee
+	0, // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_crdt_proto_init() }
@@ -289,7 +492,7 @@ func file_crdt_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_crdt_proto_rawDesc), len(file_crdt_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   5,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

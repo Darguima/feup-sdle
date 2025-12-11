@@ -104,7 +104,10 @@ export class Entity implements IEntity {
 export interface IShoppingItem {
 
     /** ShoppingItem name */
-    name?: (string|null);
+    name?: (IStringMVReg|null);
+
+    /** ShoppingItem nonErased */
+    nonErased?: (IEWFlag|null);
 
     /** ShoppingItem quantity */
     quantity?: (ICCounter|null);
@@ -123,7 +126,10 @@ export class ShoppingItem implements IShoppingItem {
     constructor(properties?: IShoppingItem);
 
     /** ShoppingItem name. */
-    public name: string;
+    public name?: (IStringMVReg|null);
+
+    /** ShoppingItem nonErased. */
+    public nonErased?: (IEWFlag|null);
 
     /** ShoppingItem quantity. */
     public quantity?: (ICCounter|null);
@@ -212,14 +218,11 @@ export class ShoppingItem implements IShoppingItem {
 /** Properties of a ShoppingList. */
 export interface IShoppingList {
 
-    /** ShoppingList replicaId */
-    replicaId?: (string|null);
-
     /** ShoppingList id */
     id?: (string|null);
 
     /** ShoppingList name */
-    name?: (string|null);
+    name?: (IStringMVReg|null);
 
     /** ShoppingList items */
     items?: ({ [k: string]: IShoppingItem }|null);
@@ -237,14 +240,11 @@ export class ShoppingList implements IShoppingList {
      */
     constructor(properties?: IShoppingList);
 
-    /** ShoppingList replicaId. */
-    public replicaId: string;
-
     /** ShoppingList id. */
     public id: string;
 
     /** ShoppingList name. */
-    public name: string;
+    public name?: (IStringMVReg|null);
 
     /** ShoppingList items. */
     public items: { [k: string]: IShoppingItem };
@@ -536,103 +536,303 @@ export class DotContext implements IDotContext {
     public static getTypeUrl(typeUrlPrefix?: string): string;
 }
 
-/** Properties of a DotKernel. */
-export interface IDotKernel {
+/** Properties of an IntDotKernel. */
+export interface IIntDotKernel {
 
-    /** DotKernel dotKeys */
+    /** IntDotKernel dotKeys */
     dotKeys?: (IDot[]|null);
 
-    /** DotKernel dotValues */
+    /** IntDotKernel dotValues */
     dotValues?: ((number|Long)[]|null);
 }
 
-/** Represents a DotKernel. */
-export class DotKernel implements IDotKernel {
+/** Represents an IntDotKernel. */
+export class IntDotKernel implements IIntDotKernel {
 
     /**
-     * Constructs a new DotKernel.
+     * Constructs a new IntDotKernel.
      * @param [properties] Properties to set
      */
-    constructor(properties?: IDotKernel);
+    constructor(properties?: IIntDotKernel);
 
-    /** DotKernel dotKeys. */
+    /** IntDotKernel dotKeys. */
     public dotKeys: IDot[];
 
-    /** DotKernel dotValues. */
+    /** IntDotKernel dotValues. */
     public dotValues: (number|Long)[];
 
     /**
-     * Creates a new DotKernel instance using the specified properties.
+     * Creates a new IntDotKernel instance using the specified properties.
      * @param [properties] Properties to set
-     * @returns DotKernel instance
+     * @returns IntDotKernel instance
      */
-    public static create(properties?: IDotKernel): DotKernel;
+    public static create(properties?: IIntDotKernel): IntDotKernel;
 
     /**
-     * Encodes the specified DotKernel message. Does not implicitly {@link DotKernel.verify|verify} messages.
-     * @param message DotKernel message or plain object to encode
+     * Encodes the specified IntDotKernel message. Does not implicitly {@link IntDotKernel.verify|verify} messages.
+     * @param message IntDotKernel message or plain object to encode
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: IIntDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
-     * Encodes the specified DotKernel message, length delimited. Does not implicitly {@link DotKernel.verify|verify} messages.
-     * @param message DotKernel message or plain object to encode
+     * Encodes the specified IntDotKernel message, length delimited. Does not implicitly {@link IntDotKernel.verify|verify} messages.
+     * @param message IntDotKernel message or plain object to encode
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: IIntDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
-     * Decodes a DotKernel message from the specified reader or buffer.
+     * Decodes an IntDotKernel message from the specified reader or buffer.
      * @param reader Reader or buffer to decode from
      * @param [length] Message length if known beforehand
-     * @returns DotKernel
+     * @returns IntDotKernel
      * @throws {Error} If the payload is not a reader or valid buffer
      * @throws {$protobuf.util.ProtocolError} If required fields are missing
      */
-    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): DotKernel;
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): IntDotKernel;
 
     /**
-     * Decodes a DotKernel message from the specified reader or buffer, length delimited.
+     * Decodes an IntDotKernel message from the specified reader or buffer, length delimited.
      * @param reader Reader or buffer to decode from
-     * @returns DotKernel
+     * @returns IntDotKernel
      * @throws {Error} If the payload is not a reader or valid buffer
      * @throws {$protobuf.util.ProtocolError} If required fields are missing
      */
-    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): DotKernel;
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): IntDotKernel;
 
     /**
-     * Verifies a DotKernel message.
+     * Verifies an IntDotKernel message.
      * @param message Plain object to verify
      * @returns `null` if valid, otherwise the reason why it is not
      */
     public static verify(message: { [k: string]: any }): (string|null);
 
     /**
-     * Creates a DotKernel message from a plain object. Also converts values to their respective internal types.
+     * Creates an IntDotKernel message from a plain object. Also converts values to their respective internal types.
      * @param object Plain object
-     * @returns DotKernel
+     * @returns IntDotKernel
      */
-    public static fromObject(object: { [k: string]: any }): DotKernel;
+    public static fromObject(object: { [k: string]: any }): IntDotKernel;
 
     /**
-     * Creates a plain object from a DotKernel message. Also converts values to other types if specified.
-     * @param message DotKernel
+     * Creates a plain object from an IntDotKernel message. Also converts values to other types if specified.
+     * @param message IntDotKernel
      * @param [options] Conversion options
      * @returns Plain object
      */
-    public static toObject(message: DotKernel, options?: $protobuf.IConversionOptions): { [k: string]: any };
+    public static toObject(message: IntDotKernel, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
     /**
-     * Converts this DotKernel to JSON.
+     * Converts this IntDotKernel to JSON.
      * @returns JSON object
      */
     public toJSON(): { [k: string]: any };
 
     /**
-     * Gets the default type url for DotKernel
+     * Gets the default type url for IntDotKernel
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Properties of a StringDotKernel. */
+export interface IStringDotKernel {
+
+    /** StringDotKernel dotKeys */
+    dotKeys?: (IDot[]|null);
+
+    /** StringDotKernel dotValues */
+    dotValues?: (string[]|null);
+}
+
+/** Represents a StringDotKernel. */
+export class StringDotKernel implements IStringDotKernel {
+
+    /**
+     * Constructs a new StringDotKernel.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IStringDotKernel);
+
+    /** StringDotKernel dotKeys. */
+    public dotKeys: IDot[];
+
+    /** StringDotKernel dotValues. */
+    public dotValues: string[];
+
+    /**
+     * Creates a new StringDotKernel instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns StringDotKernel instance
+     */
+    public static create(properties?: IStringDotKernel): StringDotKernel;
+
+    /**
+     * Encodes the specified StringDotKernel message. Does not implicitly {@link StringDotKernel.verify|verify} messages.
+     * @param message StringDotKernel message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IStringDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified StringDotKernel message, length delimited. Does not implicitly {@link StringDotKernel.verify|verify} messages.
+     * @param message StringDotKernel message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IStringDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a StringDotKernel message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns StringDotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): StringDotKernel;
+
+    /**
+     * Decodes a StringDotKernel message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns StringDotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): StringDotKernel;
+
+    /**
+     * Verifies a StringDotKernel message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a StringDotKernel message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns StringDotKernel
+     */
+    public static fromObject(object: { [k: string]: any }): StringDotKernel;
+
+    /**
+     * Creates a plain object from a StringDotKernel message. Also converts values to other types if specified.
+     * @param message StringDotKernel
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: StringDotKernel, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this StringDotKernel to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for StringDotKernel
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Properties of an EmptyDotKernel. */
+export interface IEmptyDotKernel {
+
+    /** EmptyDotKernel dotKeys */
+    dotKeys?: (IDot[]|null);
+}
+
+/** Represents an EmptyDotKernel. */
+export class EmptyDotKernel implements IEmptyDotKernel {
+
+    /**
+     * Constructs a new EmptyDotKernel.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IEmptyDotKernel);
+
+    /** EmptyDotKernel dotKeys. */
+    public dotKeys: IDot[];
+
+    /**
+     * Creates a new EmptyDotKernel instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns EmptyDotKernel instance
+     */
+    public static create(properties?: IEmptyDotKernel): EmptyDotKernel;
+
+    /**
+     * Encodes the specified EmptyDotKernel message. Does not implicitly {@link EmptyDotKernel.verify|verify} messages.
+     * @param message EmptyDotKernel message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IEmptyDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified EmptyDotKernel message, length delimited. Does not implicitly {@link EmptyDotKernel.verify|verify} messages.
+     * @param message EmptyDotKernel message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IEmptyDotKernel, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes an EmptyDotKernel message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns EmptyDotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): EmptyDotKernel;
+
+    /**
+     * Decodes an EmptyDotKernel message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns EmptyDotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): EmptyDotKernel;
+
+    /**
+     * Verifies an EmptyDotKernel message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates an EmptyDotKernel message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns EmptyDotKernel
+     */
+    public static fromObject(object: { [k: string]: any }): EmptyDotKernel;
+
+    /**
+     * Creates a plain object from an EmptyDotKernel message. Also converts values to other types if specified.
+     * @param message EmptyDotKernel
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: EmptyDotKernel, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this EmptyDotKernel to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for EmptyDotKernel
      * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
      * @returns The default type url
      */
@@ -643,7 +843,7 @@ export class DotKernel implements IDotKernel {
 export interface ICCounter {
 
     /** CCounter dotKernel */
-    dotKernel?: (IDotKernel|null);
+    dotKernel?: (IIntDotKernel|null);
 }
 
 /** Represents a CCounter. */
@@ -656,7 +856,7 @@ export class CCounter implements ICCounter {
     constructor(properties?: ICCounter);
 
     /** CCounter dotKernel. */
-    public dotKernel?: (IDotKernel|null);
+    public dotKernel?: (IIntDotKernel|null);
 
     /**
      * Creates a new CCounter instance using the specified properties.
@@ -730,6 +930,200 @@ export class CCounter implements ICCounter {
 
     /**
      * Gets the default type url for CCounter
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Properties of a StringMVReg. */
+export interface IStringMVReg {
+
+    /** StringMVReg dotKernel */
+    dotKernel?: (IStringDotKernel|null);
+}
+
+/** Represents a StringMVReg. */
+export class StringMVReg implements IStringMVReg {
+
+    /**
+     * Constructs a new StringMVReg.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IStringMVReg);
+
+    /** StringMVReg dotKernel. */
+    public dotKernel?: (IStringDotKernel|null);
+
+    /**
+     * Creates a new StringMVReg instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns StringMVReg instance
+     */
+    public static create(properties?: IStringMVReg): StringMVReg;
+
+    /**
+     * Encodes the specified StringMVReg message. Does not implicitly {@link StringMVReg.verify|verify} messages.
+     * @param message StringMVReg message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IStringMVReg, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified StringMVReg message, length delimited. Does not implicitly {@link StringMVReg.verify|verify} messages.
+     * @param message StringMVReg message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IStringMVReg, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a StringMVReg message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns StringMVReg
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): StringMVReg;
+
+    /**
+     * Decodes a StringMVReg message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns StringMVReg
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): StringMVReg;
+
+    /**
+     * Verifies a StringMVReg message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a StringMVReg message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns StringMVReg
+     */
+    public static fromObject(object: { [k: string]: any }): StringMVReg;
+
+    /**
+     * Creates a plain object from a StringMVReg message. Also converts values to other types if specified.
+     * @param message StringMVReg
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: StringMVReg, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this StringMVReg to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for StringMVReg
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Properties of a EWFlag. */
+export interface IEWFlag {
+
+    /** EWFlag dotKernel */
+    dotKernel?: (IEmptyDotKernel|null);
+}
+
+/** Represents a EWFlag. */
+export class EWFlag implements IEWFlag {
+
+    /**
+     * Constructs a new EWFlag.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IEWFlag);
+
+    /** EWFlag dotKernel. */
+    public dotKernel?: (IEmptyDotKernel|null);
+
+    /**
+     * Creates a new EWFlag instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns EWFlag instance
+     */
+    public static create(properties?: IEWFlag): EWFlag;
+
+    /**
+     * Encodes the specified EWFlag message. Does not implicitly {@link EWFlag.verify|verify} messages.
+     * @param message EWFlag message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IEWFlag, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified EWFlag message, length delimited. Does not implicitly {@link EWFlag.verify|verify} messages.
+     * @param message EWFlag message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IEWFlag, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a EWFlag message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns EWFlag
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): EWFlag;
+
+    /**
+     * Decodes a EWFlag message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns EWFlag
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): EWFlag;
+
+    /**
+     * Verifies a EWFlag message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a EWFlag message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns EWFlag
+     */
+    public static fromObject(object: { [k: string]: any }): EWFlag;
+
+    /**
+     * Creates a plain object from a EWFlag message. Also converts values to other types if specified.
+     * @param message EWFlag
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: EWFlag, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this EWFlag to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for EWFlag
      * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
      * @returns The default type url
      */

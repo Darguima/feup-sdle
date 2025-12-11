@@ -7,7 +7,7 @@ import (
 )
 
 func TestShoppingItem_NewShoppingItem(t *testing.T) {
-	item := NewShoppingItem("replica1", "item1", "Milk")
+	item := NewShoppingItem("replica1", "item1")
 
 	if item.ReplicaID() != "replica1" {
 		t.Errorf("Expected CRDTID to be 'replica1', got %s", item.ReplicaID())
@@ -15,8 +15,8 @@ func TestShoppingItem_NewShoppingItem(t *testing.T) {
 	if item.ItemID() != "item1" {
 		t.Errorf("Expected ItemID to be 'item1', got %s", item.ItemID())
 	}
-	if item.Name() != "Milk" {
-		t.Errorf("Expected Name to be 'Milk', got %s", item.Name())
+	if item.Name() != "" {
+		t.Errorf("Expected Name to be empty string, got %s", item.Name())
 	}
 	if item.Quantity() != 0 {
 		t.Errorf("Expected initial quantity to be 0, got %d", item.Quantity())
@@ -25,8 +25,27 @@ func TestShoppingItem_NewShoppingItem(t *testing.T) {
 		t.Errorf("Expected initial acquired to be 0, got %d", item.Acquired())
 	}
 }
+
+func TestShoppingItem_SetName(t *testing.T) {
+	item1 := NewShoppingItem("replica1", "item1")
+	item2 := item1.Clone()
+
+	delta := item1.SetName("Milk")
+
+	if item1.Name() != "Milk" {
+		t.Errorf("Expected name to be 'Milk', got %s", item1.Name())
+	}
+
+	item2.Join(delta)
+	if !reflect.DeepEqual(item1, item2) {
+		t.Logf("Item 1: %v", item1)
+		t.Logf("Item 2: %v", item2)
+		t.Errorf("Expected item1 and item2 to be equal after joining with delta")
+	}
+}
+
 func TestShoppingItem_IncQuantity(t *testing.T) {
-	item1 := NewShoppingItem("replica1", "item1", "Milk")
+	item1 := NewShoppingItem("replica1", "item1")
 	item2 := item1.Clone()
 
 	delta1 := item1.IncQuantity(5)
@@ -51,12 +70,14 @@ func TestShoppingItem_IncQuantity(t *testing.T) {
 	item2.Join(delta3)
 
 	if !reflect.DeepEqual(item1, item2) {
+		t.Logf("Item1: %v", item1)
+		t.Logf("Item2: %v", item2)
 		t.Errorf("Expected item1 and item2 to be equal after joining with deltas")
 	}
 }
 
 func TestShoppingItem_IncAcquired(t *testing.T) {
-	item1 := NewShoppingItem("replica1", "item1", "Milk")
+	item1 := NewShoppingItem("replica1", "item1")
 	item1.IncQuantity(10)
 	item2 := item1.Clone()
 
@@ -93,7 +114,7 @@ func TestShoppingItem_IncAcquired(t *testing.T) {
 }
 
 func TestShoppingItem_SetContext(t *testing.T) {
-	item := NewShoppingItem("replica1", "item1", "Milk")
+	item := NewShoppingItem("replica1", "item1")
 	newContext := crdt.NewDotContext()
 
 	item.SetContext(newContext)
@@ -110,7 +131,8 @@ func TestShoppingItem_SetContext(t *testing.T) {
 }
 
 func TestShoppingItem_Reset(t *testing.T) {
-	item1 := NewShoppingItem("replica1", "item1", "Milk")
+	item1 := NewShoppingItem("replica1", "item1")
+	item1.Enable()
 	item1.IncAcquired(5)
 	item1.IncAcquired(2)
 	item2 := item1.Clone()
@@ -126,12 +148,16 @@ func TestShoppingItem_Reset(t *testing.T) {
 
 	item2.Join(delta)
 	if !reflect.DeepEqual(item1, item2) {
+		t.Logf("Delta: %v", delta)
+		t.Logf("Item 1: %v", item1)
+		t.Logf("Item 2: %v", item2)
 		t.Errorf("Expected item1 and item2 to be equal after joining with delta")
 	}
 }
 
 func TestShoppingItem_ResetIsNull(t *testing.T) {
-	item := NewShoppingItem("replica1", "item1", "Milk")
+	item := NewShoppingItem("replica1", "item1")
+	item.Enable()
 	item.IncQuantity(5)
 
 	if item.IsNull() {
@@ -146,11 +172,11 @@ func TestShoppingItem_ResetIsNull(t *testing.T) {
 }
 
 func TestShoppingItem_Join(t *testing.T) {
-	item1 := NewShoppingItem("replica1", "item1", "Milk")
+	item1 := NewShoppingItem("replica1", "item1")
 	item1.IncQuantity(3)
 	item1.IncAcquired(2)
 
-	item2 := NewShoppingItem("replica2", "item1", "Milk")
+	item2 := NewShoppingItem("replica2", "item1")
 	item2.IncQuantity(5)
 	item2.IncAcquired(4)
 
@@ -166,11 +192,11 @@ func TestShoppingItem_Join(t *testing.T) {
 }
 
 func TestShoppingItem_JoinWithEmptyItem(t *testing.T) {
-	item1 := NewShoppingItem("replica1", "item1", "Milk")
+	item1 := NewShoppingItem("replica1", "item1")
 	item1.IncQuantity(5)
 	item1.IncAcquired(2)
 
-	item2 := NewShoppingItem("replica2", "item2", "Bread")
+	item2 := NewShoppingItem("replica2", "item2")
 
 	item1.Join(item2)
 
@@ -183,8 +209,8 @@ func TestShoppingItem_JoinWithEmptyItem(t *testing.T) {
 }
 
 func TestShoppingItem_ConcurrentUpdates(t *testing.T) {
-	item1 := NewShoppingItem("replica1", "item1", "Milk")
-	item2 := NewShoppingItem("replica2", "item1", "Milk")
+	item1 := NewShoppingItem("replica1", "item1")
+	item2 := NewShoppingItem("replica2", "item1")
 
 	delta1 := item1.IncQuantity(5)
 	delta21 := item2.IncQuantity(5)

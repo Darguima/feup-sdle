@@ -1,6 +1,9 @@
 package crdt
 
-import "fmt"
+import (
+	"fmt"
+	g01 "sdle-server/proto"
+)
 
 type MVReg[T comparable] struct {
 	id        string
@@ -12,6 +15,14 @@ func NewMVReg[T comparable](id string) *MVReg[T] {
 		id: id,
 		dotKernel: NewDotKernel[T](),
 	}
+}
+
+func (reg *MVReg[T]) Context() *DotContext {
+	return reg.dotKernel.Context()
+}
+
+func (reg *MVReg[T]) SetContext(ctx *DotContext) {
+	reg.dotKernel.SetContext(ctx)
 }
 
 func (reg *MVReg[T]) Read() []T {
@@ -84,4 +95,21 @@ func (reg *MVReg[T]) Clone() *MVReg[T] {
 
 func (reg *MVReg[T]) String() string {
 	return fmt.Sprintf("MVReg{id: %s, dotKernel: %v}", reg.id, reg.dotKernel)
+}
+
+type StringMVReg MVReg[string]
+
+func (reg *StringMVReg) ToProto() *g01.StringMVReg {
+	return &g01.StringMVReg{
+		DotKernel: (*StringDotKernel)(reg.dotKernel).ToProto(),
+	}
+}
+
+func StringMVRegFromProto(protoReg *g01.StringMVReg, replicaId string, ctx *DotContext) *StringMVReg {
+	dotKernel := StringDotKernelFromProto(protoReg.GetDotKernel(), ctx)
+
+	return &StringMVReg{
+		id:        replicaId,
+		dotKernel: (*DotKernel[string])(dotKernel),
+	}
 }

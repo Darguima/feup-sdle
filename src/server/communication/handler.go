@@ -61,7 +61,7 @@ func (h *WebSocketHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		switch req.GetRequestType().(type) {
 			case *pb.ClientRequest_ShoppingList:
-				list := crdt.ShoppingListFromProto(req.GetShoppingList())
+				list := crdt.ShoppingListFromProto(req.GetShoppingList(), h.node.ID())
 
 				if err := h.node.HandleShoppingList(list); err != nil {
 					log.Println("Error handling shopping list:", err)

@@ -113,10 +113,12 @@ func (dk *DotKernel[V]) String() string {
 	return fmt.Sprintf("DotKernel{dotValues: %v, dotContext: %v}", dk.dotValues, dk.dotContext)
 }
 
-// Necessary type alias to allow int64 as type parameter
+// Necessary type aliases for protobuf conversion
 type Int64DotKernel DotKernel[int64]
+type StringDotKernel DotKernel[string]
+type EmptyDotKernel DotKernel[struct{}]
 
-func (dk *Int64DotKernel) ToProto() *g01.DotKernel {
+func (dk *Int64DotKernel) ToProto() *g01.IntDotKernel {
 	protoDotKeys := make([]*g01.Dot, 0)
 	protoDotValues := make([]int64, 0)
 
@@ -126,13 +128,13 @@ func (dk *Int64DotKernel) ToProto() *g01.DotKernel {
 		protoDotValues = append(protoDotValues, value)
 	}
 
-	return &g01.DotKernel{
+	return &g01.IntDotKernel{
 		DotKeys:    protoDotKeys,
 		DotValues:  protoDotValues,
 	}
 }
 
-func DotKernelFromProto(protoDotKernel *g01.DotKernel, ctx *DotContext) *Int64DotKernel {
+func IntDotKernelFromProto(protoDotKernel *g01.IntDotKernel, ctx *DotContext) *Int64DotKernel {
 	if len(protoDotKernel.GetDotKeys()) != len(protoDotKernel.GetDotValues()) {
 		panic("DotKernelFromProto: mismatched lengths of dot keys and values")
 	}
@@ -148,4 +150,64 @@ func DotKernelFromProto(protoDotKernel *g01.DotKernel, ctx *DotContext) *Int64Do
 	dk.SetContext(ctx)
 
 	return (*Int64DotKernel)(dk)
+}
+
+func (dk *StringDotKernel) ToProto() *g01.StringDotKernel {
+	protoDotKeys := make([]*g01.Dot, 0)
+	protoDotValues := make([]string, 0)
+
+	for dot, value := range dk.dotValues {
+		protoDot := dot.ToProto()
+		protoDotKeys = append(protoDotKeys, protoDot)
+		protoDotValues = append(protoDotValues, value)
+	}
+
+	return &g01.StringDotKernel{
+		DotKeys:    protoDotKeys,
+		DotValues:  protoDotValues,
+	}
+}
+
+func StringDotKernelFromProto(protoDotKernel *g01.StringDotKernel, ctx *DotContext) *StringDotKernel {
+	if len(protoDotKernel.GetDotKeys()) != len(protoDotKernel.GetDotValues()) {
+		panic("StringDotKernelFromProto: mismatched lengths of dot keys and values")
+	}
+
+	dk := NewDotKernel[string]()
+
+	for i, protoDot := range protoDotKernel.GetDotKeys() {
+		dot := DotFromProto(protoDot)
+		value := protoDotKernel.GetDotValues()[i]
+		dk.dotValues[dot] = value
+	}
+
+	dk.SetContext(ctx)
+
+	return (*StringDotKernel)(dk)
+}
+
+func (dk *EmptyDotKernel) ToProto() *g01.EmptyDotKernel {
+	protoDotKeys := make([]*g01.Dot, 0)
+
+	for dot := range dk.dotValues {
+		protoDot := dot.ToProto()
+		protoDotKeys = append(protoDotKeys, protoDot)
+	}
+
+	return &g01.EmptyDotKernel{
+		DotKeys:    protoDotKeys,
+	}
+}
+
+func EmptyDotKernelFromProto(protoDotKernel *g01.EmptyDotKernel, ctx *DotContext) *EmptyDotKernel {
+	dk := NewDotKernel[struct{}]()
+
+	for _, protoDot := range protoDotKernel.GetDotKeys() {
+		dot := DotFromProto(protoDot)
+		dk.dotValues[dot] = struct{}{}
+	}
+
+	dk.SetContext(ctx)
+
+	return (*EmptyDotKernel)(dk)
 }

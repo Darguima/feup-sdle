@@ -12,11 +12,28 @@ message DotContext {
     repeated Dot dots = 2;
 }
 
-message DotKernel {
+message IntDotKernel {
     repeated Dot dot_keys = 1;
     repeated int64 dot_values = 2;
 }
 
+message StringDotKernel {
+    repeated Dot dot_keys = 1;
+    repeated string dot_values = 2;
+}
+
+message EmptyDotKernel {
+    repeated Dot dot_keys = 1;
+}
+
 message CCounter {
-    DotKernel dot_kernel = 1;
+    IntDotKernel dot_kernel = 1;
+}
+
+message StringMVReg {
+    StringDotKernel dot_kernel = 1;
+}
+
+message EWFlag {
+    EmptyDotKernel dot_kernel = 1;
 }
