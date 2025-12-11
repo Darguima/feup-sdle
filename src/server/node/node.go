@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"path/filepath"
 	"sdle-server/communication/websocket"
-	crdt "sdle-server/crdt/shopping"
 	pb "sdle-server/proto"
 	"sdle-server/ringview"
 	"sdle-server/storage"
@@ -34,20 +33,9 @@ type Node struct {
 }
 
 func NewNode(id string, baseDir string) (*Node, error) {
-	addr := idToAddr(id)
+	addr := NodeIdToZMQAddr(id)
 
-	// Configure websockets
-	host, portStr, err := net.SplitHostPort(id)
-	if err != nil {
-		return nil, fmt.Errorf("invalid node ID format: %w", err)
-	}
-	port, err := strconv.Atoi(portStr)
-	if err != nil {
-		return nil, fmt.Errorf("invalid port in node ID: %w", err)
-	}
-	wsPort := port + 3000 // 5000 -> 8000, etc
-	wsAddr := net.JoinHostPort(host, strconv.Itoa(wsPort))
-
+	// Prepare ring view, storage, and ZMQ socket
 	ringView := ringview.New()
 
 	dir := filepath.Join(baseDir, id)
@@ -68,6 +56,19 @@ func NewNode(id string, baseDir string) (*Node, error) {
 		return nil, err
 	}
 
+	// Configure websockets
+	host, portStr, err := net.SplitHostPort(id)
+	if err != nil {
+		return nil, fmt.Errorf("invalid node ID format: %w", err)
+	}
+	port, err := strconv.Atoi(portStr)
+	if err != nil {
+		return nil, fmt.Errorf("invalid port in node ID: %w", err)
+	}
+	wsPort := port + 3000 // 5000 -> 8000, etc
+	wsAddr := net.JoinHostPort(host, strconv.Itoa(wsPort))
+
+	// Create node instance
 	n := &Node{
 		id:       id,
 		addr:     addr,
@@ -78,6 +79,7 @@ func NewNode(id string, baseDir string) (*Node, error) {
 		stopCh:   make(chan struct{}),
 	}
 
+	// Setup WebSocket server
 	wsHandler := websocket.NewWebSocketHandler(n)
 	mux := http.NewServeMux()
 	mux.Handle("/ws", wsHandler)
@@ -90,9 +92,10 @@ func NewNode(id string, baseDir string) (*Node, error) {
 	return n, nil
 }
 
+// Starts completely the node (ZMQ receiver and WebSocket server)
 func (n *Node) Start(errCh chan<- error) {
 	n.wg.Add(2)
-	go n.startReceiving(errCh)
+	go n.startZMQLoop(errCh)
 	go func() {
 		defer n.wg.Done()
 		n.log("starting WebSocket server at " + n.wsAddr)
@@ -102,101 +105,8 @@ func (n *Node) Start(errCh chan<- error) {
 	}()
 }
 
-func (n *Node) Stop() error {
-	close(n.stopCh) // Signal all goroutines to stop
-
-	// Shutdown websockets server
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := n.httpServer.Shutdown(ctx); err != nil {
-		log.Printf("WebSocket server shutdown error: %v", err)
-	}
-
-	n.wg.Wait() // Wait for all goroutines to finish
-
-	var firstErr error
-	if n.repSock != nil {
-		if err := n.repSock.Close(); err != nil {
-			firstErr = err
-		}
-	}
-
-	if err := n.store.Close(); err != nil && firstErr == nil {
-		firstErr = err
-	}
-	return firstErr
-}
-
-func idToAddr(id string) string {
-	return "tcp://" + id
-}
-
-// Get the current ring view from a target node and update the local ring view
-func (n *Node) UpdateRingView(targetAddr string) error {
-	resp, err := n.sendFetchRing(targetAddr)
-
-	if err != nil {
-		return err
-	}
-
-	fetchRingResp := resp.GetFetchRing()
-	if fetchRingResp == nil {
-		return nil
-	}
-
-	// Create new RingView from received tokenToNode map
-	newRingView := ringview.NewFromTokenMap(fetchRingResp.TokenToNode)
-	n.ringView = newRingView
-
-	n.log("Updated ring view: " + n.ringView.ToString())
-
-	return nil
-}
-
-// Adds the new node to the ring - first get the current ring view from a target node, then imports the data for its tokens and finally adds itself to the ring (using gossip to inform other nodes)
-func (n *Node) JoinToRing(targetAddr string) error {
-	n.UpdateRingView(targetAddr)
-
-	tokens := n.ringView.JoinToRing(n.GetID())
-
-	n.log("joined the ring with tokens: " + fmt.Sprint(tokens))
-
-	for _, token := range tokens {
-		// TODO:
-		// The code should find the node responsible for the given token,
-		// request the data for that token from the responsible node,
-		// and then store the received data in the local storage.
-
-		n.log("would request data for token " + fmt.Sprint(token) + " from the responsible node.")
-
-	}
-
-	neighborsGossip := n.ringView.GetGossipNeighborsNodes(n.GetID())
-	n.log("Starting gossip to inform other nodes about my joining. Neighbors: " + fmt.Sprint(neighborsGossip))
-
-	for _, nodeId := range neighborsGossip {
-		nodeAddr := idToAddr(nodeId)
-		resp, err := n.sendJoinGossip(nodeAddr, n.GetID(), tokens)
-
-		n.log("Gossip Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
-	}
-
-	return nil
-}
-
-func (n *Node) GetAddress() string {
-	return n.addr
-}
-
-func (n *Node) GetID() string {
-	return n.id
-}
-
-func (n *Node) log(msg string) {
-	fmt.Printf("[Node %s]: %s\n", n.id, msg)
-}
-
-func (n *Node) startReceiving(errCh chan<- error) {
+// ZMQ message receiving loop
+func (n *Node) startZMQLoop(errCh chan<- error) {
 	defer n.wg.Done()
 	n.log("ZMQ socket started at " + n.addr)
 
@@ -244,12 +154,12 @@ func (n *Node) startReceiving(errCh chan<- error) {
 			n.handlePing(&req)
 		case *pb.Request_FetchRing:
 			n.handleFetchRing(&req)
-		case *pb.Request_GetHashSpace:
-			n.handleGetHashSpace(&req)
 		case *pb.Request_GossipJoin:
 			n.handleGossipJoin(&req)
 		case *pb.Request_Get:
 			n.handleGet(&req)
+		case *pb.Request_GetHashSpace:
+			n.handleGetHashSpace(&req)
 		case *pb.Request_Put:
 			n.handlePut(&req)
 		case *pb.Request_Delete:
@@ -262,52 +172,128 @@ func (n *Node) startReceiving(errCh chan<- error) {
 	}
 }
 
-func (n *Node) GetRingView() *ringview.RingView {
-	return n.ringView
-}
+// Stops the node gracefully
+func (n *Node) Stop() error {
+	close(n.stopCh) // Signal all goroutines to stop
 
-func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
-	n.log(fmt.Sprintf("received shopping list %s", delta.ListID()))
-
-	var oldList *crdt.ShoppingList
-
-	if oldListData, err := n.store.Get([]byte("shoppinglist_" + delta.ListID())); err == nil {
-		var oldListProto pb.ShoppingList
-
-		proto.Unmarshal(oldListData, &oldListProto)
-		oldList = crdt.ShoppingListFromProto(&oldListProto)
-	} else {
-		oldList = crdt.NewShoppingList(n.id, delta.ListID(), delta.Name())
+	// Shutdown websockets server
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := n.httpServer.Shutdown(ctx); err != nil {
+		log.Printf("WebSocket server shutdown error: %v", err)
 	}
 
-	oldList.Join(delta)
+	n.wg.Wait() // Wait for all goroutines to finish
 
-	newListProto := oldList.ToProto()
-	newListData, err := proto.Marshal(newListProto)
+	// Close ZMQ socket and storage
+	var firstErr error
+	if n.repSock != nil {
+		if err := n.repSock.Close(); err != nil {
+			firstErr = err
+		}
+	}
+
+	if err := n.store.Close(); err != nil && firstErr == nil {
+		firstErr = err
+	}
+	return firstErr
+}
+
+// Get the current ring view from a target node and update the local ring view
+func (n *Node) updateRingView(targetAddr string) error {
+	resp, err := n.sendFetchRing(targetAddr)
 
 	if err != nil {
 		return err
 	}
 
-	if err := n.store.Put([]byte("shoppinglist_" + delta.ListID()), newListData); err != nil {
-		return err
+	fetchRingResp := resp.GetFetchRing()
+	if fetchRingResp == nil {
+		return fmt.Errorf("invalid FetchRing response")
 	}
+
+	// Create new RingView from received tokenToNode map
+	newRingView := ringview.NewFromTokenMap(fetchRingResp.TokenToNode)
+	n.ringView = newRingView
+
+	n.log("Updated ring view: " + n.ringView.ToString())
 
 	return nil
 }
 
-func (n *Node) GetShoppingList(id string) (*pb.ShoppingList, error) {
-	n.log(fmt.Sprintf("get shopping list %s", id))
+// Adds the new node to the ring - first get the current ring view from a target node, then imports the data for its tokens and finally adds itself to the ring (using gossip to inform other nodes)
+func (n *Node) JoinToRing(targetAddr string) error {
+	err := n.updateRingView(targetAddr)
 
-	listData, err := n.store.Get([]byte("shoppinglist_" + id))
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	var listProto pb.ShoppingList
-	if err := proto.Unmarshal(listData, &listProto); err != nil {
-		return nil, err
+	tokens, transferredHashSpaces, added := n.ringView.JoinToRing(n.GetID())
+
+	if !added {
+		n.log("already part of the ring, no action taken.")
+		return nil
 	}
 
-	return &listProto, nil
+	n.log("joined the ring with tokens: " + fmt.Sprint(tokens))
+
+	for _, transferredHashSpace := range transferredHashSpaces {
+		n.log("importing data for token range " + fmt.Sprintf("[%d - %d]", transferredHashSpace.Start, transferredHashSpace.End) + " from " + transferredHashSpace.PreviousOwnerId)
+
+		targetAddr := NodeIdToZMQAddr(transferredHashSpace.PreviousOwnerId)
+		hashSpaceResponse, error := n.sendGetHashSpace(targetAddr, transferredHashSpace.Start, transferredHashSpace.End)
+
+		if error != nil {
+			fmt.Println(error)
+			return error
+		}
+
+		valuesSpace := hashSpaceResponse.GetGetHashSpace().GetHashSpaceValues()
+
+		for key, value := range valuesSpace {
+			err := n.store.Put([]byte(key), value)
+			if err != nil {
+				return fmt.Errorf("failed to import key '%s': %w", key, err)
+			}
+		}
+
+		n.log("imported " + fmt.Sprint(len(valuesSpace)) + " key-value pairs for token range " + fmt.Sprintf("[%d - %d]", transferredHashSpace.Start, transferredHashSpace.End))
+	}
+
+	neighborsGossip := n.ringView.GetGossipNeighborsNodes(n.GetID())
+	n.log("Starting gossip to inform other nodes about my joining. Neighbors: " + fmt.Sprint(neighborsGossip))
+
+	for _, nodeId := range neighborsGossip {
+		nodeAddr := NodeIdToZMQAddr(nodeId)
+		resp, err := n.sendJoinGossip(nodeAddr, n.GetID(), tokens)
+
+		n.log("Gossip Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
+	}
+
+	return err
+}
+
+func NodeIdToZMQAddr(id string) string {
+	return "tcp://" + id
+}
+
+func ZMQAddrToNodeId(addr string) string {
+	return addr[len("tcp://"):]
+}
+
+func (n *Node) log(msg string) {
+	fmt.Printf("[Node %s]: %s\n", n.id, msg)
+}
+
+func (n *Node) GetAddress() string {
+	return n.addr
+}
+
+func (n *Node) GetID() string {
+	return n.id
+}
+
+func (n *Node) GetRingView() *ringview.RingView {
+	return n.ringView
 }

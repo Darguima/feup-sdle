@@ -33,11 +33,6 @@ func (n *Node) handleFetchRing(req *pb.Request) error {
 	return n.sendResponseOK(response)
 }
 
-func (n *Node) handleGetHashSpace(req *pb.Request) error {
-	n.log("Received GetHashSpace from " + req.Origin)
-	return n.sendResponseError("GetHashSpace not implemented")
-}
-
 func (n *Node) handleGossipJoin(req *pb.Request) error {
 	gossipReq := req.GetGossipJoin()
 	n.log("Received GossipJoin (start node: " + gossipReq.NewNodeId + "; received from: " + req.Origin + ")")
@@ -58,7 +53,7 @@ func (n *Node) handleGossipJoin(req *pb.Request) error {
 	// Propagate gossip asynchronously so we don't block the response
 	go func() {
 		for _, nodeId := range gossipAddrs {
-			nodeAddr := idToAddr(nodeId)
+			nodeAddr := NodeIdToZMQAddr(nodeId)
 			resp, err := n.sendJoinGossip(nodeAddr, gossipReq.NewNodeId, gossipReq.Tokens)
 
 			n.log("Gossip (start node: " + gossipReq.NewNodeId + "; response from:" + nodeAddr + ") Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
@@ -66,4 +61,29 @@ func (n *Node) handleGossipJoin(req *pb.Request) error {
 	}()
 
 	return n.sendResponseOK(&pb.Response{})
+}
+
+func (n *Node) handleGetHashSpace(req *pb.Request) error {
+	n.log("Received GET HASHSPACE from " + req.Origin)
+	getReq := req.GetGetHashSpace()
+
+	if getReq == nil {
+		return n.sendResponseError("invalid get hash space request")
+	}
+
+	startHash := getReq.StartHashSpace
+	endHash := getReq.EndHashSpace
+
+	spaceValues, err := n.store.GetHashSpace(startHash, endHash)
+	if err != nil {
+		return n.sendResponseError(err.Error())
+	}
+
+	return n.sendResponseOK(&pb.Response{
+		Origin: n.id,
+		Ok:     true,
+		ResponseType: &pb.Response_GetHashSpace{
+			GetHashSpace: &pb.ResponseGetHashSpace{HashSpaceValues: spaceValues},
+		},
+	})
 }

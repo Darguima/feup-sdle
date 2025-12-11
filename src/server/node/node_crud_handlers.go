@@ -82,5 +82,4 @@ func (n *Node) handleHas(req *pb.Request) error {
 			Has: &pb.ResponseHas{HasKey: value},
 		},
 	})
-
 }

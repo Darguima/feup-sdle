@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"math/rand"
 	"os"
 	"os/signal"
 	"sdle-server/node"
@@ -21,22 +23,35 @@ func create_node(id string) *node.Node {
 }
 
 func main() {
-	nodes := []*node.Node{
-		create_node("localhost:5000"),
-		create_node("localhost:5001"),
-		create_node("localhost:5002"),
-		create_node("localhost:5003"),
+	// Server nodes list
+	nodes := []*node.Node{}
+	for i := 5000; i < 5004; i++ {
+		node_id := fmt.Sprintf("localhost:%d", i)
+		node := create_node(node_id)
+		nodes = append(nodes, node)
+
 	}
 
 	errCh := make(chan error, len(nodes)*2)
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 
-	// Start nodes
-	for _, nd := range nodes {
+	// Starting nodes concurrently
+	for i, nd := range nodes {
 		nd.Start(errCh)
 		time.Sleep(300 * time.Millisecond)
-		nd.JoinToRing(nodes[0].GetAddress())
+		randomId := max(rand.Intn(i+1)-1, 0)
+		nd.JoinToRing(nodes[randomId].GetAddress())
+	}
+
+	// Wait for stabilization
+	time.Sleep(4 * time.Second)
+
+	// Check ring view of each node
+	println("\n=== Ring View After Stabilization ===")
+	for _, nd := range nodes {
+		view := nd.GetRingView()
+		println("Node", nd.GetID(), "sees ", view.ToString())
 	}
 
 	// Wait for shutdown signal
