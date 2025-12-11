@@ -25,17 +25,6 @@ export default class DotKernel<T> {
 
     public dotAdd(id: string, value: T): Dot {
         const dot = this.dotContext.makeDot(id);
-
-        // Remove old entry for the same replica
-        for (const otherDotKey of this.dotValues.keys()) {
-            const otherDot = Dot.fromKey(otherDotKey);
-
-            if (otherDot.id === id) {
-                this.dotValues.delete(otherDotKey);
-                break;
-            }
-        }
-
         this.dotValues.set(dot.toKey(), value);
         return dot;
     }
