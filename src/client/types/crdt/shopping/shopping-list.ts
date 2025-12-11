@@ -1,4 +1,4 @@
-import { ClientRequest } from "@/lib/proto/client";
+import { ClientRequest, StringMVReg } from "@/lib/proto/client";
 import DotContext from "../generic/dot-context";
 import ORMap from "../generic/ormap";
 import ShoppingItem from "./shopping-item";
@@ -173,7 +173,12 @@ export default class ShoppingList implements ProtocolRequest {
 
         const shoppingList = new ShoppingList(replicaId, proto.id);
         shoppingList.setContext(ctx);
+
+        shoppingList.name = MVReg.fromStringProto(proto.name as StringMVReg, replicaId, ctx);
+        shoppingList.name.setContext(ctx);
+
         shoppingList.items = items;
+        shoppingList.items.setContext(ctx);
 
         return shoppingList;
     }

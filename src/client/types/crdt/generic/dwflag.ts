@@ -24,7 +24,7 @@ export default class DWFlag {
         return isIterableEmpty(this.dotKernel.getValues());
     }
 
-    public enable(): DWFlag {
+    public disable(): DWFlag {
         const delta = new DWFlag(this.replicaId);
 
         delta.dotKernel = this.dotKernel.reset();
@@ -33,7 +33,7 @@ export default class DWFlag {
         return delta;
     }
 
-    public disable(): DWFlag {
+    public enable(): DWFlag {
         const delta = new DWFlag(this.replicaId);
 
         delta.dotKernel = this.dotKernel.reset();

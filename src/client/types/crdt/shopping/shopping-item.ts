@@ -1,6 +1,6 @@
 import CCounter from "../generic/ccounter";
 import DotContext from "../generic/dot-context";
-import { ShoppingItem as ShoppingItemProto, CCounter as CCounterProto } from "@/lib/proto/global";
+import { ShoppingItem as ShoppingItemProto, CCounter as CCounterProto, StringMVReg, DWFlag as DWFlagProto } from "@/lib/proto/global";
 import DWFlag from "../generic/dwflag";
 import MVReg from "../generic/mvreg";
 
@@ -113,7 +113,7 @@ export default class ShoppingItem {
     public delete(): ShoppingItem {
         const delta = new ShoppingItem(this.replicaId, this.itemId);
 
-        const deletedDelta = this.deleted.disable();
+        const deletedDelta = this.deleted.enable();
         delta.deleted = deletedDelta;
         delta.setContext(deletedDelta.getContext());
 
@@ -123,7 +123,7 @@ export default class ShoppingItem {
     public restore(): ShoppingItem {
         const delta = new ShoppingItem(this.replicaId, this.itemId);
 
-        const deletedDelta = this.deleted.enable();
+        const deletedDelta = this.deleted.disable();
         delta.deleted = deletedDelta;
         delta.setContext(deletedDelta.getContext());
 
@@ -136,7 +136,7 @@ export default class ShoppingItem {
         delta.name = this.name.reset();
         delta.quantity = this.quantity.reset();
         delta.acquired = this.acquired.reset();
-        delta.deleted = this.deleted.disable();
+        delta.deleted = this.deleted.enable();
 
         delta.getContext().join(delta.name.getContext());
         delta.getContext().join(delta.quantity.getContext());
@@ -194,6 +194,7 @@ export default class ShoppingItem {
 
     public toProto(): ShoppingItemProto {
         return ShoppingItemProto.create({
+            name: this.name.toStringProto(),
             deleted: this.deleted.toProto(),
             quantity: this.quantity.toProto(),
             acquired: this.acquired.toProto(),
@@ -204,8 +205,10 @@ export default class ShoppingItem {
         const item = new ShoppingItem(replicaId, itemId);
 
         item.setContext(ctx);
+        item.name = MVReg.fromStringProto(proto.name as StringMVReg, replicaId, ctx);
         item.quantity = CCounter.fromProto(proto.quantity as CCounterProto, replicaId, ctx);
         item.acquired = CCounter.fromProto(proto.acquired as CCounterProto, replicaId, ctx);
+        item.deleted = DWFlag.fromProto(proto.deleted as DWFlagProto, replicaId);
 
         return item;
     }

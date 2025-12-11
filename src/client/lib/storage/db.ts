@@ -60,8 +60,10 @@ class DB {
 
 	async getAllLists(): Promise<ShoppingList[]> {
 		const db = await this.getDB();
+		const clientId = await this.getClientId();
+
 		const lists = (await db.getAll(LIST_STORE_NAME)).map((data) => {
-			const list = ShoppingList.fromProto(ShoppingListProto.decode(data));
+			const list = ShoppingList.fromProto(ShoppingListProto.decode(data), clientId);
 			return list;
 		});
 
@@ -71,12 +73,13 @@ class DB {
 	async getList(id: string): Promise<ShoppingList | undefined> {
 		const db = await this.getDB();
 		const data = await db.get(LIST_STORE_NAME, id);
+		const clientId = await this.getClientId();
 
 		if (!data) {
 			return undefined;
 		}
 
-		const shoppingList = ShoppingList.fromProto(ShoppingListProto.decode(data));
+		const shoppingList = ShoppingList.fromProto(ShoppingListProto.decode(data), clientId);
 
 		return shoppingList;
 	}
@@ -85,7 +88,8 @@ class DB {
 		const db = await this.getDB();
 		const clientId = await this.getClientId();
 
-		const list = new ShoppingList(clientId, crypto.randomUUID(), name);
+		const list = new ShoppingList(clientId, crypto.randomUUID());
+		list.setName(name);
 		const data = ShoppingListProto.encode(list.toProto() as ShoppingListProto).finish();
 
 		await db.add(LIST_STORE_NAME, data, list.getListId());

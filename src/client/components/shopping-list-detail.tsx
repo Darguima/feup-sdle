@@ -56,7 +56,7 @@ export function ShoppingListDetail({
 
 		let oldList = await db.getList(listId);
 		if (!oldList) {  // Create an empty list for merging
-			oldList = new ShoppingList(await db.getClientId(), listId, listReceived.getName());
+			oldList = new ShoppingList(await db.getClientId(), listId);
 		}
 		oldList.join(listReceived);
 
@@ -67,7 +67,7 @@ export function ShoppingListDetail({
 	const handleServerResponse = useCallback(async (serverResponse: ServerResponse) => {
 		switch (serverResponse.responseType) {
 			case "shoppingList":
-				const list = ShoppingList.fromProto(serverResponse.shoppingList!);
+				const list = ShoppingList.fromProto(serverResponse.shoppingList!, await db.getClientId());
 				await handleReceivedList(list);
 				break;
 		}
@@ -78,7 +78,7 @@ export function ShoppingListDetail({
 	const handleSubscribeResponse = useCallback(async (serverResponse: ServerResponse) => {
 		switch (serverResponse.responseType) {
 			case "shoppingList":
-				const list = ShoppingList.fromProto(serverResponse.shoppingList!);
+				const list = ShoppingList.fromProto(serverResponse.shoppingList!, await db.getClientId());
 				await handleReceivedList(list);
 				break;
 		}
