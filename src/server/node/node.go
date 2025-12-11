@@ -96,13 +96,15 @@ func NewNode(id string, baseDir string) (*Node, error) {
 func (n *Node) Start(errCh chan<- error) {
 	n.wg.Add(2)
 	go n.startZMQLoop(errCh)
-	go func() {
-		defer n.wg.Done()
-		n.log("starting WebSocket server at " + n.wsAddr)
-		if err := n.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			errCh <- fmt.Errorf("WebSocket server error: %w", err)
-		}
-	}()
+	go n.startHTTPLoop(errCh)
+}
+
+func (n *Node) startHTTPLoop(errCh chan<- error) {
+	defer n.wg.Done()
+	n.log("starting WebSocket server at " + n.wsAddr)
+	if err := n.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		errCh <- fmt.Errorf("WebSocket server error: %w", err)
+	}
 }
 
 // ZMQ message receiving loop

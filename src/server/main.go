@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"math/rand"
 	"os"
 	"os/signal"
 	"sdle-server/node"
@@ -10,63 +9,50 @@ import (
 	"time"
 )
 
-func create_node(id string) *node.Node {
-	dataDir := "./data/" + id
+func main() {
+	if len(os.Args) != 3 {
+		fmt.Fprintln(os.Stderr, "usage: server <nodeID> <entryNodeID>")
+		os.Exit(1)
+	}
 
-	node, err := node.NewNode(id, dataDir)
+	nodeID := os.Args[1]
+	entryID := os.Args[2]
+
+	dataDir := "./data/" + nodeID
+	n, err := node.NewNode(nodeID, dataDir)
 
 	if err != nil {
-		panic(err)
+		fmt.Fprintln(os.Stderr, "Error creating node - ", err.Error())
+		os.Exit(1)
 	}
 
-	return node
-}
-
-func main() {
-	// Server nodes list
-	nodes := []*node.Node{}
-	for i := 5000; i < 5004; i++ {
-		node_id := fmt.Sprintf("localhost:%d", i)
-		node := create_node(node_id)
-		nodes = append(nodes, node)
-
-	}
-
-	errCh := make(chan error, len(nodes)*2)
+	// Setup channels for errors and OS signals
+	errCh := make(chan error, 2)
 	sigCh := make(chan os.Signal, 1)
 	signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 
-	// Starting nodes concurrently
-	for i, nd := range nodes {
-		nd.Start(errCh)
-		time.Sleep(300 * time.Millisecond)
-		randomId := max(rand.Intn(i+1)-1, 0)
-		nd.JoinToRing(nodes[randomId].GetAddress())
+	n.Start(errCh)
+
+	// Try to join the ring via the entry node
+	time.Sleep(200 * time.Millisecond) // Give the listeners a brief moment to bind before attempting join.
+	joinTargetAddr := node.NodeIdToZMQAddr(entryID)
+	if err := n.JoinToRing(joinTargetAddr); err != nil {
+		fmt.Fprintln(os.Stderr, "failed to join ring:", err)
+		os.Exit(1)
 	}
 
-	// Wait for stabilization
-	time.Sleep(4 * time.Second)
-
-	// Check ring view of each node
-	println("\n=== Ring View After Stabilization ===")
-	for _, nd := range nodes {
-		view := nd.GetRingView()
-		println("Node", nd.GetID(), "sees ", view.ToString())
-	}
-
-	// Wait for shutdown signal
+	// Wait for interrupt signal or error
 	select {
 	case <-sigCh:
-		println("\nReceived interrupt signal, shutting down...")
+		fmt.Println("\nReceived interrupt signal, shutting down...")
 	case err := <-errCh:
-		println("Error occurred:", err.Error())
+		fmt.Fprintln(os.Stderr, "Error occurred:", err.Error())
 	}
 
-	// Gracefully close all nodes
-	for _, nd := range nodes {
-		if err := nd.Stop(); err != nil {
-			println("Error closing node:", err.Error())
-		}
+	// Close the node gracefully
+	if err := n.Stop(); err != nil {
+		fmt.Fprintln(os.Stderr, "Error closing node:", err.Error())
+	} else {
+		fmt.Println("Node closed successfully")
 	}
-	println("All nodes closed successfully")
 }
