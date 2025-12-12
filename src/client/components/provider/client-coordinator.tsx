@@ -7,16 +7,12 @@ const SocketCoordinatorContext = createContext<SocketCoordinator | null>(null);
 
 interface SocketCoordinatorProviderProps {
   children: ReactNode;
-  seedUrls?: string[];
 }
 
 export const SocketCoordinatorProvider = ({
   children,
-  seedUrls
 }: SocketCoordinatorProviderProps) => {
-  const defaultUrls = seedUrls || [
-    process.env.NEXT_PUBLIC_WEBSOCKET_URL || "ws://localhost:8000/ws"
-  ];
+  const defaultUrls = process.env.NEXT_PUBLIC_SEED_URLS?.split(",") || ["ws://localhost:8000/ws"];
 
   const coordinatorRef = useRef<SocketCoordinator | null>(null);
 

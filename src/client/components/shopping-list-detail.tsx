@@ -47,7 +47,14 @@ export function ShoppingListDetail({
 			setSocket(sock);
 		};
 
+		// Run once first
 		setupSocket();
+
+		// Then, run periodically
+		const intervalId = setInterval(setupSocket, Number(process.env.NEXT_PUBLIC_MEMBERSHIP_UPDATE_INTERVAL) || 10000);
+
+		// Cleanup on unmount
+		return () => clearInterval(intervalId);
 	}, [coordinator, listId]);
 
 

@@ -37,6 +37,7 @@ export default class SocketCoordinator {
 
   public async updateMembership(): Promise<void> {
     const socket = await this.getRandomSocket();
+    console.log("Updating membership using socket:", socket.getUrl());
 
     // Placeholder for membership update logic
     // This could involve sending a request to the server to get updated URLs
