@@ -13,13 +13,14 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useProtocolSocket } from "./provider/protocol-socket";
 import { ShoppingListDetailSkeleton } from "./shopping-list-detail-skeleton";
 import { ShoppingList } from "@/types";
 import { db } from "@/lib/storage/db";
-import GetShoppingListRequest from "@/lib/protocol/get-shopping-list-request";
 import { ServerResponse } from "@/lib/proto/client";
 import SubscribeShoppingListRequest from "@/lib/protocol/subscribe-shopping-list-request";
+import NullProtocolSocket from "@/lib/protocol/null-protocol-socket";
+import { useSocketCoordinator } from "./provider/client-coordinator";
+import ProtocolSocket from "@/lib/protocol/protocol-socket";
 
 interface ShoppingListDetailProps {
 	listId: string;
@@ -35,7 +36,20 @@ export function ShoppingListDetail({
 	const [notFound, setNotFound] = useState(false);
 	const [itemName, setItemName] = useState("");
 	const [itemQuantity, setItemQuantity] = useState("1");
-	const socket = useProtocolSocket();
+	const [socket, setSocket] = useState<ProtocolSocket>(new NullProtocolSocket());
+	const coordinator = useSocketCoordinator();
+
+
+	useEffect(() => {
+		const setupSocket = async () => {
+			await coordinator.updateMembership();
+			const sock = await coordinator.getBestSocketForList(listId);
+			setSocket(sock);
+		};
+
+		setupSocket();
+	}, [coordinator, listId]);
+
 
 	const refreshList = useCallback(async (): Promise<ShoppingList | undefined> => {
 		const dbList = await db.getList(listId);
@@ -95,7 +109,9 @@ export function ShoppingListDetail({
 			socket.send(new SubscribeShoppingListRequest(listId), handleSubscribeResponse);
 		};
 
-		initializeSubscription();
+		if (socket.isConnected()) {
+			initializeSubscription();
+		}
 	}, [listId, socket]);
 
 
@@ -103,7 +119,7 @@ export function ShoppingListDetail({
 		await db.updateList(updatedList);
 		socket.send(delta, handleServerResponse);
 		await refreshList();
-	}, [listId]);
+	}, [socket, listId]);
 
 
 	const handleAddItem = async (e: React.FormEvent) => {

@@ -2,11 +2,11 @@ import NullProtocolSocket from "../protocol/null-protocol-socket";
 import ProtocolSocket from "../protocol/protocol-socket";
 import WebProtocolSocket from "../protocol/web-protocol-socket";
 
-export class SocketCoordinator {
+export default class SocketCoordinator {
   private socket: ProtocolSocket = new NullProtocolSocket();
   private knownUrls: string[];
 
-  constructor(private seedUrls: string[]) {
+  constructor(seedUrls: string[]) {
     this.knownUrls = seedUrls;
   }
 
@@ -47,7 +47,7 @@ export class SocketCoordinator {
     return this.knownUrls;
   }
 
-  private async getBestSocketForList(listId: string): Promise<ProtocolSocket> {
+  public async getBestSocketForList(listId: string): Promise<ProtocolSocket> {
     const currentUrl = this.socket.isConnected() ? this.socket.getUrl() : null;
     const responsibleNodes = this.getResponsibleNodes(listId);
 
@@ -71,6 +71,3 @@ export class SocketCoordinator {
     throw new Error("Unable to connect to any responsible nodes for list: " + listId);
   }
 }
-
-export default SocketCoordinator;
-
