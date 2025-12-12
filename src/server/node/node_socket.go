@@ -132,6 +132,30 @@ func (n *Node) sendHas(peerAddr string, key string) (*pb.Response, error) {
 	return n.sendRequest(peerAddr, req, 5*time.Second)
 }
 
+func (n *Node) sendReplicaPutRequest(peerAddr string, key string, value []byte) (*pb.Response, error) {
+	req := &pb.Request{
+		Origin: n.id,
+		RequestType: &pb.Request_ReplicaPut{
+			ReplicaPut: &pb.RequestReplicaPut{Key: key, Value: value},
+		},
+	}
+	return n.sendRequest(peerAddr, req, 5*time.Second)
+}
+
+func (n *Node) sendStoreHintRequest(peerAddr string, intendedNode string, key string, value []byte) (*pb.Response, error) {
+	req := &pb.Request{
+		Origin: n.id,
+		RequestType: &pb.Request_StoreHint{
+			StoreHint: &pb.RequestStoreHint{
+				IntendedNode: intendedNode,
+				Key:          key,
+				Value:        value,
+			},
+		},
+	}
+	return n.sendRequest(peerAddr, req, 5*time.Second)
+}
+
 func (n *Node) sendResponseOK(response *pb.Response) error {
 
 	response.Ok = true

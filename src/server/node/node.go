@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"sdle-server/communication/websocket"
 	pb "sdle-server/proto"
+	"sdle-server/replication"
 	"sdle-server/ringview"
 	"sdle-server/storage"
 	"strconv"
@@ -30,6 +31,8 @@ type Node struct {
 	httpServer *http.Server
 	stopCh     chan struct{}
 	wg         sync.WaitGroup
+	replConfig replication.Config
+	hintStore  *replication.HintStore
 }
 
 func NewNode(id string, baseDir string) (*Node, error) {
@@ -56,7 +59,9 @@ func NewNode(id string, baseDir string) (*Node, error) {
 		return nil, err
 	}
 
-	// Configure websockets
+	replConfig := replication.DefaultConfig()
+	hintStore := replication.NewHintStore(store.GetDB())
+
 	host, portStr, err := net.SplitHostPort(id)
 	if err != nil {
 		return nil, fmt.Errorf("invalid node ID format: %w", err)
@@ -70,13 +75,15 @@ func NewNode(id string, baseDir string) (*Node, error) {
 
 	// Create node instance
 	n := &Node{
-		id:       id,
-		addr:     addr,
-		wsAddr:   wsAddr,
-		ringView: ringView,
-		store:    *store,
-		repSock:  rep,
-		stopCh:   make(chan struct{}),
+		id:         id,
+		addr:       addr,
+		wsAddr:     wsAddr,
+		ringView:   ringView,
+		store:      *store,
+		repSock:    rep,
+		stopCh:     make(chan struct{}),
+		replConfig: replConfig,
+		hintStore:  hintStore,
 	}
 
 	// Setup WebSocket server
@@ -168,6 +175,10 @@ func (n *Node) startZMQLoop(errCh chan<- error) {
 			n.handleDelete(&req)
 		case *pb.Request_Has:
 			n.handleHas(&req)
+		case *pb.Request_ReplicaPut:
+			n.handleReplicaPut(&req)
+		case *pb.Request_StoreHint:
+			n.handleStoreHint(&req)
 		default:
 			_ = n.sendResponseError("unknown request type")
 		}
@@ -276,16 +287,17 @@ func (n *Node) JoinToRing(targetAddr string) error {
 	return err
 }
 
+func (n *Node) log(msg string) {
+	ts := time.Now().Format("15:04:05.000")
+	fmt.Printf("[%s] [Node %s]: %s\n", ts, n.id, msg)
+}
+
 func NodeIdToZMQAddr(id string) string {
 	return "tcp://" + id
 }
 
 func ZMQAddrToNodeId(addr string) string {
 	return addr[len("tcp://"):]
-}
-
-func (n *Node) log(msg string) {
-	fmt.Printf("[Node %s]: %s\n", n.id, msg)
 }
 
 func (n *Node) GetAddress() string {

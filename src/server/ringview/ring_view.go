@@ -26,6 +26,11 @@ type TransferredHashSpace struct {
 	PreviousOwnerId string
 }
 
+type PreferenceList struct {
+	Nodes []string // coordinator comes first
+	N     int      // replication factor
+}
+
 func New() *RingView {
 
 	return &RingView{
@@ -133,7 +138,7 @@ func (r *RingView) AddNode(nodeId string, tokens []uint64) (added bool) {
 		return false
 	}
 
-	// Add tokens the the ring
+	// Add tokens to the ring
 	for _, h := range tokens {
 		r.tokenToNode[h] = nodeId
 		r.tokens = append(r.tokens, h)
@@ -285,4 +290,35 @@ func (r *RingView) generateNewToken(nodeId string, additionalUsedIds []uint64) u
 	}
 
 	return newToken
+}
+
+func (r *RingView) GetPreferenceList(key string, N int) PreferenceList {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	// if the ring is empty (this should never happen)
+	if len(r.tokens) == 0 {
+		return PreferenceList{Nodes: []string{}, N: N}
+	}
+
+	keyHash := HashKey(key)
+	startIdx, _ := r.getNextDefinedTokenIdx(keyHash)
+
+	nodes := make([]string, 0, N)
+	seenNodes := make(map[string]bool)
+
+	// Go around the ring to find N distinct nodes
+	for i := 0; len(nodes) < N && i < len(r.tokens); i++ {
+		idx := (startIdx + i) % len(r.tokens)
+		token := r.tokens[idx]
+		nodeId := r.tokenToNode[token]
+
+		// Only add if we haven't seen this node yet (since a node can have multiple tokens)
+		if !seenNodes[nodeId] {
+			nodes = append(nodes, nodeId)
+			seenNodes[nodeId] = true
+		}
+	}
+
+	return PreferenceList{Nodes: nodes, N: N}
 }

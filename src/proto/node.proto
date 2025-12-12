@@ -13,6 +13,8 @@ message Request {
     RequestPut put = 16;
     RequestDelete delete = 17;
     RequestHas has = 18;
+    RequestReplicaPut replica_put = 19;
+    RequestStoreHint store_hint = 20;
   }
 }
 
@@ -54,6 +56,19 @@ message RequestHas {
   string key = 1;
 }
 
+// Replication requests
+
+message RequestReplicaPut {
+  string key = 1;
+  bytes value = 2;
+}
+
+message RequestStoreHint {
+  string intended_node = 1;
+  string key = 2;
+  bytes value = 3;
+}
+
 // Responses
 
 message Response {
@@ -69,6 +84,8 @@ message Response {
     ResponsePut put = 16;
     ResponseDelete delete = 17;
     ResponseHas has = 18;
+    ResponseReplicaPut replica_put = 19;
+    ResponseStoreHint store_hint = 20;
   }
 }
 
@@ -99,4 +116,10 @@ message ResponseDelete {
 
 message ResponseHas {
   bool has_key = 1;
+}
+
+message ResponseReplicaPut {
+}
+
+message ResponseStoreHint {
 }

@@ -13,7 +13,8 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 
 	var oldList *crdt.ShoppingList
 
-	if oldListData, err := n.store.Get([]byte("shoppinglist_" + delta.ListID())); err == nil {
+	// Use distributed GET instead of direct store access
+	if oldListData, err := n.Get("shoppinglist_" + delta.ListID()); err == nil {
 		var oldListProto pb.ShoppingList
 
 		proto.Unmarshal(oldListData, &oldListProto)
@@ -31,7 +32,8 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 		return err
 	}
 
-	if err := n.store.Put([]byte("shoppinglist_"+delta.ListID()), newListData); err != nil {
+	// Use distributed PUT instead of direct store access
+	if err := n.Put("shoppinglist_"+delta.ListID(), newListData); err != nil {
 		return err
 	}
 
@@ -41,7 +43,8 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 func (n *Node) GetShoppingList(id string) (*pb.ShoppingList, error) {
 	n.log(fmt.Sprintf("get shopping list %s", id))
 
-	listData, err := n.store.Get([]byte("shoppinglist_" + id))
+	// Use distributed GET instead of direct store access
+	listData, err := n.Get("shoppinglist_" + id)
 	if err != nil {
 		return nil, err
 	}
