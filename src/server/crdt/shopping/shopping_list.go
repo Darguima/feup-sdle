@@ -2,7 +2,6 @@ package crdt
 
 import (
 	"fmt"
-	"log"
 	crdt "sdle-server/crdt/generic"
 	g01 "sdle-server/proto"
 )
@@ -179,7 +178,6 @@ func ShoppingListFromProto(protoList *g01.ShoppingList, replicaId string) *Shopp
 	itemMap := make(map[string]*ShoppingItem)
 	for id, protoItem := range protoList.GetItems() {
 		itemMap[id] = ShoppingItemFromProto(protoItem, replicaId, id, ctx)
-		log.Print(itemMap[id])
 	}
 
 	createItem := func(id string) *ShoppingItem { return NewShoppingItem(id, "") }
