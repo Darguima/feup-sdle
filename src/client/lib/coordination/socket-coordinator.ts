@@ -45,7 +45,8 @@ export default class SocketCoordinator {
 
   private getResponsibleNodes(listId: string): string[] {
     // Placeholder for consistent hashing logic to get responsible nodes for a list
-    return [this.knownUrls[Math.floor(Math.random() * this.knownUrls.length)] ];
+    // return [this.knownUrls[Math.floor(Math.random() * this.knownUrls.length)] ];
+    return [this.knownUrls[0]];
   }
 
   public async getBestSocketForList(listId: string): Promise<ProtocolSocket> {
