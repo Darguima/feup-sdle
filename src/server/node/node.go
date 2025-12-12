@@ -128,17 +128,8 @@ func (n *Node) StartPeriodicTasks(errCh chan<- error) {
 			n.log("Periodic tasks stopping.")
 			return
 		case <-ticker.C:
-			// Perform periodic tasks here
-			n.log("Performing periodic maintenance tasks.")
-			hints, _ := n.hintStore.GetAllHints()
-			for nodeId, hintList := range hints {
-				targetAddr := NodeIdToZMQAddr(nodeId)
-				for _, hint := range hintList {
-					n.log("Attempting to deliver hint for key '" + hint.Key + "' to " + targetAddr)
-				}
-			}
+			n.sendAllHintedHandoffs()
 		}
-
 	}
 }
 
