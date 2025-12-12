@@ -64,6 +64,7 @@ export function ShoppingListDetail({
 		if (socket.isConnected()) {
 			socket.send(request, handler);
 		}
+		setConnected(socket.isConnected());
 	}, [socket]);
 
 
@@ -126,6 +127,8 @@ export function ShoppingListDetail({
 
 		if (socket.isConnected()) {
 			initializeSubscription();
+		} else {
+			refreshList();
 		}
 	}, [listId, socket]);
 
