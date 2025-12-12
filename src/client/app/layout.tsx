@@ -1,8 +1,10 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/ui/header";
 import { SocketCoordinatorProvider } from "@/components/provider/socket-coordinator";
+import { useEffect } from "react";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -14,16 +16,16 @@ const geistMono = Geist_Mono({
 	subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-	title: "Mariana",
-	description: "A local-first distributed shopping list app for SDLE 2025",
-};
-
 export default function RootLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
 }>) {
+	// Define the title (using Metadata is disallowed with 'use client')
+	useEffect(() => {
+		document.title = "Mariana";
+	}, []);
+
 	return (
 		<html lang="en">
 			<body

@@ -1,3 +1,5 @@
+"use client";
+
 import { ShoppingList } from "@/types";
 import { Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
