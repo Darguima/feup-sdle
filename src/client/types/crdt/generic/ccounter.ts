@@ -3,7 +3,7 @@ import Dot from "./dot";
 import DotContext from "./dot-context";
 import DotKernel from "./dot-kernel";
 import ORMapValue from "./ormap-value";
-import { CCounter as CCounterProto, DotKernel as DotKernelProto } from "@/lib/proto/global";
+import { CCounter as CCounterProto, IntDotKernel } from "@/lib/proto/global";
 
 export default class CCounter implements ORMapValue<CCounter> {
     private replicaId: string;
@@ -82,12 +82,12 @@ export default class CCounter implements ORMapValue<CCounter> {
 
     public toProto(): CCounterProto {
         return CCounterProto.create({
-            dotKernel: this.dotKernel.toProto(),
+            dotKernel: this.dotKernel.toIntProto(),
         })
     }
 
     public static fromProto(proto: CCounterProto, replicaId: string, ctx: DotContext): CCounter {
-        const dotKernel = DotKernel.fromProto(proto.dotKernel as DotKernelProto, ctx);
+        const dotKernel = DotKernel.fromIntProto(proto.dotKernel as IntDotKernel, ctx);
 
         const counter = new CCounter(replicaId);
         counter.dotKernel = dotKernel;

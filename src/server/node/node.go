@@ -7,7 +7,7 @@ import (
 	"net"
 	"net/http"
 	"path/filepath"
-	"sdle-server/communication/websocket"
+	"sdle-server/communication"
 	pb "sdle-server/proto"
 	"sdle-server/replication"
 	"sdle-server/ringview"
@@ -22,17 +22,18 @@ import (
 )
 
 type Node struct {
-	id         string
-	addr       string
-	wsAddr     string
-	ringView   *ringview.RingView
-	store      storage.Store
-	repSock    *zmq4.Socket
-	httpServer *http.Server
-	stopCh     chan struct{}
-	wg         sync.WaitGroup
+	id            string
+	addr          string
+	wsAddr        string
+	ringView      *ringview.RingView
+	store         storage.Store
+	repSock       *zmq4.Socket
+	httpServer    *http.Server
+	stopCh        chan struct{}
+	wg            sync.WaitGroup
 	replConfig replication.Config
 	hintStore  *replication.HintStore
+	subController *SubController
 }
 
 func NewNode(id string, baseDir string) (*Node, error) {
@@ -75,19 +76,23 @@ func NewNode(id string, baseDir string) (*Node, error) {
 
 	// Create node instance
 	n := &Node{
-		id:         id,
-		addr:       addr,
-		wsAddr:     wsAddr,
-		ringView:   ringView,
-		store:      *store,
-		repSock:    rep,
-		stopCh:     make(chan struct{}),
-		replConfig: replConfig,
-		hintStore:  hintStore,
+		id:            id,
+		addr:          addr,
+		wsAddr:        wsAddr,
+		ringView:      ringView,
+		store:         *store,
+		repSock:       rep,
+		stopCh:        make(chan struct{}),
+		replConfig:    replConfig,
+		hintStore:     hintStore,
+		subController: NewSubController(nil), // Will set node reference later
 	}
 
+	// Set node reference in SubController
+	n.subController.SetNode(n)
+
 	// Setup WebSocket server
-	wsHandler := websocket.NewWebSocketHandler(n)
+	wsHandler := communication.NewWebSocketHandler(n)
 	mux := http.NewServeMux()
 	mux.Handle("/ws", wsHandler)
 
@@ -97,6 +102,10 @@ func NewNode(id string, baseDir string) (*Node, error) {
 	}
 
 	return n, nil
+}
+
+func (n *Node) ID() string {
+	return n.id
 }
 
 // Starts completely the node (ZMQ receiver and WebSocket server)

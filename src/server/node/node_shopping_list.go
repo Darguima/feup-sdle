@@ -6,6 +6,7 @@ import (
 	pb "sdle-server/proto"
 
 	"google.golang.org/protobuf/proto"
+	"github.com/gorilla/websocket"
 )
 
 func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
@@ -18,9 +19,9 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 		var oldListProto pb.ShoppingList
 
 		proto.Unmarshal(oldListData, &oldListProto)
-		oldList = crdt.ShoppingListFromProto(&oldListProto)
+		oldList = crdt.ShoppingListFromProto(&oldListProto, n.id)
 	} else {
-		oldList = crdt.NewShoppingList(n.id, delta.ListID(), delta.Name())
+		oldList = crdt.NewShoppingList(n.id, delta.ListID())
 	}
 
 	oldList.Join(delta)
@@ -37,14 +38,16 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 		return err
 	}
 
+	n.subController.NotifySubscribers(delta.ListID(), *delta)
+
 	return nil
 }
 
-func (n *Node) GetShoppingList(id string) (*pb.ShoppingList, error) {
-	n.log(fmt.Sprintf("get shopping list %s", id))
+func (n *Node) GetShoppingList(listID string) (*pb.ShoppingList, error) {
+	n.log(fmt.Sprintf("get shopping list %s", listID))
 
 	// Use distributed GET instead of direct store access
-	listData, err := n.Get("shoppinglist_" + id)
+	listData, err := n.Get("shoppinglist_" + listID)
 	if err != nil {
 		return nil, err
 	}
@@ -55,4 +58,16 @@ func (n *Node) GetShoppingList(id string) (*pb.ShoppingList, error) {
 	}
 
 	return &listProto, nil
+}
+
+func (n *Node) SubscribeShoppingList(listID string, messageID string, conn *websocket.Conn) error {
+	n.log(fmt.Sprintf("handle subscribe shopping list %s", listID))
+	n.subController.AddSubscriber(listID, messageID, conn)
+	return nil
+}
+
+func (n *Node) UnsubscribeShoppingList(listID string, messageID string) error {
+	n.log(fmt.Sprintf("handle unsubscribe shopping list %s", listID))
+	n.subController.RemoveSubscriber(listID, messageID)
+	return nil
 }

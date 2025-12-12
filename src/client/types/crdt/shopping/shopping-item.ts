@@ -1,25 +1,31 @@
 import CCounter from "../generic/ccounter";
 import DotContext from "../generic/dot-context";
-import { ShoppingItem as ShoppingItemProto, CCounter as CCounterProto } from "@/lib/proto/global";
+import { ShoppingItem as ShoppingItemProto, CCounter as CCounterProto, StringMVReg, DWFlag as DWFlagProto } from "@/lib/proto/global";
+import DWFlag from "../generic/dwflag";
+import MVReg from "../generic/mvreg";
 
 export default class ShoppingItem {
     private replicaId: string;
     private itemId: string;
-    private name: string;
+    private name: MVReg<string>;
     private quantity: CCounter;
     private acquired: CCounter;
+    private deleted: DWFlag;
     private dotContext: DotContext;
 
-    constructor(replicaId: string, itemId: string, name: string) {
+    constructor(replicaId: string, itemId: string) {
         this.replicaId = replicaId;
         this.itemId = itemId;
-        this.name = name;
+        this.name = new MVReg<string>(replicaId);
         this.quantity = new CCounter(replicaId);
         this.acquired = new CCounter(replicaId);
+        this.deleted = new DWFlag(replicaId);
         this.dotContext = new DotContext();
 
         this.quantity.setContext(this.dotContext);
         this.acquired.setContext(this.dotContext);
+        this.deleted.setContext(this.dotContext);
+        this.name.setContext(this.dotContext);
     }
 
     public getReplicaId(): string {
@@ -35,11 +41,17 @@ export default class ShoppingItem {
     }
 
     public getName(): string {
-        return this.name;
+        // Assume single value for name
+        return this.name.read().at(0) || "";
     }
 
-    public setName(name: string): void {
-        this.name = name;
+    public setName(name: string): ShoppingItem {
+        const delta = new ShoppingItem(this.replicaId, this.itemId);
+
+        delta.name = this.name.write(name);
+        delta.setContext(delta.name.getContext());
+
+        return delta;
     }
 
     public getContext(): DotContext {
@@ -50,6 +62,8 @@ export default class ShoppingItem {
         this.dotContext = context;
         this.quantity.setContext(context);
         this.acquired.setContext(context);
+        this.deleted.setContext(context);
+        this.name.setContext(context);
     }
 
     public getQuantity(): number {
@@ -57,7 +71,7 @@ export default class ShoppingItem {
     }
 
     public incQuantity(amount: number): ShoppingItem {
-        const delta = new ShoppingItem(this.replicaId, this.itemId, this.name);
+        const delta = new ShoppingItem(this.replicaId, this.itemId);
 
         // Prevent negative quantity values
         amount = Math.max(-this.quantity.read(), amount);
@@ -74,7 +88,7 @@ export default class ShoppingItem {
     }
 
     public incAcquired(amount: number): ShoppingItem {
-        const delta = new ShoppingItem(this.replicaId, this.itemId, this.name);
+        const delta = new ShoppingItem(this.replicaId, this.itemId);
 
         const currQuantity = this.quantity.read();
         const currAcquired = this.acquired.read();
@@ -92,73 +106,109 @@ export default class ShoppingItem {
         return delta;
     }
 
+    public isDeleted(): boolean {
+        return this.deleted.read();
+    }
+
+    public delete(): ShoppingItem {
+        const delta = new ShoppingItem(this.replicaId, this.itemId);
+
+        const deletedDelta = this.deleted.enable();
+        delta.deleted = deletedDelta;
+        delta.setContext(deletedDelta.getContext());
+
+        return delta;
+    }
+
+    public restore(): ShoppingItem {
+        const delta = new ShoppingItem(this.replicaId, this.itemId);
+
+        const deletedDelta = this.deleted.disable();
+        delta.deleted = deletedDelta;
+        delta.setContext(deletedDelta.getContext());
+
+        return delta;
+    }
+
     public reset(): ShoppingItem {
-        const delta = new ShoppingItem(this.replicaId, this.itemId, this.name);
+        const delta = new ShoppingItem(this.replicaId, this.itemId);
 
-        const quantityDelta = this.quantity.reset();
-        delta.quantity = quantityDelta;
+        delta.name = this.name.reset();
+        delta.quantity = this.quantity.reset();
+        delta.acquired = this.acquired.reset();
+        delta.deleted = this.deleted.enable();
 
-        const acquiredDelta = this.acquired.reset();
-        delta.acquired = acquiredDelta;
-
-        delta.getContext().join(quantityDelta.getContext());
-        delta.getContext().join(acquiredDelta.getContext());
+        delta.getContext().join(delta.name.getContext());
+        delta.getContext().join(delta.quantity.getContext());
+        delta.getContext().join(delta.acquired.getContext());
+        delta.getContext().join(delta.deleted.getContext());
+        delta.setContext(delta.getContext());  // Set the context for new children
 
         return delta;
     }
 
     public isNull(): boolean {
-        return this.quantity.read() === 0;  // Quantity must normally be positive
+        return this.name.isNull() && this.quantity.isNull() && this.acquired.isNull() && this.deleted.isNull();
     }
 
     public join(other: ShoppingItem): void {
         const originalCtx = this.dotContext.clone();
 
-        // Merge itemID and name if they are empty
+        // Merge itemID if it are empty
         // This is needed when empty items are created automatically by ORMap
         if (this.itemId === "") {
             this.itemId = other.itemId;
         }
-        if (this.name === "") {
-            this.name = other.name;
-        }
+
+        this.name.join(other.name);
+        this.dotContext.copy(originalCtx);
 
         this.quantity.join(other.quantity);
         this.dotContext.copy(originalCtx);
 
         this.acquired.join(other.acquired);
+        this.dotContext.copy(originalCtx);
+
+        this.deleted.join(other.deleted);
         // No need to restore context here
 
         this.dotContext.join(other.getContext());
     }
 
     public clone(): ShoppingItem {
-        const clone = new ShoppingItem(this.replicaId, this.itemId, this.name);
+        const clone = new ShoppingItem(this.replicaId, this.itemId);
 
         clone.dotContext = this.dotContext.clone();
+        clone.name = this.name.clone();
         clone.quantity = this.quantity.clone();
         clone.acquired = this.acquired.clone();
+        clone.deleted = this.deleted.clone();
 
+        clone.name.setContext(clone.dotContext);
         clone.quantity.setContext(clone.dotContext);
         clone.acquired.setContext(clone.dotContext);
+        clone.deleted.setContext(clone.dotContext);
 
         return clone;
     }
 
     public toProto(): ShoppingItemProto {
         return ShoppingItemProto.create({
-            name: this.name,
+            name: this.name.toStringProto(),
+            deleted: this.deleted.toProto(),
             quantity: this.quantity.toProto(),
             acquired: this.acquired.toProto(),
         });
     }
 
     public static fromProto(proto: ShoppingItemProto, replicaId: string, itemId: string, ctx: DotContext): ShoppingItem {
-        const item = new ShoppingItem(replicaId, itemId, proto.name);
+        const item = new ShoppingItem(replicaId, itemId);
 
         item.setContext(ctx);
+        item.name = MVReg.fromStringProto(proto.name as StringMVReg, replicaId, ctx);
         item.quantity = CCounter.fromProto(proto.quantity as CCounterProto, replicaId, ctx);
         item.acquired = CCounter.fromProto(proto.acquired as CCounterProto, replicaId, ctx);
+        item.deleted = DWFlag.fromProto(proto.deleted as DWFlagProto, replicaId);
 
         return item;
     }

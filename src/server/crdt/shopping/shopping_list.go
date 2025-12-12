@@ -2,22 +2,26 @@ package crdt
 
 import (
 	"fmt"
-	"sdle-server/crdt/generic"
+	"log"
+	crdt "sdle-server/crdt/generic"
 	g01 "sdle-server/proto"
 )
 
 type ShoppingList struct {
 	replicaID  string
 	listID     string
-	name       string
+	name       *crdt.MVReg[string]
 	items      *crdt.ORMap[string, *ShoppingItem]
 	dotContext *crdt.DotContext
 }
 
-func NewShoppingList(replicaID string, listID string, name string) *ShoppingList {
+func NewShoppingList(replicaID string, listID string) *ShoppingList {
 	dotContext := crdt.NewDotContext()
 
-	createItem := func(id string) *ShoppingItem { return NewShoppingItem(id, "", "") }
+	name := crdt.NewMVReg[string](replicaID)
+	name.SetContext(dotContext)
+
+	createItem := func(id string) *ShoppingItem { return NewShoppingItem(replicaID, "") }
 	items := crdt.NewORMap[string](replicaID, createItem)
 	items.SetContext(dotContext)
 
@@ -30,8 +34,6 @@ func NewShoppingList(replicaID string, listID string, name string) *ShoppingList
 	}
 }
 
-
-
 func (sl *ShoppingList) ReplicaID() string {
 	return sl.replicaID
 }
@@ -41,7 +43,21 @@ func (sl *ShoppingList) ListID() string {
 }
 
 func (sl *ShoppingList) Name() string {
-	return sl.name
+	// Assumes a single value in the MVReg
+	values := sl.name.Read()
+	if len(values) > 0 {
+		return values[0]
+	}
+	return ""
+}
+
+func (sl *ShoppingList) SetName(name string) *ShoppingList {
+	delta := NewShoppingList(sl.replicaID, sl.listID)
+
+	delta.name = sl.name.Write(name)
+	delta.SetContext(delta.name.Context())
+
+	return delta
 }
 
 func (sl *ShoppingList) Context() *crdt.DotContext {
@@ -50,9 +66,9 @@ func (sl *ShoppingList) Context() *crdt.DotContext {
 
 func (sl *ShoppingList) SetContext(ctx *crdt.DotContext) {
 	sl.dotContext = ctx
+	sl.name.SetContext(ctx)
 	sl.items.SetContext(ctx)
 }
-
 
 func (sl *ShoppingList) Items() []ShoppingItem {
 	result := []ShoppingItem{}
@@ -61,8 +77,7 @@ func (sl *ShoppingList) Items() []ShoppingItem {
 	for _, id := range ids {
 		item := sl.items.Get(id)
 
-		// Due to resets, some items may be null
-		if !item.IsNull() {
+		if !item.Deleted() {
 			result = append(result, *item.Clone())
 		}
 	}
@@ -79,14 +94,15 @@ func (sl *ShoppingList) GetItem(itemID string) *ShoppingItem {
 }
 
 func (sl *ShoppingList) PutItem(itemID string, name string, quantityDiff int64, acquiredDiff int64) *ShoppingList {
-	delta := NewShoppingList(sl.replicaID, sl.listID, sl.name)
+	delta := NewShoppingList(sl.replicaID, sl.listID)
 
 	itemsDelta := sl.items.Apply(itemID, func(item *ShoppingItem) *ShoppingItem {
 		item.SetItemID(itemID)
-		item.SetName(name)
 
-		itemDelta := item.IncQuantity(quantityDiff)
+		itemDelta := item.SetName(name)
+		itemDelta.Join(item.IncQuantity(quantityDiff))
 		itemDelta.Join(item.IncAcquired(acquiredDiff))
+		itemDelta.Join(item.Restore())
 
 		return itemDelta
 	})
@@ -98,9 +114,14 @@ func (sl *ShoppingList) PutItem(itemID string, name string, quantityDiff int64, 
 }
 
 func (sl *ShoppingList) RemoveItem(itemID string) *ShoppingList {
-	delta := NewShoppingList(sl.replicaID, sl.listID, sl.name)
+	delta := NewShoppingList(sl.replicaID, sl.listID)
 
-	itemsDelta := sl.items.Remove(itemID)
+	// Perform soft delete
+	itemsDelta := sl.items.Apply(itemID, func(item *ShoppingItem) *ShoppingItem {
+		itemDelta := item.Delete()
+		return itemDelta
+	})
+
 	delta.items = itemsDelta
 	delta.SetContext(itemsDelta.Context())
 
@@ -108,14 +129,24 @@ func (sl *ShoppingList) RemoveItem(itemID string) *ShoppingList {
 }
 
 func (sl *ShoppingList) Join(other *ShoppingList) {
+	originalContext := sl.dotContext.Clone()
+
+	sl.name.Join(other.name)
+	sl.dotContext.Copy(originalContext)
+
 	sl.items.Join(other.items)
+	// No need to restore context here
+
 	sl.dotContext.Join(other.dotContext)
 }
 
 func (sl *ShoppingList) Clone() *ShoppingList {
-	clone := NewShoppingList(sl.replicaID, sl.listID, sl.name)
-	clone.dotContext = sl.dotContext.Clone()
+	clone := NewShoppingList(sl.replicaID, sl.listID)
+
+	clone.name = sl.name.Clone()
 	clone.items = sl.items.Clone()
+	clone.SetContext(sl.dotContext.Clone())
+
 	return clone
 }
 
@@ -125,37 +156,39 @@ func (sl *ShoppingList) String() string {
 }
 
 func (sl *ShoppingList) ToProto() *g01.ShoppingList {
-	protoItems := make(map[string]*g01.ShoppingItem)
+	nameProto := (*crdt.StringMVReg)(sl.name).ToProto()
+
+	itemsProto := make(map[string]*g01.ShoppingItem)
 	ids := sl.items.Keys()
 
 	for _, id := range ids {
-		protoItems[id] = sl.items.Get(id).ToProto()
+		itemsProto[id] = sl.items.Get(id).ToProto()
 	}
 
 	return &g01.ShoppingList{
-		ReplicaId:  sl.replicaID,
 		Id:         sl.listID,
-		Name:       sl.name,
-		Items:      protoItems,
+		Name:       nameProto,
+		Items:      itemsProto,
 		DotContext: sl.dotContext.ToProto(),
 	}
 }
 
-func ShoppingListFromProto(protoList *g01.ShoppingList) *ShoppingList {
+func ShoppingListFromProto(protoList *g01.ShoppingList, replicaId string) *ShoppingList {
 	ctx := crdt.DotContextFromProto(protoList.GetDotContext())
 
 	itemMap := make(map[string]*ShoppingItem)
 	for id, protoItem := range protoList.GetItems() {
-		itemMap[id] = ShoppingItemFromProto(protoItem, protoList.GetReplicaId(), id, ctx)
+		itemMap[id] = ShoppingItemFromProto(protoItem, replicaId, id, ctx)
+		log.Print(itemMap[id])
 	}
 
-	createItem := func(id string) *ShoppingItem { return NewShoppingItem(id, "", "") }
-	items := crdt.NewORMapFrom(protoList.GetReplicaId(), createItem, ctx, itemMap)
+	createItem := func(id string) *ShoppingItem { return NewShoppingItem(id, "") }
+	items := crdt.NewORMapFrom(replicaId, createItem, ctx, itemMap)
 
 	return &ShoppingList{
-		replicaID:  protoList.GetReplicaId(),
+		replicaID:  replicaId,
 		listID:     protoList.GetId(),
-		name:       protoList.GetName(),
+		name:       (*crdt.MVReg[string])(crdt.StringMVRegFromProto(protoList.GetName(), replicaId, ctx)),
 		dotContext: ctx,
 		items:      items,
 	}

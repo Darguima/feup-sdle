@@ -1,8 +1,8 @@
 import { ShoppingList as ShoppingListProto, ShoppingItem as ShoppingItemProto, Entity, IEntity } from "@/lib/proto/global";
 import ShoppingItem from "./shopping-item";
-import ProtocolEntity from "@/lib/protocol/protocol-entity";
+import ProtocolRequest from "@/lib/protocol/protocol-entity";
 
-export default class ShoppingList implements ProtocolEntity {
+export default class ShoppingList implements ProtocolRequest {
     id: string;
     name: string;
     items: Map<string, ShoppingItem>;

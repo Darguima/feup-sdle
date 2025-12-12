@@ -1,6 +1,6 @@
 import Dot from "./dot";
 import DotContext from "./dot-context";
-import { DotKernel as DotKernelProto, Dot as DotProto } from "@/lib/proto/global";
+import { IntDotKernel, StringDotKernel, EmptyDotKernel, Dot as DotProto } from "@/lib/proto/global";
 
 export default class DotKernel<T> {
     private dotValues: Map<string, T>;  // Objects do not work as Map keys, so we use their string representation
@@ -25,17 +25,6 @@ export default class DotKernel<T> {
 
     public dotAdd(id: string, value: T): Dot {
         const dot = this.dotContext.makeDot(id);
-
-        // Remove old entry for the same replica
-        for (const otherDotKey of this.dotValues.keys()) {
-            const otherDot = Dot.fromKey(otherDotKey);
-
-            if (otherDot.id === id) {
-                this.dotValues.delete(otherDotKey);
-                break;
-            }
-        }
-
         this.dotValues.set(dot.toKey(), value);
         return dot;
     }
@@ -119,18 +108,7 @@ export default class DotKernel<T> {
         return clone;
     }
 
-    private isNumberDotKernel(): boolean {
-        for (const [, value] of this.dotValues) {
-            return typeof value === "number";
-        }
-        return true;
-    }
-
-    public toProto(): DotKernelProto {
-        if (!this.isNumberDotKernel()) {
-            throw new Error("DotKernel.toProto: only DotKernels with number values can be serialized");
-        }
-
+    public toIntProto(): IntDotKernel {
         const protoDotKeys: DotProto[] = [];
         const protoDotValues: number[] = [];
 
@@ -140,13 +118,42 @@ export default class DotKernel<T> {
             protoDotValues.push(value as number);
         });
 
-        return DotKernelProto.create({
+        return IntDotKernel.create({
             dotKeys: protoDotKeys,
             dotValues: protoDotValues,
         });
     }
 
-    public static fromProto(proto: DotKernelProto, ctx: DotContext): DotKernel<number> {
+    public toStringDotKernel(): StringDotKernel {
+        const protoDotKeys: DotProto[] = [];
+        const protoDotValues: string[] = [];
+
+        this.dotValues.forEach((value, dotKey) => {
+            const protoDot = Dot.fromKey(dotKey).toProto();
+            protoDotKeys.push(protoDot);
+            protoDotValues.push(value as string);
+        });
+
+        return StringDotKernel.create({
+            dotKeys: protoDotKeys,
+            dotValues: protoDotValues,
+        });
+    }
+
+    public toEmptyProto(): EmptyDotKernel {
+        const protoDotKeys: DotProto[] = [];
+
+        this.dotValues.forEach((_, dotKey) => {
+            const protoDot = Dot.fromKey(dotKey).toProto();
+            protoDotKeys.push(protoDot);
+        });
+
+        return EmptyDotKernel.create({
+            dotKeys: protoDotKeys,
+        });
+    }
+
+    public static fromIntProto(proto: IntDotKernel, ctx: DotContext): DotKernel<number> {
         if (proto.dotKeys.length !== proto.dotValues.length) {
             throw new Error("DotKernel.fromProto: mismatched dot keys and values lengths");
         }
@@ -158,6 +165,38 @@ export default class DotKernel<T> {
             const value = proto.dotValues[i];
 
             dotKernel.dotValues.set(dot.toKey(), value as number);
+        }
+
+        dotKernel.setContext(ctx);
+
+        return dotKernel;
+    }
+
+    public static fromStringProto(proto: StringDotKernel, ctx: DotContext): DotKernel<string> {
+        if (proto.dotKeys.length !== proto.dotValues.length) {
+            throw new Error("DotKernel.fromProto: mismatched dot keys and values lengths");
+        }
+
+        const dotKernel = new DotKernel<string>();
+
+        for (let i = 0; i < proto.dotKeys.length; i++) {
+            const dot = Dot.fromProto(proto.dotKeys[i] as DotProto);
+            const value = proto.dotValues[i];
+
+            dotKernel.dotValues.set(dot.toKey(), value as string);
+        }
+
+        dotKernel.setContext(ctx);
+
+        return dotKernel;
+    }
+
+    public static fromEmptyProto(proto: EmptyDotKernel, ctx: DotContext): DotKernel<null> {
+        const dotKernel = new DotKernel<null>();
+
+        for (let i = 0; i < proto.dotKeys.length; i++) {
+            const dot = Dot.fromProto(proto.dotKeys[i] as DotProto);
+            dotKernel.dotValues.set(dot.toKey(), null);
         }
 
         dotKernel.setContext(ctx);

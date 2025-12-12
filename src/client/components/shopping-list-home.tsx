@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, ShoppingCart } from "lucide-react";
+import { Plus } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,20 +15,23 @@ import { Input } from "@/components/ui/input";
 import { ShoppingList } from "@/types";
 import { db } from "@/lib/storage/db";
 import { useProtocolSocket } from "./provider/protocol-socket";
+import { ShoppingListCard } from "./shopping-list-card";
 
 interface ShoppingListHomeProps {
 	onSelect: (list: ShoppingList) => void;
+	onDelete: (list: ShoppingList) => Promise<void>;
 }
 
-export function ShoppingListHome({ onSelect }: ShoppingListHomeProps) {
+export function ShoppingListHome({ onSelect, onDelete }: ShoppingListHomeProps) {
 	const [lists, setLists] = useState<ShoppingList[]>([]);
 	const [listName, setListName] = useState("");
 	const socket = useProtocolSocket();
 
-	useEffect(() => {
-		const fetchLists = async () => {
+	const fetchLists = async () => {
 			setLists(await db.getAllLists());
 		};
+
+	useEffect(() => {
 		fetchLists();
 	}, []);
 
@@ -37,10 +40,7 @@ export function ShoppingListHome({ onSelect }: ShoppingListHomeProps) {
 		if (!listName.trim()) return;
 
 		const newList = await db.createList(listName);
-		socket.send(newList);
 
-		setLists(await db.getAllLists());
-		setListName("");
 		onSelect(newList);
 	};
 
@@ -81,25 +81,15 @@ export function ShoppingListHome({ onSelect }: ShoppingListHomeProps) {
 					<CardContent>
 						<div className="space-y-2">
 							{lists.map((list) =>
-								<button
-									type="button"
+								<ShoppingListCard
 									key={list.getListId()}
-									onClick={() => onSelect(list)}
-									className="w-full text-left p-4 rounded-lg border border-border hover:bg-accent transition-colors"
-								>
-									<div className="flex items-center justify-between">
-										<div>
-											<h3 className="font-semibold text-foreground">
-												{list.getName()}
-											</h3>
-											<p className="text-sm text-muted-foreground">
-												{list.getItems().length}{" "}
-												{list.getItems().length === 1 ? "item" : "items"}
-											</p>
-										</div>
-										<ShoppingCart className="w-5 h-5 text-muted-foreground" />
-									</div>
-								</button>
+									list={list}
+									onSelect={onSelect}
+									onDelete={async (list) => {
+										await onDelete(list)
+										fetchLists()
+									}}
+								/>
 							)}
 						</div>
 					</CardContent>

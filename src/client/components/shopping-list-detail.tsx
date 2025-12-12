@@ -17,8 +17,9 @@ import { useProtocolSocket } from "./provider/protocol-socket";
 import { ShoppingListDetailSkeleton } from "./shopping-list-detail-skeleton";
 import { ShoppingList } from "@/types";
 import { db } from "@/lib/storage/db";
-import WebProtocolSocket from "@/lib/protocol/web-protocol-socket";
 import GetShoppingListRequest from "@/lib/protocol/get-shopping-list-request";
+import { ServerResponse } from "@/lib/proto/client";
+import SubscribeShoppingListRequest from "@/lib/protocol/subscribe-shopping-list-request";
 
 interface ShoppingListDetailProps {
 	listId: string;
@@ -36,46 +37,74 @@ export function ShoppingListDetail({
 	const [itemQuantity, setItemQuantity] = useState("1");
 	const socket = useProtocolSocket();
 
-	const refreshList = useCallback(async () => {
+	const refreshList = useCallback(async (): Promise<ShoppingList | undefined> => {
 		const dbList = await db.getList(listId);
 
 		if (dbList) {
 			setList(dbList);
-			setNotFound(false);
-		} else {
-			setNotFound(true);
 		}
+
+		setNotFound(dbList === undefined);
 		setLoading(false);
+
+		return dbList;
 	}, [listId]);
 
-	useEffect(() => {
-		refreshList();
-	}, [refreshList]);
 
-	useEffect(() => {
-		if (socket instanceof WebProtocolSocket) {
-			socket.setOnShoppingListCallback(async (receivedList: ShoppingList) => {
-				if (receivedList.getListId() !== listId) return;
+	const handleReceivedList = useCallback(async (listReceived: ShoppingList) => {
+		if (listReceived.getListId() !== listId) return;
 
-				let oldList = await db.getList(listId);
-				if (!oldList) {  // Create an empty list for merging
-					oldList = new ShoppingList(await db.getClientId(), listId, receivedList.getName());
-				}
-				oldList.join(receivedList);
-
-				await db.updateList(oldList);
-				await refreshList();
-			});
-
-			socket.send(new GetShoppingListRequest(listId));
+		let oldList = await db.getList(listId);
+		if (!oldList) {  // Create an empty list for merging
+			oldList = new ShoppingList(await db.getClientId(), listId);
 		}
+		oldList.join(listReceived);
+
+		await db.updateList(oldList);
+		await refreshList();
+	}, [listId, refreshList]);
+
+	const handleServerResponse = useCallback(async (serverResponse: ServerResponse) => {
+		switch (serverResponse.responseType) {
+			case "shoppingList":
+				const list = ShoppingList.fromProto(serverResponse.shoppingList!, await db.getClientId());
+				await handleReceivedList(list);
+				break;
+		}
+
+		return true;
+	}, [handleReceivedList]);
+
+	const handleSubscribeResponse = useCallback(async (serverResponse: ServerResponse) => {
+		switch (serverResponse.responseType) {
+			case "shoppingList":
+				const list = ShoppingList.fromProto(serverResponse.shoppingList!, await db.getClientId());
+				await handleReceivedList(list);
+				break;
+		}
+
+		return false; // Keep the handler for future updates
+	}, [handleReceivedList]);
+
+	useEffect(() => {
+		const initializeSubscription = async () => {
+			const list = await refreshList();
+			if (list)
+				socket.send(list, handleSubscribeResponse);
+
+			socket.send(new SubscribeShoppingListRequest(listId), handleSubscribeResponse);
+		};
+
+		initializeSubscription();
 	}, [listId, socket]);
+
 
 	const updateList = useCallback(async (updatedList: ShoppingList, delta: ShoppingList) => {
 		await db.updateList(updatedList);
-		socket.send(delta);
+		socket.send(delta, handleServerResponse);
 		await refreshList();
 	}, [listId]);
+
 
 	const handleAddItem = async (e: React.FormEvent) => {
 		e.preventDefault();

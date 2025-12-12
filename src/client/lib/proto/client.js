@@ -212,14 +212,410 @@ export const GetShoppingListRequest = $root.GetShoppingListRequest = (() => {
     return GetShoppingListRequest;
 })();
 
+export const SubscribeShoppingListRequest = $root.SubscribeShoppingListRequest = (() => {
+
+    /**
+     * Properties of a SubscribeShoppingListRequest.
+     * @exports ISubscribeShoppingListRequest
+     * @interface ISubscribeShoppingListRequest
+     * @property {string|null} [id] SubscribeShoppingListRequest id
+     */
+
+    /**
+     * Constructs a new SubscribeShoppingListRequest.
+     * @exports SubscribeShoppingListRequest
+     * @classdesc Represents a SubscribeShoppingListRequest.
+     * @implements ISubscribeShoppingListRequest
+     * @constructor
+     * @param {ISubscribeShoppingListRequest=} [properties] Properties to set
+     */
+    function SubscribeShoppingListRequest(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * SubscribeShoppingListRequest id.
+     * @member {string} id
+     * @memberof SubscribeShoppingListRequest
+     * @instance
+     */
+    SubscribeShoppingListRequest.prototype.id = "";
+
+    /**
+     * Creates a new SubscribeShoppingListRequest instance using the specified properties.
+     * @function create
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {ISubscribeShoppingListRequest=} [properties] Properties to set
+     * @returns {SubscribeShoppingListRequest} SubscribeShoppingListRequest instance
+     */
+    SubscribeShoppingListRequest.create = function create(properties) {
+        return new SubscribeShoppingListRequest(properties);
+    };
+
+    /**
+     * Encodes the specified SubscribeShoppingListRequest message. Does not implicitly {@link SubscribeShoppingListRequest.verify|verify} messages.
+     * @function encode
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {ISubscribeShoppingListRequest} message SubscribeShoppingListRequest message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    SubscribeShoppingListRequest.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified SubscribeShoppingListRequest message, length delimited. Does not implicitly {@link SubscribeShoppingListRequest.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {ISubscribeShoppingListRequest} message SubscribeShoppingListRequest message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    SubscribeShoppingListRequest.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a SubscribeShoppingListRequest message from the specified reader or buffer.
+     * @function decode
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {SubscribeShoppingListRequest} SubscribeShoppingListRequest
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    SubscribeShoppingListRequest.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.SubscribeShoppingListRequest();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.id = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a SubscribeShoppingListRequest message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {SubscribeShoppingListRequest} SubscribeShoppingListRequest
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    SubscribeShoppingListRequest.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a SubscribeShoppingListRequest message.
+     * @function verify
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    SubscribeShoppingListRequest.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.id != null && message.hasOwnProperty("id"))
+            if (!$util.isString(message.id))
+                return "id: string expected";
+        return null;
+    };
+
+    /**
+     * Creates a SubscribeShoppingListRequest message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {SubscribeShoppingListRequest} SubscribeShoppingListRequest
+     */
+    SubscribeShoppingListRequest.fromObject = function fromObject(object) {
+        if (object instanceof $root.SubscribeShoppingListRequest)
+            return object;
+        let message = new $root.SubscribeShoppingListRequest();
+        if (object.id != null)
+            message.id = String(object.id);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a SubscribeShoppingListRequest message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {SubscribeShoppingListRequest} message SubscribeShoppingListRequest
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    SubscribeShoppingListRequest.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            object.id = "";
+        if (message.id != null && message.hasOwnProperty("id"))
+            object.id = message.id;
+        return object;
+    };
+
+    /**
+     * Converts this SubscribeShoppingListRequest to JSON.
+     * @function toJSON
+     * @memberof SubscribeShoppingListRequest
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    SubscribeShoppingListRequest.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for SubscribeShoppingListRequest
+     * @function getTypeUrl
+     * @memberof SubscribeShoppingListRequest
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    SubscribeShoppingListRequest.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/SubscribeShoppingListRequest";
+    };
+
+    return SubscribeShoppingListRequest;
+})();
+
+export const Ok = $root.Ok = (() => {
+
+    /**
+     * Properties of an Ok.
+     * @exports IOk
+     * @interface IOk
+     */
+
+    /**
+     * Constructs a new Ok.
+     * @exports Ok
+     * @classdesc Represents an Ok.
+     * @implements IOk
+     * @constructor
+     * @param {IOk=} [properties] Properties to set
+     */
+    function Ok(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * Creates a new Ok instance using the specified properties.
+     * @function create
+     * @memberof Ok
+     * @static
+     * @param {IOk=} [properties] Properties to set
+     * @returns {Ok} Ok instance
+     */
+    Ok.create = function create(properties) {
+        return new Ok(properties);
+    };
+
+    /**
+     * Encodes the specified Ok message. Does not implicitly {@link Ok.verify|verify} messages.
+     * @function encode
+     * @memberof Ok
+     * @static
+     * @param {IOk} message Ok message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Ok.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified Ok message, length delimited. Does not implicitly {@link Ok.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof Ok
+     * @static
+     * @param {IOk} message Ok message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Ok.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an Ok message from the specified reader or buffer.
+     * @function decode
+     * @memberof Ok
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {Ok} Ok
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Ok.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.Ok();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an Ok message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof Ok
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {Ok} Ok
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Ok.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an Ok message.
+     * @function verify
+     * @memberof Ok
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    Ok.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        return null;
+    };
+
+    /**
+     * Creates an Ok message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof Ok
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {Ok} Ok
+     */
+    Ok.fromObject = function fromObject(object) {
+        if (object instanceof $root.Ok)
+            return object;
+        return new $root.Ok();
+    };
+
+    /**
+     * Creates a plain object from an Ok message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof Ok
+     * @static
+     * @param {Ok} message Ok
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    Ok.toObject = function toObject() {
+        return {};
+    };
+
+    /**
+     * Converts this Ok to JSON.
+     * @function toJSON
+     * @memberof Ok
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    Ok.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for Ok
+     * @function getTypeUrl
+     * @memberof Ok
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    Ok.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/Ok";
+    };
+
+    return Ok;
+})();
+
+/**
+ * ErrorCode enum.
+ * @exports ErrorCode
+ * @enum {number}
+ * @property {number} NOT_FOUND=0 NOT_FOUND value
+ */
+export const ErrorCode = $root.ErrorCode = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "NOT_FOUND"] = 0;
+    return values;
+})();
+
 export const ClientRequest = $root.ClientRequest = (() => {
 
     /**
      * Properties of a ClientRequest.
      * @exports IClientRequest
      * @interface IClientRequest
+     * @property {string|null} [messageId] ClientRequest messageId
      * @property {IShoppingList|null} [shoppingList] ClientRequest shoppingList
      * @property {IGetShoppingListRequest|null} [getShoppingList] ClientRequest getShoppingList
+     * @property {ISubscribeShoppingListRequest|null} [subscribeShoppingList] ClientRequest subscribeShoppingList
      */
 
     /**
@@ -238,6 +634,14 @@ export const ClientRequest = $root.ClientRequest = (() => {
     }
 
     /**
+     * ClientRequest messageId.
+     * @member {string} messageId
+     * @memberof ClientRequest
+     * @instance
+     */
+    ClientRequest.prototype.messageId = "";
+
+    /**
      * ClientRequest shoppingList.
      * @member {IShoppingList|null|undefined} shoppingList
      * @memberof ClientRequest
@@ -253,17 +657,25 @@ export const ClientRequest = $root.ClientRequest = (() => {
      */
     ClientRequest.prototype.getShoppingList = null;
 
+    /**
+     * ClientRequest subscribeShoppingList.
+     * @member {ISubscribeShoppingListRequest|null|undefined} subscribeShoppingList
+     * @memberof ClientRequest
+     * @instance
+     */
+    ClientRequest.prototype.subscribeShoppingList = null;
+
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
     /**
      * ClientRequest requestType.
-     * @member {"shoppingList"|"getShoppingList"|undefined} requestType
+     * @member {"shoppingList"|"getShoppingList"|"subscribeShoppingList"|undefined} requestType
      * @memberof ClientRequest
      * @instance
      */
     Object.defineProperty(ClientRequest.prototype, "requestType", {
-        get: $util.oneOfGetter($oneOfFields = ["shoppingList", "getShoppingList"]),
+        get: $util.oneOfGetter($oneOfFields = ["shoppingList", "getShoppingList", "subscribeShoppingList"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -291,10 +703,14 @@ export const ClientRequest = $root.ClientRequest = (() => {
     ClientRequest.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
+        if (message.messageId != null && Object.hasOwnProperty.call(message, "messageId"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.messageId);
         if (message.shoppingList != null && Object.hasOwnProperty.call(message, "shoppingList"))
-            $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
         if (message.getShoppingList != null && Object.hasOwnProperty.call(message, "getShoppingList"))
-            $root.GetShoppingListRequest.encode(message.getShoppingList, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+            $root.GetShoppingListRequest.encode(message.getShoppingList, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+        if (message.subscribeShoppingList != null && Object.hasOwnProperty.call(message, "subscribeShoppingList"))
+            $root.SubscribeShoppingListRequest.encode(message.subscribeShoppingList, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
         return writer;
     };
 
@@ -332,11 +748,19 @@ export const ClientRequest = $root.ClientRequest = (() => {
                 break;
             switch (tag >>> 3) {
             case 1: {
-                    message.shoppingList = $root.ShoppingList.decode(reader, reader.uint32());
+                    message.messageId = reader.string();
                     break;
                 }
             case 2: {
+                    message.shoppingList = $root.ShoppingList.decode(reader, reader.uint32());
+                    break;
+                }
+            case 3: {
                     message.getShoppingList = $root.GetShoppingListRequest.decode(reader, reader.uint32());
+                    break;
+                }
+            case 4: {
+                    message.subscribeShoppingList = $root.SubscribeShoppingListRequest.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -375,6 +799,9 @@ export const ClientRequest = $root.ClientRequest = (() => {
         if (typeof message !== "object" || message === null)
             return "object expected";
         let properties = {};
+        if (message.messageId != null && message.hasOwnProperty("messageId"))
+            if (!$util.isString(message.messageId))
+                return "messageId: string expected";
         if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
             properties.requestType = 1;
             {
@@ -393,6 +820,16 @@ export const ClientRequest = $root.ClientRequest = (() => {
                     return "getShoppingList." + error;
             }
         }
+        if (message.subscribeShoppingList != null && message.hasOwnProperty("subscribeShoppingList")) {
+            if (properties.requestType === 1)
+                return "requestType: multiple values";
+            properties.requestType = 1;
+            {
+                let error = $root.SubscribeShoppingListRequest.verify(message.subscribeShoppingList);
+                if (error)
+                    return "subscribeShoppingList." + error;
+            }
+        }
         return null;
     };
 
@@ -408,6 +845,8 @@ export const ClientRequest = $root.ClientRequest = (() => {
         if (object instanceof $root.ClientRequest)
             return object;
         let message = new $root.ClientRequest();
+        if (object.messageId != null)
+            message.messageId = String(object.messageId);
         if (object.shoppingList != null) {
             if (typeof object.shoppingList !== "object")
                 throw TypeError(".ClientRequest.shoppingList: object expected");
@@ -417,6 +856,11 @@ export const ClientRequest = $root.ClientRequest = (() => {
             if (typeof object.getShoppingList !== "object")
                 throw TypeError(".ClientRequest.getShoppingList: object expected");
             message.getShoppingList = $root.GetShoppingListRequest.fromObject(object.getShoppingList);
+        }
+        if (object.subscribeShoppingList != null) {
+            if (typeof object.subscribeShoppingList !== "object")
+                throw TypeError(".ClientRequest.subscribeShoppingList: object expected");
+            message.subscribeShoppingList = $root.SubscribeShoppingListRequest.fromObject(object.subscribeShoppingList);
         }
         return message;
     };
@@ -434,6 +878,10 @@ export const ClientRequest = $root.ClientRequest = (() => {
         if (!options)
             options = {};
         let object = {};
+        if (options.defaults)
+            object.messageId = "";
+        if (message.messageId != null && message.hasOwnProperty("messageId"))
+            object.messageId = message.messageId;
         if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
             object.shoppingList = $root.ShoppingList.toObject(message.shoppingList, options);
             if (options.oneofs)
@@ -443,6 +891,11 @@ export const ClientRequest = $root.ClientRequest = (() => {
             object.getShoppingList = $root.GetShoppingListRequest.toObject(message.getShoppingList, options);
             if (options.oneofs)
                 object.requestType = "getShoppingList";
+        }
+        if (message.subscribeShoppingList != null && message.hasOwnProperty("subscribeShoppingList")) {
+            object.subscribeShoppingList = $root.SubscribeShoppingListRequest.toObject(message.subscribeShoppingList, options);
+            if (options.oneofs)
+                object.requestType = "subscribeShoppingList";
         }
         return object;
     };
@@ -482,7 +935,9 @@ export const ServerResponse = $root.ServerResponse = (() => {
      * Properties of a ServerResponse.
      * @exports IServerResponse
      * @interface IServerResponse
+     * @property {string|null} [messageId] ServerResponse messageId
      * @property {IShoppingList|null} [shoppingList] ServerResponse shoppingList
+     * @property {ErrorCode|null} [error] ServerResponse error
      */
 
     /**
@@ -501,6 +956,14 @@ export const ServerResponse = $root.ServerResponse = (() => {
     }
 
     /**
+     * ServerResponse messageId.
+     * @member {string} messageId
+     * @memberof ServerResponse
+     * @instance
+     */
+    ServerResponse.prototype.messageId = "";
+
+    /**
      * ServerResponse shoppingList.
      * @member {IShoppingList|null|undefined} shoppingList
      * @memberof ServerResponse
@@ -508,17 +971,25 @@ export const ServerResponse = $root.ServerResponse = (() => {
      */
     ServerResponse.prototype.shoppingList = null;
 
+    /**
+     * ServerResponse error.
+     * @member {ErrorCode|null|undefined} error
+     * @memberof ServerResponse
+     * @instance
+     */
+    ServerResponse.prototype.error = null;
+
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
     /**
      * ServerResponse responseType.
-     * @member {"shoppingList"|undefined} responseType
+     * @member {"shoppingList"|"error"|undefined} responseType
      * @memberof ServerResponse
      * @instance
      */
     Object.defineProperty(ServerResponse.prototype, "responseType", {
-        get: $util.oneOfGetter($oneOfFields = ["shoppingList"]),
+        get: $util.oneOfGetter($oneOfFields = ["shoppingList", "error"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -546,8 +1017,12 @@ export const ServerResponse = $root.ServerResponse = (() => {
     ServerResponse.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
+        if (message.messageId != null && Object.hasOwnProperty.call(message, "messageId"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.messageId);
         if (message.shoppingList != null && Object.hasOwnProperty.call(message, "shoppingList"))
-            $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            $root.ShoppingList.encode(message.shoppingList, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+        if (message.error != null && Object.hasOwnProperty.call(message, "error"))
+            writer.uint32(/* id 3, wireType 0 =*/24).int32(message.error);
         return writer;
     };
 
@@ -585,7 +1060,15 @@ export const ServerResponse = $root.ServerResponse = (() => {
                 break;
             switch (tag >>> 3) {
             case 1: {
+                    message.messageId = reader.string();
+                    break;
+                }
+            case 2: {
                     message.shoppingList = $root.ShoppingList.decode(reader, reader.uint32());
+                    break;
+                }
+            case 3: {
+                    message.error = reader.int32();
                     break;
                 }
             default:
@@ -624,12 +1107,26 @@ export const ServerResponse = $root.ServerResponse = (() => {
         if (typeof message !== "object" || message === null)
             return "object expected";
         let properties = {};
+        if (message.messageId != null && message.hasOwnProperty("messageId"))
+            if (!$util.isString(message.messageId))
+                return "messageId: string expected";
         if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
             properties.responseType = 1;
             {
                 let error = $root.ShoppingList.verify(message.shoppingList);
                 if (error)
                     return "shoppingList." + error;
+            }
+        }
+        if (message.error != null && message.hasOwnProperty("error")) {
+            if (properties.responseType === 1)
+                return "responseType: multiple values";
+            properties.responseType = 1;
+            switch (message.error) {
+            default:
+                return "error: enum value expected";
+            case 0:
+                break;
             }
         }
         return null;
@@ -647,10 +1144,24 @@ export const ServerResponse = $root.ServerResponse = (() => {
         if (object instanceof $root.ServerResponse)
             return object;
         let message = new $root.ServerResponse();
+        if (object.messageId != null)
+            message.messageId = String(object.messageId);
         if (object.shoppingList != null) {
             if (typeof object.shoppingList !== "object")
                 throw TypeError(".ServerResponse.shoppingList: object expected");
             message.shoppingList = $root.ShoppingList.fromObject(object.shoppingList);
+        }
+        switch (object.error) {
+        default:
+            if (typeof object.error === "number") {
+                message.error = object.error;
+                break;
+            }
+            break;
+        case "NOT_FOUND":
+        case 0:
+            message.error = 0;
+            break;
         }
         return message;
     };
@@ -668,10 +1179,19 @@ export const ServerResponse = $root.ServerResponse = (() => {
         if (!options)
             options = {};
         let object = {};
+        if (options.defaults)
+            object.messageId = "";
+        if (message.messageId != null && message.hasOwnProperty("messageId"))
+            object.messageId = message.messageId;
         if (message.shoppingList != null && message.hasOwnProperty("shoppingList")) {
             object.shoppingList = $root.ShoppingList.toObject(message.shoppingList, options);
             if (options.oneofs)
                 object.responseType = "shoppingList";
+        }
+        if (message.error != null && message.hasOwnProperty("error")) {
+            object.error = options.enums === String ? $root.ErrorCode[message.error] === undefined ? message.error : $root.ErrorCode[message.error] : message.error;
+            if (options.oneofs)
+                object.responseType = "error";
         }
         return object;
     };
@@ -711,9 +1231,10 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
      * Properties of a ShoppingItem.
      * @exports IShoppingItem
      * @interface IShoppingItem
-     * @property {string|null} [name] ShoppingItem name
+     * @property {IStringMVReg|null} [name] ShoppingItem name
      * @property {ICCounter|null} [quantity] ShoppingItem quantity
      * @property {ICCounter|null} [acquired] ShoppingItem acquired
+     * @property {IDWFlag|null} [deleted] ShoppingItem deleted
      */
 
     /**
@@ -733,11 +1254,11 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
 
     /**
      * ShoppingItem name.
-     * @member {string} name
+     * @member {IStringMVReg|null|undefined} name
      * @memberof ShoppingItem
      * @instance
      */
-    ShoppingItem.prototype.name = "";
+    ShoppingItem.prototype.name = null;
 
     /**
      * ShoppingItem quantity.
@@ -754,6 +1275,14 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
      * @instance
      */
     ShoppingItem.prototype.acquired = null;
+
+    /**
+     * ShoppingItem deleted.
+     * @member {IDWFlag|null|undefined} deleted
+     * @memberof ShoppingItem
+     * @instance
+     */
+    ShoppingItem.prototype.deleted = null;
 
     /**
      * Creates a new ShoppingItem instance using the specified properties.
@@ -780,11 +1309,13 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
         if (!writer)
             writer = $Writer.create();
         if (message.name != null && Object.hasOwnProperty.call(message, "name"))
-            writer.uint32(/* id 1, wireType 2 =*/10).string(message.name);
+            $root.StringMVReg.encode(message.name, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
         if (message.quantity != null && Object.hasOwnProperty.call(message, "quantity"))
             $root.CCounter.encode(message.quantity, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
         if (message.acquired != null && Object.hasOwnProperty.call(message, "acquired"))
             $root.CCounter.encode(message.acquired, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+        if (message.deleted != null && Object.hasOwnProperty.call(message, "deleted"))
+            $root.DWFlag.encode(message.deleted, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
         return writer;
     };
 
@@ -822,7 +1353,7 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
                 break;
             switch (tag >>> 3) {
             case 1: {
-                    message.name = reader.string();
+                    message.name = $root.StringMVReg.decode(reader, reader.uint32());
                     break;
                 }
             case 2: {
@@ -831,6 +1362,10 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
                 }
             case 3: {
                     message.acquired = $root.CCounter.decode(reader, reader.uint32());
+                    break;
+                }
+            case 4: {
+                    message.deleted = $root.DWFlag.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -868,9 +1403,11 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
     ShoppingItem.verify = function verify(message) {
         if (typeof message !== "object" || message === null)
             return "object expected";
-        if (message.name != null && message.hasOwnProperty("name"))
-            if (!$util.isString(message.name))
-                return "name: string expected";
+        if (message.name != null && message.hasOwnProperty("name")) {
+            let error = $root.StringMVReg.verify(message.name);
+            if (error)
+                return "name." + error;
+        }
         if (message.quantity != null && message.hasOwnProperty("quantity")) {
             let error = $root.CCounter.verify(message.quantity);
             if (error)
@@ -880,6 +1417,11 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
             let error = $root.CCounter.verify(message.acquired);
             if (error)
                 return "acquired." + error;
+        }
+        if (message.deleted != null && message.hasOwnProperty("deleted")) {
+            let error = $root.DWFlag.verify(message.deleted);
+            if (error)
+                return "deleted." + error;
         }
         return null;
     };
@@ -896,8 +1438,11 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
         if (object instanceof $root.ShoppingItem)
             return object;
         let message = new $root.ShoppingItem();
-        if (object.name != null)
-            message.name = String(object.name);
+        if (object.name != null) {
+            if (typeof object.name !== "object")
+                throw TypeError(".ShoppingItem.name: object expected");
+            message.name = $root.StringMVReg.fromObject(object.name);
+        }
         if (object.quantity != null) {
             if (typeof object.quantity !== "object")
                 throw TypeError(".ShoppingItem.quantity: object expected");
@@ -907,6 +1452,11 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
             if (typeof object.acquired !== "object")
                 throw TypeError(".ShoppingItem.acquired: object expected");
             message.acquired = $root.CCounter.fromObject(object.acquired);
+        }
+        if (object.deleted != null) {
+            if (typeof object.deleted !== "object")
+                throw TypeError(".ShoppingItem.deleted: object expected");
+            message.deleted = $root.DWFlag.fromObject(object.deleted);
         }
         return message;
     };
@@ -925,16 +1475,19 @@ export const ShoppingItem = $root.ShoppingItem = (() => {
             options = {};
         let object = {};
         if (options.defaults) {
-            object.name = "";
+            object.name = null;
             object.quantity = null;
             object.acquired = null;
+            object.deleted = null;
         }
         if (message.name != null && message.hasOwnProperty("name"))
-            object.name = message.name;
+            object.name = $root.StringMVReg.toObject(message.name, options);
         if (message.quantity != null && message.hasOwnProperty("quantity"))
             object.quantity = $root.CCounter.toObject(message.quantity, options);
         if (message.acquired != null && message.hasOwnProperty("acquired"))
             object.acquired = $root.CCounter.toObject(message.acquired, options);
+        if (message.deleted != null && message.hasOwnProperty("deleted"))
+            object.deleted = $root.DWFlag.toObject(message.deleted, options);
         return object;
     };
 
@@ -973,9 +1526,8 @@ export const ShoppingList = $root.ShoppingList = (() => {
      * Properties of a ShoppingList.
      * @exports IShoppingList
      * @interface IShoppingList
-     * @property {string|null} [replicaId] ShoppingList replicaId
      * @property {string|null} [id] ShoppingList id
-     * @property {string|null} [name] ShoppingList name
+     * @property {IStringMVReg|null} [name] ShoppingList name
      * @property {Object.<string,IShoppingItem>|null} [items] ShoppingList items
      * @property {IDotContext|null} [dotContext] ShoppingList dotContext
      */
@@ -997,14 +1549,6 @@ export const ShoppingList = $root.ShoppingList = (() => {
     }
 
     /**
-     * ShoppingList replicaId.
-     * @member {string} replicaId
-     * @memberof ShoppingList
-     * @instance
-     */
-    ShoppingList.prototype.replicaId = "";
-
-    /**
      * ShoppingList id.
      * @member {string} id
      * @memberof ShoppingList
@@ -1014,11 +1558,11 @@ export const ShoppingList = $root.ShoppingList = (() => {
 
     /**
      * ShoppingList name.
-     * @member {string} name
+     * @member {IStringMVReg|null|undefined} name
      * @memberof ShoppingList
      * @instance
      */
-    ShoppingList.prototype.name = "";
+    ShoppingList.prototype.name = null;
 
     /**
      * ShoppingList items.
@@ -1060,19 +1604,17 @@ export const ShoppingList = $root.ShoppingList = (() => {
     ShoppingList.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
-        if (message.replicaId != null && Object.hasOwnProperty.call(message, "replicaId"))
-            writer.uint32(/* id 1, wireType 2 =*/10).string(message.replicaId);
         if (message.id != null && Object.hasOwnProperty.call(message, "id"))
-            writer.uint32(/* id 2, wireType 2 =*/18).string(message.id);
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.id);
         if (message.name != null && Object.hasOwnProperty.call(message, "name"))
-            writer.uint32(/* id 3, wireType 2 =*/26).string(message.name);
+            $root.StringMVReg.encode(message.name, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
         if (message.items != null && Object.hasOwnProperty.call(message, "items"))
             for (let keys = Object.keys(message.items), i = 0; i < keys.length; ++i) {
-                writer.uint32(/* id 4, wireType 2 =*/34).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
+                writer.uint32(/* id 3, wireType 2 =*/26).fork().uint32(/* id 1, wireType 2 =*/10).string(keys[i]);
                 $root.ShoppingItem.encode(message.items[keys[i]], writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim().ldelim();
             }
         if (message.dotContext != null && Object.hasOwnProperty.call(message, "dotContext"))
-            $root.DotContext.encode(message.dotContext, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+            $root.DotContext.encode(message.dotContext, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
         return writer;
     };
 
@@ -1110,18 +1652,14 @@ export const ShoppingList = $root.ShoppingList = (() => {
                 break;
             switch (tag >>> 3) {
             case 1: {
-                    message.replicaId = reader.string();
-                    break;
-                }
-            case 2: {
                     message.id = reader.string();
                     break;
                 }
-            case 3: {
-                    message.name = reader.string();
+            case 2: {
+                    message.name = $root.StringMVReg.decode(reader, reader.uint32());
                     break;
                 }
-            case 4: {
+            case 3: {
                     if (message.items === $util.emptyObject)
                         message.items = {};
                     let end2 = reader.uint32() + reader.pos;
@@ -1144,7 +1682,7 @@ export const ShoppingList = $root.ShoppingList = (() => {
                     message.items[key] = value;
                     break;
                 }
-            case 5: {
+            case 4: {
                     message.dotContext = $root.DotContext.decode(reader, reader.uint32());
                     break;
                 }
@@ -1183,15 +1721,14 @@ export const ShoppingList = $root.ShoppingList = (() => {
     ShoppingList.verify = function verify(message) {
         if (typeof message !== "object" || message === null)
             return "object expected";
-        if (message.replicaId != null && message.hasOwnProperty("replicaId"))
-            if (!$util.isString(message.replicaId))
-                return "replicaId: string expected";
         if (message.id != null && message.hasOwnProperty("id"))
             if (!$util.isString(message.id))
                 return "id: string expected";
-        if (message.name != null && message.hasOwnProperty("name"))
-            if (!$util.isString(message.name))
-                return "name: string expected";
+        if (message.name != null && message.hasOwnProperty("name")) {
+            let error = $root.StringMVReg.verify(message.name);
+            if (error)
+                return "name." + error;
+        }
         if (message.items != null && message.hasOwnProperty("items")) {
             if (!$util.isObject(message.items))
                 return "items: object expected";
@@ -1222,12 +1759,13 @@ export const ShoppingList = $root.ShoppingList = (() => {
         if (object instanceof $root.ShoppingList)
             return object;
         let message = new $root.ShoppingList();
-        if (object.replicaId != null)
-            message.replicaId = String(object.replicaId);
         if (object.id != null)
             message.id = String(object.id);
-        if (object.name != null)
-            message.name = String(object.name);
+        if (object.name != null) {
+            if (typeof object.name !== "object")
+                throw TypeError(".ShoppingList.name: object expected");
+            message.name = $root.StringMVReg.fromObject(object.name);
+        }
         if (object.items) {
             if (typeof object.items !== "object")
                 throw TypeError(".ShoppingList.items: object expected");
@@ -1262,17 +1800,14 @@ export const ShoppingList = $root.ShoppingList = (() => {
         if (options.objects || options.defaults)
             object.items = {};
         if (options.defaults) {
-            object.replicaId = "";
             object.id = "";
-            object.name = "";
+            object.name = null;
             object.dotContext = null;
         }
-        if (message.replicaId != null && message.hasOwnProperty("replicaId"))
-            object.replicaId = message.replicaId;
         if (message.id != null && message.hasOwnProperty("id"))
             object.id = message.id;
         if (message.name != null && message.hasOwnProperty("name"))
-            object.name = message.name;
+            object.name = $root.StringMVReg.toObject(message.name, options);
         let keys2;
         if (message.items && (keys2 = Object.keys(message.items)).length) {
             object.items = {};
@@ -1827,25 +2362,25 @@ export const DotContext = $root.DotContext = (() => {
     return DotContext;
 })();
 
-export const DotKernel = $root.DotKernel = (() => {
+export const IntDotKernel = $root.IntDotKernel = (() => {
 
     /**
-     * Properties of a DotKernel.
-     * @exports IDotKernel
-     * @interface IDotKernel
-     * @property {Array.<IDot>|null} [dotKeys] DotKernel dotKeys
-     * @property {Array.<number|Long>|null} [dotValues] DotKernel dotValues
+     * Properties of an IntDotKernel.
+     * @exports IIntDotKernel
+     * @interface IIntDotKernel
+     * @property {Array.<IDot>|null} [dotKeys] IntDotKernel dotKeys
+     * @property {Array.<number|Long>|null} [dotValues] IntDotKernel dotValues
      */
 
     /**
-     * Constructs a new DotKernel.
-     * @exports DotKernel
-     * @classdesc Represents a DotKernel.
-     * @implements IDotKernel
+     * Constructs a new IntDotKernel.
+     * @exports IntDotKernel
+     * @classdesc Represents an IntDotKernel.
+     * @implements IIntDotKernel
      * @constructor
-     * @param {IDotKernel=} [properties] Properties to set
+     * @param {IIntDotKernel=} [properties] Properties to set
      */
-    function DotKernel(properties) {
+    function IntDotKernel(properties) {
         this.dotKeys = [];
         this.dotValues = [];
         if (properties)
@@ -1855,43 +2390,43 @@ export const DotKernel = $root.DotKernel = (() => {
     }
 
     /**
-     * DotKernel dotKeys.
+     * IntDotKernel dotKeys.
      * @member {Array.<IDot>} dotKeys
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @instance
      */
-    DotKernel.prototype.dotKeys = $util.emptyArray;
+    IntDotKernel.prototype.dotKeys = $util.emptyArray;
 
     /**
-     * DotKernel dotValues.
+     * IntDotKernel dotValues.
      * @member {Array.<number|Long>} dotValues
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @instance
      */
-    DotKernel.prototype.dotValues = $util.emptyArray;
+    IntDotKernel.prototype.dotValues = $util.emptyArray;
 
     /**
-     * Creates a new DotKernel instance using the specified properties.
+     * Creates a new IntDotKernel instance using the specified properties.
      * @function create
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @static
-     * @param {IDotKernel=} [properties] Properties to set
-     * @returns {DotKernel} DotKernel instance
+     * @param {IIntDotKernel=} [properties] Properties to set
+     * @returns {IntDotKernel} IntDotKernel instance
      */
-    DotKernel.create = function create(properties) {
-        return new DotKernel(properties);
+    IntDotKernel.create = function create(properties) {
+        return new IntDotKernel(properties);
     };
 
     /**
-     * Encodes the specified DotKernel message. Does not implicitly {@link DotKernel.verify|verify} messages.
+     * Encodes the specified IntDotKernel message. Does not implicitly {@link IntDotKernel.verify|verify} messages.
      * @function encode
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @static
-     * @param {IDotKernel} message DotKernel message or plain object to encode
+     * @param {IIntDotKernel} message IntDotKernel message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
-    DotKernel.encode = function encode(message, writer) {
+    IntDotKernel.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
         if (message.dotKeys != null && message.dotKeys.length)
@@ -1907,33 +2442,33 @@ export const DotKernel = $root.DotKernel = (() => {
     };
 
     /**
-     * Encodes the specified DotKernel message, length delimited. Does not implicitly {@link DotKernel.verify|verify} messages.
+     * Encodes the specified IntDotKernel message, length delimited. Does not implicitly {@link IntDotKernel.verify|verify} messages.
      * @function encodeDelimited
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @static
-     * @param {IDotKernel} message DotKernel message or plain object to encode
+     * @param {IIntDotKernel} message IntDotKernel message or plain object to encode
      * @param {$protobuf.Writer} [writer] Writer to encode to
      * @returns {$protobuf.Writer} Writer
      */
-    DotKernel.encodeDelimited = function encodeDelimited(message, writer) {
+    IntDotKernel.encodeDelimited = function encodeDelimited(message, writer) {
         return this.encode(message, writer).ldelim();
     };
 
     /**
-     * Decodes a DotKernel message from the specified reader or buffer.
+     * Decodes an IntDotKernel message from the specified reader or buffer.
      * @function decode
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @static
      * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
      * @param {number} [length] Message length if known beforehand
-     * @returns {DotKernel} DotKernel
+     * @returns {IntDotKernel} IntDotKernel
      * @throws {Error} If the payload is not a reader or valid buffer
      * @throws {$protobuf.util.ProtocolError} If required fields are missing
      */
-    DotKernel.decode = function decode(reader, length, error) {
+    IntDotKernel.decode = function decode(reader, length, error) {
         if (!(reader instanceof $Reader))
             reader = $Reader.create(reader);
-        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.DotKernel();
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.IntDotKernel();
         while (reader.pos < end) {
             let tag = reader.uint32();
             if (tag === error)
@@ -1965,30 +2500,30 @@ export const DotKernel = $root.DotKernel = (() => {
     };
 
     /**
-     * Decodes a DotKernel message from the specified reader or buffer, length delimited.
+     * Decodes an IntDotKernel message from the specified reader or buffer, length delimited.
      * @function decodeDelimited
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @static
      * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-     * @returns {DotKernel} DotKernel
+     * @returns {IntDotKernel} IntDotKernel
      * @throws {Error} If the payload is not a reader or valid buffer
      * @throws {$protobuf.util.ProtocolError} If required fields are missing
      */
-    DotKernel.decodeDelimited = function decodeDelimited(reader) {
+    IntDotKernel.decodeDelimited = function decodeDelimited(reader) {
         if (!(reader instanceof $Reader))
             reader = new $Reader(reader);
         return this.decode(reader, reader.uint32());
     };
 
     /**
-     * Verifies a DotKernel message.
+     * Verifies an IntDotKernel message.
      * @function verify
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @static
      * @param {Object.<string,*>} message Plain object to verify
      * @returns {string|null} `null` if valid, otherwise the reason why it is not
      */
-    DotKernel.verify = function verify(message) {
+    IntDotKernel.verify = function verify(message) {
         if (typeof message !== "object" || message === null)
             return "object expected";
         if (message.dotKeys != null && message.hasOwnProperty("dotKeys")) {
@@ -2011,30 +2546,30 @@ export const DotKernel = $root.DotKernel = (() => {
     };
 
     /**
-     * Creates a DotKernel message from a plain object. Also converts values to their respective internal types.
+     * Creates an IntDotKernel message from a plain object. Also converts values to their respective internal types.
      * @function fromObject
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @static
      * @param {Object.<string,*>} object Plain object
-     * @returns {DotKernel} DotKernel
+     * @returns {IntDotKernel} IntDotKernel
      */
-    DotKernel.fromObject = function fromObject(object) {
-        if (object instanceof $root.DotKernel)
+    IntDotKernel.fromObject = function fromObject(object) {
+        if (object instanceof $root.IntDotKernel)
             return object;
-        let message = new $root.DotKernel();
+        let message = new $root.IntDotKernel();
         if (object.dotKeys) {
             if (!Array.isArray(object.dotKeys))
-                throw TypeError(".DotKernel.dotKeys: array expected");
+                throw TypeError(".IntDotKernel.dotKeys: array expected");
             message.dotKeys = [];
             for (let i = 0; i < object.dotKeys.length; ++i) {
                 if (typeof object.dotKeys[i] !== "object")
-                    throw TypeError(".DotKernel.dotKeys: object expected");
+                    throw TypeError(".IntDotKernel.dotKeys: object expected");
                 message.dotKeys[i] = $root.Dot.fromObject(object.dotKeys[i]);
             }
         }
         if (object.dotValues) {
             if (!Array.isArray(object.dotValues))
-                throw TypeError(".DotKernel.dotValues: array expected");
+                throw TypeError(".IntDotKernel.dotValues: array expected");
             message.dotValues = [];
             for (let i = 0; i < object.dotValues.length; ++i)
                 if ($util.Long)
@@ -2050,15 +2585,15 @@ export const DotKernel = $root.DotKernel = (() => {
     };
 
     /**
-     * Creates a plain object from a DotKernel message. Also converts values to other types if specified.
+     * Creates a plain object from an IntDotKernel message. Also converts values to other types if specified.
      * @function toObject
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @static
-     * @param {DotKernel} message DotKernel
+     * @param {IntDotKernel} message IntDotKernel
      * @param {$protobuf.IConversionOptions} [options] Conversion options
      * @returns {Object.<string,*>} Plain object
      */
-    DotKernel.toObject = function toObject(message, options) {
+    IntDotKernel.toObject = function toObject(message, options) {
         if (!options)
             options = {};
         let object = {};
@@ -2083,32 +2618,524 @@ export const DotKernel = $root.DotKernel = (() => {
     };
 
     /**
-     * Converts this DotKernel to JSON.
+     * Converts this IntDotKernel to JSON.
      * @function toJSON
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @instance
      * @returns {Object.<string,*>} JSON object
      */
-    DotKernel.prototype.toJSON = function toJSON() {
+    IntDotKernel.prototype.toJSON = function toJSON() {
         return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
     };
 
     /**
-     * Gets the default type url for DotKernel
+     * Gets the default type url for IntDotKernel
      * @function getTypeUrl
-     * @memberof DotKernel
+     * @memberof IntDotKernel
      * @static
      * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
      * @returns {string} The default type url
      */
-    DotKernel.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+    IntDotKernel.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
         if (typeUrlPrefix === undefined) {
             typeUrlPrefix = "type.googleapis.com";
         }
-        return typeUrlPrefix + "/DotKernel";
+        return typeUrlPrefix + "/IntDotKernel";
     };
 
-    return DotKernel;
+    return IntDotKernel;
+})();
+
+export const StringDotKernel = $root.StringDotKernel = (() => {
+
+    /**
+     * Properties of a StringDotKernel.
+     * @exports IStringDotKernel
+     * @interface IStringDotKernel
+     * @property {Array.<IDot>|null} [dotKeys] StringDotKernel dotKeys
+     * @property {Array.<string>|null} [dotValues] StringDotKernel dotValues
+     */
+
+    /**
+     * Constructs a new StringDotKernel.
+     * @exports StringDotKernel
+     * @classdesc Represents a StringDotKernel.
+     * @implements IStringDotKernel
+     * @constructor
+     * @param {IStringDotKernel=} [properties] Properties to set
+     */
+    function StringDotKernel(properties) {
+        this.dotKeys = [];
+        this.dotValues = [];
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * StringDotKernel dotKeys.
+     * @member {Array.<IDot>} dotKeys
+     * @memberof StringDotKernel
+     * @instance
+     */
+    StringDotKernel.prototype.dotKeys = $util.emptyArray;
+
+    /**
+     * StringDotKernel dotValues.
+     * @member {Array.<string>} dotValues
+     * @memberof StringDotKernel
+     * @instance
+     */
+    StringDotKernel.prototype.dotValues = $util.emptyArray;
+
+    /**
+     * Creates a new StringDotKernel instance using the specified properties.
+     * @function create
+     * @memberof StringDotKernel
+     * @static
+     * @param {IStringDotKernel=} [properties] Properties to set
+     * @returns {StringDotKernel} StringDotKernel instance
+     */
+    StringDotKernel.create = function create(properties) {
+        return new StringDotKernel(properties);
+    };
+
+    /**
+     * Encodes the specified StringDotKernel message. Does not implicitly {@link StringDotKernel.verify|verify} messages.
+     * @function encode
+     * @memberof StringDotKernel
+     * @static
+     * @param {IStringDotKernel} message StringDotKernel message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    StringDotKernel.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.dotKeys != null && message.dotKeys.length)
+            for (let i = 0; i < message.dotKeys.length; ++i)
+                $root.Dot.encode(message.dotKeys[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        if (message.dotValues != null && message.dotValues.length)
+            for (let i = 0; i < message.dotValues.length; ++i)
+                writer.uint32(/* id 2, wireType 2 =*/18).string(message.dotValues[i]);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified StringDotKernel message, length delimited. Does not implicitly {@link StringDotKernel.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof StringDotKernel
+     * @static
+     * @param {IStringDotKernel} message StringDotKernel message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    StringDotKernel.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a StringDotKernel message from the specified reader or buffer.
+     * @function decode
+     * @memberof StringDotKernel
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {StringDotKernel} StringDotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    StringDotKernel.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.StringDotKernel();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    if (!(message.dotKeys && message.dotKeys.length))
+                        message.dotKeys = [];
+                    message.dotKeys.push($root.Dot.decode(reader, reader.uint32()));
+                    break;
+                }
+            case 2: {
+                    if (!(message.dotValues && message.dotValues.length))
+                        message.dotValues = [];
+                    message.dotValues.push(reader.string());
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a StringDotKernel message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof StringDotKernel
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {StringDotKernel} StringDotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    StringDotKernel.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a StringDotKernel message.
+     * @function verify
+     * @memberof StringDotKernel
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    StringDotKernel.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.dotKeys != null && message.hasOwnProperty("dotKeys")) {
+            if (!Array.isArray(message.dotKeys))
+                return "dotKeys: array expected";
+            for (let i = 0; i < message.dotKeys.length; ++i) {
+                let error = $root.Dot.verify(message.dotKeys[i]);
+                if (error)
+                    return "dotKeys." + error;
+            }
+        }
+        if (message.dotValues != null && message.hasOwnProperty("dotValues")) {
+            if (!Array.isArray(message.dotValues))
+                return "dotValues: array expected";
+            for (let i = 0; i < message.dotValues.length; ++i)
+                if (!$util.isString(message.dotValues[i]))
+                    return "dotValues: string[] expected";
+        }
+        return null;
+    };
+
+    /**
+     * Creates a StringDotKernel message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof StringDotKernel
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {StringDotKernel} StringDotKernel
+     */
+    StringDotKernel.fromObject = function fromObject(object) {
+        if (object instanceof $root.StringDotKernel)
+            return object;
+        let message = new $root.StringDotKernel();
+        if (object.dotKeys) {
+            if (!Array.isArray(object.dotKeys))
+                throw TypeError(".StringDotKernel.dotKeys: array expected");
+            message.dotKeys = [];
+            for (let i = 0; i < object.dotKeys.length; ++i) {
+                if (typeof object.dotKeys[i] !== "object")
+                    throw TypeError(".StringDotKernel.dotKeys: object expected");
+                message.dotKeys[i] = $root.Dot.fromObject(object.dotKeys[i]);
+            }
+        }
+        if (object.dotValues) {
+            if (!Array.isArray(object.dotValues))
+                throw TypeError(".StringDotKernel.dotValues: array expected");
+            message.dotValues = [];
+            for (let i = 0; i < object.dotValues.length; ++i)
+                message.dotValues[i] = String(object.dotValues[i]);
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a StringDotKernel message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof StringDotKernel
+     * @static
+     * @param {StringDotKernel} message StringDotKernel
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    StringDotKernel.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.arrays || options.defaults) {
+            object.dotKeys = [];
+            object.dotValues = [];
+        }
+        if (message.dotKeys && message.dotKeys.length) {
+            object.dotKeys = [];
+            for (let j = 0; j < message.dotKeys.length; ++j)
+                object.dotKeys[j] = $root.Dot.toObject(message.dotKeys[j], options);
+        }
+        if (message.dotValues && message.dotValues.length) {
+            object.dotValues = [];
+            for (let j = 0; j < message.dotValues.length; ++j)
+                object.dotValues[j] = message.dotValues[j];
+        }
+        return object;
+    };
+
+    /**
+     * Converts this StringDotKernel to JSON.
+     * @function toJSON
+     * @memberof StringDotKernel
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    StringDotKernel.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for StringDotKernel
+     * @function getTypeUrl
+     * @memberof StringDotKernel
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    StringDotKernel.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/StringDotKernel";
+    };
+
+    return StringDotKernel;
+})();
+
+export const EmptyDotKernel = $root.EmptyDotKernel = (() => {
+
+    /**
+     * Properties of an EmptyDotKernel.
+     * @exports IEmptyDotKernel
+     * @interface IEmptyDotKernel
+     * @property {Array.<IDot>|null} [dotKeys] EmptyDotKernel dotKeys
+     */
+
+    /**
+     * Constructs a new EmptyDotKernel.
+     * @exports EmptyDotKernel
+     * @classdesc Represents an EmptyDotKernel.
+     * @implements IEmptyDotKernel
+     * @constructor
+     * @param {IEmptyDotKernel=} [properties] Properties to set
+     */
+    function EmptyDotKernel(properties) {
+        this.dotKeys = [];
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * EmptyDotKernel dotKeys.
+     * @member {Array.<IDot>} dotKeys
+     * @memberof EmptyDotKernel
+     * @instance
+     */
+    EmptyDotKernel.prototype.dotKeys = $util.emptyArray;
+
+    /**
+     * Creates a new EmptyDotKernel instance using the specified properties.
+     * @function create
+     * @memberof EmptyDotKernel
+     * @static
+     * @param {IEmptyDotKernel=} [properties] Properties to set
+     * @returns {EmptyDotKernel} EmptyDotKernel instance
+     */
+    EmptyDotKernel.create = function create(properties) {
+        return new EmptyDotKernel(properties);
+    };
+
+    /**
+     * Encodes the specified EmptyDotKernel message. Does not implicitly {@link EmptyDotKernel.verify|verify} messages.
+     * @function encode
+     * @memberof EmptyDotKernel
+     * @static
+     * @param {IEmptyDotKernel} message EmptyDotKernel message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    EmptyDotKernel.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.dotKeys != null && message.dotKeys.length)
+            for (let i = 0; i < message.dotKeys.length; ++i)
+                $root.Dot.encode(message.dotKeys[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified EmptyDotKernel message, length delimited. Does not implicitly {@link EmptyDotKernel.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof EmptyDotKernel
+     * @static
+     * @param {IEmptyDotKernel} message EmptyDotKernel message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    EmptyDotKernel.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes an EmptyDotKernel message from the specified reader or buffer.
+     * @function decode
+     * @memberof EmptyDotKernel
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {EmptyDotKernel} EmptyDotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    EmptyDotKernel.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.EmptyDotKernel();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    if (!(message.dotKeys && message.dotKeys.length))
+                        message.dotKeys = [];
+                    message.dotKeys.push($root.Dot.decode(reader, reader.uint32()));
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes an EmptyDotKernel message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof EmptyDotKernel
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {EmptyDotKernel} EmptyDotKernel
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    EmptyDotKernel.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies an EmptyDotKernel message.
+     * @function verify
+     * @memberof EmptyDotKernel
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    EmptyDotKernel.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.dotKeys != null && message.hasOwnProperty("dotKeys")) {
+            if (!Array.isArray(message.dotKeys))
+                return "dotKeys: array expected";
+            for (let i = 0; i < message.dotKeys.length; ++i) {
+                let error = $root.Dot.verify(message.dotKeys[i]);
+                if (error)
+                    return "dotKeys." + error;
+            }
+        }
+        return null;
+    };
+
+    /**
+     * Creates an EmptyDotKernel message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof EmptyDotKernel
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {EmptyDotKernel} EmptyDotKernel
+     */
+    EmptyDotKernel.fromObject = function fromObject(object) {
+        if (object instanceof $root.EmptyDotKernel)
+            return object;
+        let message = new $root.EmptyDotKernel();
+        if (object.dotKeys) {
+            if (!Array.isArray(object.dotKeys))
+                throw TypeError(".EmptyDotKernel.dotKeys: array expected");
+            message.dotKeys = [];
+            for (let i = 0; i < object.dotKeys.length; ++i) {
+                if (typeof object.dotKeys[i] !== "object")
+                    throw TypeError(".EmptyDotKernel.dotKeys: object expected");
+                message.dotKeys[i] = $root.Dot.fromObject(object.dotKeys[i]);
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from an EmptyDotKernel message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof EmptyDotKernel
+     * @static
+     * @param {EmptyDotKernel} message EmptyDotKernel
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    EmptyDotKernel.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.arrays || options.defaults)
+            object.dotKeys = [];
+        if (message.dotKeys && message.dotKeys.length) {
+            object.dotKeys = [];
+            for (let j = 0; j < message.dotKeys.length; ++j)
+                object.dotKeys[j] = $root.Dot.toObject(message.dotKeys[j], options);
+        }
+        return object;
+    };
+
+    /**
+     * Converts this EmptyDotKernel to JSON.
+     * @function toJSON
+     * @memberof EmptyDotKernel
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    EmptyDotKernel.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for EmptyDotKernel
+     * @function getTypeUrl
+     * @memberof EmptyDotKernel
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    EmptyDotKernel.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/EmptyDotKernel";
+    };
+
+    return EmptyDotKernel;
 })();
 
 export const CCounter = $root.CCounter = (() => {
@@ -2117,7 +3144,7 @@ export const CCounter = $root.CCounter = (() => {
      * Properties of a CCounter.
      * @exports ICCounter
      * @interface ICCounter
-     * @property {IDotKernel|null} [dotKernel] CCounter dotKernel
+     * @property {IIntDotKernel|null} [dotKernel] CCounter dotKernel
      */
 
     /**
@@ -2137,7 +3164,7 @@ export const CCounter = $root.CCounter = (() => {
 
     /**
      * CCounter dotKernel.
-     * @member {IDotKernel|null|undefined} dotKernel
+     * @member {IIntDotKernel|null|undefined} dotKernel
      * @memberof CCounter
      * @instance
      */
@@ -2168,7 +3195,7 @@ export const CCounter = $root.CCounter = (() => {
         if (!writer)
             writer = $Writer.create();
         if (message.dotKernel != null && Object.hasOwnProperty.call(message, "dotKernel"))
-            $root.DotKernel.encode(message.dotKernel, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            $root.IntDotKernel.encode(message.dotKernel, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
         return writer;
     };
 
@@ -2206,7 +3233,7 @@ export const CCounter = $root.CCounter = (() => {
                 break;
             switch (tag >>> 3) {
             case 1: {
-                    message.dotKernel = $root.DotKernel.decode(reader, reader.uint32());
+                    message.dotKernel = $root.IntDotKernel.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -2245,7 +3272,7 @@ export const CCounter = $root.CCounter = (() => {
         if (typeof message !== "object" || message === null)
             return "object expected";
         if (message.dotKernel != null && message.hasOwnProperty("dotKernel")) {
-            let error = $root.DotKernel.verify(message.dotKernel);
+            let error = $root.IntDotKernel.verify(message.dotKernel);
             if (error)
                 return "dotKernel." + error;
         }
@@ -2267,7 +3294,7 @@ export const CCounter = $root.CCounter = (() => {
         if (object.dotKernel != null) {
             if (typeof object.dotKernel !== "object")
                 throw TypeError(".CCounter.dotKernel: object expected");
-            message.dotKernel = $root.DotKernel.fromObject(object.dotKernel);
+            message.dotKernel = $root.IntDotKernel.fromObject(object.dotKernel);
         }
         return message;
     };
@@ -2288,7 +3315,7 @@ export const CCounter = $root.CCounter = (() => {
         if (options.defaults)
             object.dotKernel = null;
         if (message.dotKernel != null && message.hasOwnProperty("dotKernel"))
-            object.dotKernel = $root.DotKernel.toObject(message.dotKernel, options);
+            object.dotKernel = $root.IntDotKernel.toObject(message.dotKernel, options);
         return object;
     };
 
@@ -2319,6 +3346,426 @@ export const CCounter = $root.CCounter = (() => {
     };
 
     return CCounter;
+})();
+
+export const StringMVReg = $root.StringMVReg = (() => {
+
+    /**
+     * Properties of a StringMVReg.
+     * @exports IStringMVReg
+     * @interface IStringMVReg
+     * @property {IStringDotKernel|null} [dotKernel] StringMVReg dotKernel
+     */
+
+    /**
+     * Constructs a new StringMVReg.
+     * @exports StringMVReg
+     * @classdesc Represents a StringMVReg.
+     * @implements IStringMVReg
+     * @constructor
+     * @param {IStringMVReg=} [properties] Properties to set
+     */
+    function StringMVReg(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * StringMVReg dotKernel.
+     * @member {IStringDotKernel|null|undefined} dotKernel
+     * @memberof StringMVReg
+     * @instance
+     */
+    StringMVReg.prototype.dotKernel = null;
+
+    /**
+     * Creates a new StringMVReg instance using the specified properties.
+     * @function create
+     * @memberof StringMVReg
+     * @static
+     * @param {IStringMVReg=} [properties] Properties to set
+     * @returns {StringMVReg} StringMVReg instance
+     */
+    StringMVReg.create = function create(properties) {
+        return new StringMVReg(properties);
+    };
+
+    /**
+     * Encodes the specified StringMVReg message. Does not implicitly {@link StringMVReg.verify|verify} messages.
+     * @function encode
+     * @memberof StringMVReg
+     * @static
+     * @param {IStringMVReg} message StringMVReg message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    StringMVReg.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.dotKernel != null && Object.hasOwnProperty.call(message, "dotKernel"))
+            $root.StringDotKernel.encode(message.dotKernel, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified StringMVReg message, length delimited. Does not implicitly {@link StringMVReg.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof StringMVReg
+     * @static
+     * @param {IStringMVReg} message StringMVReg message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    StringMVReg.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a StringMVReg message from the specified reader or buffer.
+     * @function decode
+     * @memberof StringMVReg
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {StringMVReg} StringMVReg
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    StringMVReg.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.StringMVReg();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.dotKernel = $root.StringDotKernel.decode(reader, reader.uint32());
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a StringMVReg message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof StringMVReg
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {StringMVReg} StringMVReg
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    StringMVReg.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a StringMVReg message.
+     * @function verify
+     * @memberof StringMVReg
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    StringMVReg.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.dotKernel != null && message.hasOwnProperty("dotKernel")) {
+            let error = $root.StringDotKernel.verify(message.dotKernel);
+            if (error)
+                return "dotKernel." + error;
+        }
+        return null;
+    };
+
+    /**
+     * Creates a StringMVReg message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof StringMVReg
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {StringMVReg} StringMVReg
+     */
+    StringMVReg.fromObject = function fromObject(object) {
+        if (object instanceof $root.StringMVReg)
+            return object;
+        let message = new $root.StringMVReg();
+        if (object.dotKernel != null) {
+            if (typeof object.dotKernel !== "object")
+                throw TypeError(".StringMVReg.dotKernel: object expected");
+            message.dotKernel = $root.StringDotKernel.fromObject(object.dotKernel);
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a StringMVReg message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof StringMVReg
+     * @static
+     * @param {StringMVReg} message StringMVReg
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    StringMVReg.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            object.dotKernel = null;
+        if (message.dotKernel != null && message.hasOwnProperty("dotKernel"))
+            object.dotKernel = $root.StringDotKernel.toObject(message.dotKernel, options);
+        return object;
+    };
+
+    /**
+     * Converts this StringMVReg to JSON.
+     * @function toJSON
+     * @memberof StringMVReg
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    StringMVReg.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for StringMVReg
+     * @function getTypeUrl
+     * @memberof StringMVReg
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    StringMVReg.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/StringMVReg";
+    };
+
+    return StringMVReg;
+})();
+
+export const DWFlag = $root.DWFlag = (() => {
+
+    /**
+     * Properties of a DWFlag.
+     * @exports IDWFlag
+     * @interface IDWFlag
+     * @property {IEmptyDotKernel|null} [dotKernel] DWFlag dotKernel
+     */
+
+    /**
+     * Constructs a new DWFlag.
+     * @exports DWFlag
+     * @classdesc Represents a DWFlag.
+     * @implements IDWFlag
+     * @constructor
+     * @param {IDWFlag=} [properties] Properties to set
+     */
+    function DWFlag(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * DWFlag dotKernel.
+     * @member {IEmptyDotKernel|null|undefined} dotKernel
+     * @memberof DWFlag
+     * @instance
+     */
+    DWFlag.prototype.dotKernel = null;
+
+    /**
+     * Creates a new DWFlag instance using the specified properties.
+     * @function create
+     * @memberof DWFlag
+     * @static
+     * @param {IDWFlag=} [properties] Properties to set
+     * @returns {DWFlag} DWFlag instance
+     */
+    DWFlag.create = function create(properties) {
+        return new DWFlag(properties);
+    };
+
+    /**
+     * Encodes the specified DWFlag message. Does not implicitly {@link DWFlag.verify|verify} messages.
+     * @function encode
+     * @memberof DWFlag
+     * @static
+     * @param {IDWFlag} message DWFlag message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    DWFlag.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.dotKernel != null && Object.hasOwnProperty.call(message, "dotKernel"))
+            $root.EmptyDotKernel.encode(message.dotKernel, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+        return writer;
+    };
+
+    /**
+     * Encodes the specified DWFlag message, length delimited. Does not implicitly {@link DWFlag.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof DWFlag
+     * @static
+     * @param {IDWFlag} message DWFlag message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    DWFlag.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a DWFlag message from the specified reader or buffer.
+     * @function decode
+     * @memberof DWFlag
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {DWFlag} DWFlag
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    DWFlag.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.DWFlag();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.dotKernel = $root.EmptyDotKernel.decode(reader, reader.uint32());
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a DWFlag message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof DWFlag
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {DWFlag} DWFlag
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    DWFlag.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a DWFlag message.
+     * @function verify
+     * @memberof DWFlag
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    DWFlag.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.dotKernel != null && message.hasOwnProperty("dotKernel")) {
+            let error = $root.EmptyDotKernel.verify(message.dotKernel);
+            if (error)
+                return "dotKernel." + error;
+        }
+        return null;
+    };
+
+    /**
+     * Creates a DWFlag message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof DWFlag
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {DWFlag} DWFlag
+     */
+    DWFlag.fromObject = function fromObject(object) {
+        if (object instanceof $root.DWFlag)
+            return object;
+        let message = new $root.DWFlag();
+        if (object.dotKernel != null) {
+            if (typeof object.dotKernel !== "object")
+                throw TypeError(".DWFlag.dotKernel: object expected");
+            message.dotKernel = $root.EmptyDotKernel.fromObject(object.dotKernel);
+        }
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a DWFlag message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof DWFlag
+     * @static
+     * @param {DWFlag} message DWFlag
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    DWFlag.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            object.dotKernel = null;
+        if (message.dotKernel != null && message.hasOwnProperty("dotKernel"))
+            object.dotKernel = $root.EmptyDotKernel.toObject(message.dotKernel, options);
+        return object;
+    };
+
+    /**
+     * Converts this DWFlag to JSON.
+     * @function toJSON
+     * @memberof DWFlag
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    DWFlag.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for DWFlag
+     * @function getTypeUrl
+     * @memberof DWFlag
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    DWFlag.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/DWFlag";
+    };
+
+    return DWFlag;
 })();
 
 export { $root as default };

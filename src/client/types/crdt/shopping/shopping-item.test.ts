@@ -3,17 +3,21 @@ import DotContext from '../generic/dot-context';
 
 describe('ShoppingItem', () => {
   it('should create a new ShoppingItem', () => {
-    const item = new ShoppingItem('replica1', 'item1', 'Milk');
+    const item = new ShoppingItem('replica1', 'item1');
 
     expect(item.getReplicaId()).toBe('replica1');
     expect(item.getItemId()).toBe('item1');
+    expect(item.getName()).toBe('');
+
+    item.setName('Milk');
     expect(item.getName()).toBe('Milk');
+
     expect(item.getQuantity()).toBe(0);
     expect(item.getAcquired()).toBe(0);
   });
 
   it('should increment and decrement quantity', () => {
-    const item1 = new ShoppingItem('replica1', 'item1', 'Milk');
+    const item1 = new ShoppingItem('replica1', 'item1');
     const item2 = item1.clone();
 
     const delta1 = item1.incQuantity(5);
@@ -33,7 +37,7 @@ describe('ShoppingItem', () => {
   });
 
   it('should increment and decrement acquired', () => {
-    const item1 = new ShoppingItem('replica1', 'item1', 'Milk');
+    const item1 = new ShoppingItem('replica1', 'item1');
     item1.incQuantity(10);
     const item2 = item1.clone();
 
@@ -58,7 +62,7 @@ describe('ShoppingItem', () => {
   });
 
   it('should set a new context', () => {
-    const item = new ShoppingItem('replica1', 'item1', 'Milk');
+    const item = new ShoppingItem('replica1', 'item1');
     const newContext = new DotContext();
 
     item.setContext(newContext);
@@ -69,7 +73,7 @@ describe('ShoppingItem', () => {
   });
 
   it('should reset the item', () => {
-    const item1 = new ShoppingItem('replica1', 'item1', 'Milk');
+    const item1 = new ShoppingItem('replica1', 'item1');
     item1.incAcquired(5);
     item1.incAcquired(2);
     const item2 = item1.clone();
@@ -84,7 +88,7 @@ describe('ShoppingItem', () => {
   });
 
   it('should check if the item is null after reset', () => {
-    const item = new ShoppingItem('replica1', 'item1', 'Milk');
+    const item = new ShoppingItem('replica1', 'item1');
     item.incQuantity(5);
 
     expect(item.isNull()).toBe(false);
@@ -95,11 +99,11 @@ describe('ShoppingItem', () => {
   });
 
   it('should join two items', () => {
-    const item1 = new ShoppingItem('replica1', 'item1', 'Milk');
+    const item1 = new ShoppingItem('replica1', 'item1');
     item1.incQuantity(3);
     item1.incAcquired(2);
 
-    const item2 = new ShoppingItem('replica2', 'item1', 'Milk');
+    const item2 = new ShoppingItem('replica2', 'item1');
     item2.incQuantity(5);
     item2.incAcquired(4);
 
@@ -110,11 +114,11 @@ describe('ShoppingItem', () => {
   });
 
   it('should join with an empty item', () => {
-    const item1 = new ShoppingItem('replica1', 'item1', 'Milk');
+    const item1 = new ShoppingItem('replica1', 'item1');
     item1.incQuantity(5);
     item1.incAcquired(2);
 
-    const item2 = new ShoppingItem('replica2', 'item2', 'Bread');
+    const item2 = new ShoppingItem('replica2', 'item2');
 
     item1.join(item2);
 
@@ -123,8 +127,8 @@ describe('ShoppingItem', () => {
   });
 
   it('should handle concurrent updates', () => {
-    const item1 = new ShoppingItem('replica1', 'item1', 'Milk');
-    const item2 = new ShoppingItem('replica2', 'item1', 'Milk');
+    const item1 = new ShoppingItem('replica1', 'item1');
+    const item2 = new ShoppingItem('replica2', 'item1');
 
     const delta1 = item1.incQuantity(5);
     const delta21 = item2.incQuantity(5);

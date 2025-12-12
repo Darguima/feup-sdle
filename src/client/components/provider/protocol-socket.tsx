@@ -3,16 +3,30 @@
 import NullProtocolSocket from "@/lib/protocol/null-protocol-socket";
 import ProtocolSocket from "@/lib/protocol/protocol-socket";
 import WebProtocolSocket from "@/lib/protocol/web-protocol-socket";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { createContext, useContext, useRef } from "react";
 
 const ProtocolSocketContext = createContext<ProtocolSocket>(new NullProtocolSocket());
 
 export const WebProtocolSocketProvider = ({ children }: { children: React.ReactNode }) => {
-  const socketRef = useRef<ProtocolSocket | null>(null);
+  const socketRef = useRef<ProtocolSocket>(new NullProtocolSocket());
 
-  if (!socketRef.current) {
+  const initSocket = () => {
+    const websocket = new WebSocket("ws://localhost:8000/ws");
+    socketRef.current = new WebProtocolSocket(websocket, onError);
+  }
+
+  const onError = (event: Event) => {
+    console.error("Connection failed to server");
+
+    setTimeout(() => {
+      initSocket();
+    }, process.env.NEXT_PUBLIC_WEBSOCKET_RETRY_INTERVAL ? parseInt(process.env.NEXT_PUBLIC_WEBSOCKET_RETRY_INTERVAL) : 5000);
+  }
+
+
+  if (!socketRef.current.isConnected()) {
     // Initialize the WebSocket connection only once
-    socketRef.current = new WebProtocolSocket(new WebSocket("ws://localhost:8000/ws"));
+    initSocket();
   }
 
   return (
