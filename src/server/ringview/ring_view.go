@@ -11,7 +11,7 @@ import (
 )
 
 const N_TOKENS_PER_NODE = 3
-const HASH_SPACE_SIZE = 64
+const HASH_SPACE_SIZE = 12
 
 type RingView struct {
 	tokens      []uint64          // sorted list of tokens
