@@ -80,6 +80,29 @@ func (n *Node) coordinateReplicatedPut(key string, value []byte) error {
 		replication.ErrInsufficientReplicas, successCount, n.replConfig.N, n.replConfig.W)
 }
 
+func (n *Node) sendAllHintedHandoffs() {
+	n.log("Starting hinted handoff delivery process")
+	hints, _ := n.hintStore.GetAllHints()
+
+	for _, hintList := range hints {
+		for _, hint := range hintList {
+			n.log("Attempting to deliver hint for key " + hint.Key + " to node " + hint.IntendedNode)
+			err := n.sendReplicaPut(hint.IntendedNode, hint.Key, hint.Value)
+
+			if err != nil {
+				n.log("Failed to deliver hint for key " + hint.Key + " to node " + hint.IntendedNode + ": " + err.Error())
+				continue
+			}
+
+			n.log("Successfully delivered hint for key " + hint.Key + " to node " + hint.IntendedNode)
+			_ =
+				n.hintStore.DeleteHint(hint.IntendedNode, hint.Key)
+		}
+	}
+	n.log("Completed hinted handoff delivery process")
+
+}
+
 // Tries to store hints on additional nodes beyond the preference list
 // Returns the number of successful hint stores (counts toward W in sloppy quorum)
 func (n *Node) attemptHintedHandoff(key string, value []byte, failedNodes []string) int {

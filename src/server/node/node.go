@@ -110,9 +110,10 @@ func (n *Node) ID() string {
 
 // Starts completely the node (ZMQ receiver and WebSocket server)
 func (n *Node) Start(errCh chan<- error) {
-	n.wg.Add(2)
+	n.wg.Add(3)
 	go n.startZMQLoop(errCh)
 	go n.startHTTPLoop(errCh)
+	go n.StartPeriodicTasks(errCh)
 }
 
 func (n *Node) startHTTPLoop(errCh chan<- error) {
@@ -120,6 +121,24 @@ func (n *Node) startHTTPLoop(errCh chan<- error) {
 	n.log("starting WebSocket server at " + n.wsAddr)
 	if err := n.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		errCh <- fmt.Errorf("WebSocket server error: %w", err)
+	}
+}
+
+func (n *Node) StartPeriodicTasks(errCh chan<- error) {
+	defer n.wg.Done()
+	n.log("Periodic tasks started")
+	ticker := time.NewTicker(10 * time.Second)
+
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-n.stopCh:
+			n.log("Periodic tasks stopping.")
+			return
+		case <-ticker.C:
+			n.sendAllHintedHandoffs()
+		}
 	}
 }
 
