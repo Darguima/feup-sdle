@@ -4,8 +4,8 @@ import (
 	"errors"
 	"time"
 
+	"sdle-server/config"
 	pb "sdle-server/proto"
-	"sdle-server/replication"
 
 	"github.com/pebbe/zmq4"
 	"google.golang.org/protobuf/proto"
@@ -54,7 +54,7 @@ func (n *Node) sendPing(peerAddr string) (*pb.Response, error) {
 			Ping: &pb.RequestPing{},
 		},
 	}
-	return n.sendRequest(peerAddr, pingReq, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, pingReq, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendFetchRing(peerAddr string) (*pb.Response, error) {
@@ -64,7 +64,7 @@ func (n *Node) sendFetchRing(peerAddr string) (*pb.Response, error) {
 			FetchRing: &pb.RequestFetchRing{},
 		},
 	}
-	return n.sendRequest(peerAddr, req, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendGetHashSpace(peerAddr string, startHashSpace uint64, endHashSpace uint64) (*pb.Response, error) {
@@ -77,7 +77,7 @@ func (n *Node) sendGetHashSpace(peerAddr string, startHashSpace uint64, endHashS
 			},
 		},
 	}
-	return n.sendRequest(peerAddr, req, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendJoinGossip(peerAddr string, newNodeID string, tokens []uint64) (*pb.Response, error) {
@@ -90,7 +90,7 @@ func (n *Node) sendJoinGossip(peerAddr string, newNodeID string, tokens []uint64
 			},
 		},
 	}
-	return n.sendRequest(peerAddr, req, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendGet(peerAddr string, key string) (*pb.Response, error) {
@@ -100,7 +100,7 @@ func (n *Node) sendGet(peerAddr string, key string) (*pb.Response, error) {
 			Get: &pb.RequestGet{Key: key},
 		},
 	}
-	return n.sendRequest(peerAddr, req, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendPut(peerAddr string, key string, value []byte) (*pb.Response, error) {
@@ -110,7 +110,7 @@ func (n *Node) sendPut(peerAddr string, key string, value []byte) (*pb.Response,
 			Put: &pb.RequestPut{Key: key, Value: value},
 		},
 	}
-	return n.sendRequest(peerAddr, req, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendDelete(peerAddr string, key string) (*pb.Response, error) {
@@ -120,7 +120,7 @@ func (n *Node) sendDelete(peerAddr string, key string) (*pb.Response, error) {
 			Delete: &pb.RequestDelete{Key: key},
 		},
 	}
-	return n.sendRequest(peerAddr, req, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendHas(peerAddr string, key string) (*pb.Response, error) {
@@ -130,7 +130,7 @@ func (n *Node) sendHas(peerAddr string, key string) (*pb.Response, error) {
 			Has: &pb.RequestHas{Key: key},
 		},
 	}
-	return n.sendRequest(peerAddr, req, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendReplicaPutRequest(peerAddr string, key string, value []byte) (*pb.Response, error) {
@@ -140,7 +140,7 @@ func (n *Node) sendReplicaPutRequest(peerAddr string, key string, value []byte) 
 			ReplicaPut: &pb.RequestReplicaPut{Key: key, Value: value},
 		},
 	}
-	return n.sendRequest(peerAddr, req, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendStoreHintRequest(peerAddr string, intendedNode string, key string, value []byte) (*pb.Response, error) {
@@ -154,7 +154,7 @@ func (n *Node) sendStoreHintRequest(peerAddr string, intendedNode string, key st
 			},
 		},
 	}
-	return n.sendRequest(peerAddr, req, replication.DefaultConfig().RequestTimeout)
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
 func (n *Node) sendResponseOK(response *pb.Response) error {

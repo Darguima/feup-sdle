@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"sdle-server/communication"
+	"sdle-server/config"
 	pb "sdle-server/proto"
 	"sdle-server/replication"
 	"sdle-server/ringview"
@@ -31,7 +32,7 @@ type Node struct {
 	httpServer    *http.Server
 	stopCh        chan struct{}
 	wg            sync.WaitGroup
-	replConfig    replication.Config
+	replConfig    config.Config
 	hintStore     *replication.HintStore
 	subController *SubController
 }
@@ -60,7 +61,7 @@ func NewNode(id string, baseDir string) (*Node, error) {
 		return nil, err
 	}
 
-	replConfig := replication.DefaultConfig()
+	replConfig := config.DefaultConfig()
 	hintStore := replication.NewHintStore(store.GetDB())
 
 	host, portStr, err := net.SplitHostPort(id)
@@ -339,7 +340,6 @@ func (n *Node) GetID() string {
 func (n *Node) GetRingView() *ringview.RingView {
 	return n.ringView
 }
-
 func (n *Node) isNodeAlive(nodeId string) bool {
 	nodeAddr := NodeIdToZMQAddr(nodeId)
 	resp, err := n.sendPing(nodeAddr)
