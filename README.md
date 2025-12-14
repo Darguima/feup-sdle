@@ -1,6 +1,6 @@
-# SDLE Second Assignment
+# SDLE Assignment
 
-SDLE Second Assignment of group T02G01.
+SDLE Assignment of group T02G01
 
 Group members:
 
