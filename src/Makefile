@@ -1,7 +1,9 @@
 .PHONY: client server
 
-client:
+client-dev:
 	cd client && npm run dev
+client:
+	cd client && npm run build && npm run start
 server:
 	cd server && go run main.go
 

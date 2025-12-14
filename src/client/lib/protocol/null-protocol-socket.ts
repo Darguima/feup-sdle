@@ -6,10 +6,6 @@ export default class NullProtocolSocket implements ProtocolSocket {
         console.warn("Socket not connected. Cannot send entity:", entity);
     }
 
-    isConnected(): boolean {
-        return false;
-    }
-
     async connect(): Promise<void> {
         console.warn("NullProtocolSocket cannot connect.");
     }
