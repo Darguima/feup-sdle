@@ -11,7 +11,7 @@ describe("DotContext", () => {
     test("should create a new DotContext", () => {
         expect(context).toBeDefined();
         expect(context["versionVector"].size).toBe(0);
-        expect(context["dots"].size).toBe(0);
+        expect(context["dotCloud"].size).toBe(0);
     });
 
     test("should create a new Dot", () => {
@@ -23,7 +23,7 @@ describe("DotContext", () => {
         expect(dot2.seq).toBe(2);
     });
 
-    test("should compact dots into the version vector", () => {
+    test("should compact dotCloud into the version vector", () => {
         const dot1 = new Dot("node1", 1);
         const dot2 = new Dot("node1", 2);
 
@@ -33,7 +33,7 @@ describe("DotContext", () => {
         context.compact();
 
         expect(context["versionVector"].get("node1")).toBe(2);
-        expect(context["dots"].size).toBe(0);
+        expect(context["dotCloud"].size).toBe(0);
     });
 
     test("should join two DotContexts", () => {
@@ -98,7 +98,7 @@ describe("DotContext", () => {
         context.join(otherContext);
 
         expect(context.knows(new Dot("node1", 3))).toBe(true);
-        expect(context["dots"].size).toBe(0);
+        expect(context["dotCloud"].size).toBe(0);
     });
 
     test("should handle empty join", () => {
@@ -109,7 +109,7 @@ describe("DotContext", () => {
         context.join(otherContext);
 
         expect(context.knows(new Dot("node1", 1))).toBe(true);
-        expect(context["dots"].size).toBe(0);
+        expect(context["dotCloud"].size).toBe(0);
     });
 
     test("should handle join with gaps", () => {
@@ -137,7 +137,7 @@ describe("DotContext", () => {
 
         expect(context.knows(new Dot("node1", 1))).toBe(true);
         expect(context.knows(new Dot("node1", 2))).toBe(false);
-        expect(context["dots"].size).toBe(0);
+        expect(context["dotCloud"].size).toBe(0);
     });
 
     test("should ensure join is commutative", () => {
@@ -153,7 +153,7 @@ describe("DotContext", () => {
         otherContextCopy.join(contextCopy);
 
         expect(context["versionVector"]).toEqual(otherContextCopy["versionVector"]);
-        expect(context["dots"]).toEqual(otherContextCopy["dots"]);
+        expect(context["dotCloud"]).toEqual(otherContextCopy["dotCloud"]);
     });
 
     test("should ensure clone is independent", () => {
@@ -166,44 +166,44 @@ describe("DotContext", () => {
         expect(clone.knows(new Dot("node1", 2))).toBe(true);
     });
 
-        test("should compact dots", () => {
+        test("should compact dotCloud", () => {
         context.insertDot(new Dot("node1", 1), false);
         context.compact();
 
         context.compact(); // Compact again to ensure idempotence
 
         expect(context["versionVector"].get("node1")).toBe(1);
-        expect(context["dots"].size).toBe(0);
+        expect(context["dotCloud"].size).toBe(0);
     });
 
-    test("should compact dots", () => {
+    test("should compact dotCloud", () => {
         context.insertDot(new Dot("node1", 1), false);
         context.compact();
 
         expect(context["versionVector"].get("node1")).toBe(1);
         expect(context["versionVector"].has("node2")).toBe(false);
-        expect(context["dots"].size).toBe(0);
+        expect(context["dotCloud"].size).toBe(0);
 
         context.insertDot(new Dot("node2", 1), false);
         context.compact();
 
         expect(context["versionVector"].get("node1")).toBe(1);
         expect(context["versionVector"].get("node2")).toBe(1);
-        expect(context["dots"].size).toBe(0);
+        expect(context["dotCloud"].size).toBe(0);
     });
 
-    test("should compact dots", () => {
+    test("should compact dotCloud", () => {
         context.insertDot(new Dot("node1", 2), false);
         context.compact();
 
         expect(context["versionVector"].has("node1")).toBe(false);
-        expect(context["dots"].size).toBe(1);
+        expect(context["dotCloud"].size).toBe(1);
 
         context.insertDot(new Dot("node1", 1), false);
         context.compact();
 
         expect(context["versionVector"].get("node1")).toBe(2);
-        expect(context["dots"].size).toBe(0);
+        expect(context["dotCloud"].size).toBe(0);
     });
 
     test("should compact complex cases", () => {

@@ -15,8 +15,8 @@ func TestDotContext_NewDotContext(t *testing.T) {
 	if len(ctx.versionVector) != 0 {
 		t.Errorf("Expected compactContext to be empty, got %v", ctx.versionVector)
 	}
-	if ctx.dots.Size() != 0 {
-		t.Errorf("Expected dots to be empty, got %v", ctx.dots)
+	if ctx.dotCloud.Size() != 0 {
+		t.Errorf("Expected dots to be empty, got %v", ctx.dotCloud)
 	}
 }
 
@@ -48,8 +48,8 @@ func TestDotContext_CompactCase1(t *testing.T) {
 	if seq, ok := ctx.versionVector["node1"]; !ok || seq != 2 {
 		t.Errorf("Expected compactContext[node1] to be 2, got %d", seq)
 	}
-	if ctx.dots.Size() != 0 {
-		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dots)
+	if ctx.dotCloud.Size() != 0 {
+		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dotCloud)
 	}
 }
 
@@ -63,8 +63,8 @@ func TestDotContext_CompactCase2(t *testing.T) {
 	if seq, ok := ctx.versionVector["node1"]; !ok || seq != 1 {
 		t.Errorf("Expected compactContext[node1] to be 1, got %d", seq)
 	}
-	if ctx.dots.Size() != 0 {
-		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dots)
+	if ctx.dotCloud.Size() != 0 {
+		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dotCloud)
 	}
 }
 
@@ -79,8 +79,8 @@ func TestDotContext_CompactCase3(t *testing.T) {
 	if seq, ok := ctx.versionVector["node2"]; ok {
 		t.Errorf("Did not expect compactContext to have entry for node2, got %d", seq)
 	}
-	if ctx.dots.Size() != 0 {
-		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dots)
+	if ctx.dotCloud.Size() != 0 {
+		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dotCloud)
 	}
 
 	ctx.InsertDotCompact(NewDot("node2", 1), false)
@@ -92,8 +92,8 @@ func TestDotContext_CompactCase3(t *testing.T) {
 	if seq, ok := ctx.versionVector["node2"]; !ok || seq != 1 {
 		t.Errorf("Expected compactContext[node2] to be 1, got %d", seq)
 	}
-	if ctx.dots.Size() != 0 {
-		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dots)
+	if ctx.dotCloud.Size() != 0 {
+		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dotCloud)
 	}
 }
 
@@ -105,8 +105,8 @@ func TestDotContext_CompactCase4(t *testing.T) {
 	if seq, ok := ctx.versionVector["node1"]; ok {
 		t.Errorf("Did not expect compactContext to have entry for node1, got %d", seq)
 	}
-	if ctx.dots.Size() != 1 {
-		t.Errorf("Expected dots to have size 1 after compact, got %v", ctx.dots)
+	if ctx.dotCloud.Size() != 1 {
+		t.Errorf("Expected dots to have size 1 after compact, got %v", ctx.dotCloud)
 	}
 
 	ctx.InsertDotCompact(NewDot("node1", 1), false)
@@ -115,8 +115,8 @@ func TestDotContext_CompactCase4(t *testing.T) {
 	if seq, ok := ctx.versionVector["node1"]; !ok || seq != 2 {
 		t.Errorf("Expected compactContext[node1] to be 2, got %d", seq)
 	}
-	if ctx.dots.Size() != 0 {
-		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dots)
+	if ctx.dotCloud.Size() != 0 {
+		t.Errorf("Expected dots to be empty after compact, got %v", ctx.dotCloud)
 	}
 }
 
@@ -251,8 +251,8 @@ func TestDotContext_OverlappingContexts(t *testing.T) {
 	if !ctx1.Knows(NewDot("node1", 3)) {
 		t.Errorf("Expected ctx1 to know Dot(node1, 3) after join")
 	}
-	if ctx1.dots.Size() != 0 {
-		t.Errorf("Expected ctx1.dots to be empty after compacting overlapping contexts, got %v", ctx1.dots)
+	if ctx1.dotCloud.Size() != 0 {
+		t.Errorf("Expected ctx1.dots to be empty after compacting overlapping contexts, got %v", ctx1.dotCloud)
 	}
 }
 
@@ -267,8 +267,8 @@ func TestDotContext_EmptyJoin(t *testing.T) {
 	if !ctx1.Knows(NewDot("node1", 1)) {
 		t.Errorf("Expected ctx1 to still know Dot(node1, 1) after joining with empty context")
 	}
-	if ctx1.dots.Size() != 0 {
-		t.Errorf("Expected ctx1.dots to be empty after compacting, got %v", ctx1.dots)
+	if ctx1.dotCloud.Size() != 0 {
+		t.Errorf("Expected ctx1.dots to be empty after compacting, got %v", ctx1.dotCloud)
 	}
 }
 
@@ -315,8 +315,8 @@ func TestDotContext_JoinIdempotence(t *testing.T) {
 	if ctx.Knows(NewDot("node1", 2)) {
 		t.Errorf("Did not expect ctx to know Dot(node1, 2) after joining with itself")
 	}
-	if ctx.dots.Size() != 0 {
-		t.Errorf("Expected ctx.dots to be empty after self-join, got %v", ctx.dots)
+	if ctx.dotCloud.Size() != 0 {
+		t.Errorf("Expected ctx.dots to be empty after self-join, got %v", ctx.dotCloud)
 	}
 }
 
@@ -364,7 +364,7 @@ func TestDotContext_Clone(t *testing.T) {
 		t.Errorf("Expected clone.compactContext to equal to ctx.compactContext")
 	}
 
-	if !reflect.DeepEqual(ctx.dots, clone.dots) {
+	if !reflect.DeepEqual(ctx.dotCloud, clone.dotCloud) {
 		t.Errorf("Expected clone.dots to equal to ctx.dots")
 	}
 }
@@ -380,8 +380,8 @@ func TestDotContext_Copy(t *testing.T) {
 	if len(ctx2.versionVector) != len(ctx1.versionVector) {
 		t.Errorf("Expected ctx2.compactContext to have length %d, got %d", len(ctx1.versionVector), len(ctx2.versionVector))
 	}
-	if ctx2.dots.Size() != ctx1.dots.Size() {
-		t.Errorf("Expected ctx2.dots to have size %d, got %d", ctx1.dots.Size(), ctx2.dots.Size())
+	if ctx2.dotCloud.Size() != ctx1.dotCloud.Size() {
+		t.Errorf("Expected ctx2.dots to have size %d, got %d", ctx1.dotCloud.Size(), ctx2.dotCloud.Size())
 	}
 }
 

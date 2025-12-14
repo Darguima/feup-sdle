@@ -215,11 +215,11 @@ export function ShoppingListDetail({
 	}
 
 	const totalItems = list.getItems().reduce(
-		(sum, item) => sum + item.getQuantity(),
+		(sum, item) => sum + Math.max(1, item.getQuantity()),
 		0,
 	);
 	const acquiredItems = list.getItems().reduce(
-		(sum, item) => sum + item.getAcquired(),
+		(sum, item) => sum + Math.max(0, Math.min(item.getQuantity(), item.getAcquired())),
 		0,
 	);
 

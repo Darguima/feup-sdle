@@ -41,7 +41,7 @@ export function ShoppingListItem({
 						<Minus className="w-3 h-3" />
 					</Button>
 					<span className="text-sm font-medium min-w-8 text-center">
-						{item.getQuantity()}
+						{Math.max(1, item.getQuantity())}
 					</span>
 					<Button
 						size="sm"
@@ -65,7 +65,7 @@ export function ShoppingListItem({
 						<Minus className="w-3 h-3" />
 					</Button>
 					<span className="text-sm font-medium min-w-8 text-center">
-						{item.getAcquired()}
+						{Math.max(0, Math.min(item.getQuantity(), item.getAcquired()))}
 					</span>
 					<Button
 						size="sm"

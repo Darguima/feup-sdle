@@ -8,13 +8,13 @@ import (
 
 type DotContext struct {
 	versionVector map[string]uint32
-	dots          utils.Set[Dot]
+	dotCloud      utils.Set[Dot]
 }
 
 func NewDotContext() *DotContext {
 	return &DotContext{
 		versionVector: make(map[string]uint32),
-		dots:          utils.NewSet[Dot](),
+		dotCloud:      utils.NewSet[Dot](),
 	}
 }
 
@@ -23,7 +23,7 @@ func (ctx *DotContext) Knows(dot Dot) bool {
 		return true
 	}
 
-	return ctx.dots.Contains(dot)
+	return ctx.dotCloud.Contains(dot)
 }
 
 func (ctx *DotContext) MakeDot(id string) Dot {
@@ -42,7 +42,7 @@ func (ctx *DotContext) InsertDot(dot Dot) {
 }
 
 func (ctx *DotContext) InsertDotCompact(dot Dot, compact bool) {
-	ctx.dots.Add(dot)
+	ctx.dotCloud.Add(dot)
 	if compact {
 		ctx.Compact()
 	}
@@ -53,21 +53,21 @@ func (ctx *DotContext) Compact() {
 	for changed {
 		changed = false
 
-		for dot := range ctx.dots {
+		for dot := range ctx.dotCloud {
 			if localSeq, ok := ctx.versionVector[dot.id]; ok { // Has entry in compact context
 				if dot.seq == localSeq+1 { // Dot is sequentially after, can compact
 					ctx.versionVector[dot.id] = dot.seq
-					ctx.dots.Remove(dot)
+					ctx.dotCloud.Remove(dot)
 					changed = true
 
 				} else if dot.seq <= localSeq { // Dot is already included, ignore
-					ctx.dots.Remove(dot)
+					ctx.dotCloud.Remove(dot)
 				}
 
 			} else { // No entry in compact context exists
 				if dot.seq == 1 { // Can compact
 					ctx.versionVector[dot.id] = 1
-					ctx.dots.Remove(dot)
+					ctx.dotCloud.Remove(dot)
 					changed = true
 				}
 			}
@@ -90,8 +90,8 @@ func (ctx *DotContext) Join(other *DotContext) {
 		}
 	}
 
-	for otherDot := range other.dots {
-		ctx.dots.Add(otherDot)
+	for otherDot := range other.dotCloud {
+		ctx.dotCloud.Add(otherDot)
 	}
 
 	ctx.Compact()
@@ -104,8 +104,8 @@ func (ctx *DotContext) Clone() *DotContext {
 		clone.versionVector[id] = seq
 	}
 
-	for dot := range ctx.dots {
-		clone.dots.Add(dot)
+	for dot := range ctx.dotCloud {
+		clone.dotCloud.Add(dot)
 	}
 
 	return clone
@@ -122,19 +122,19 @@ func (ctx *DotContext) Copy(other *DotContext) {
 		ctx.versionVector[id] = seq
 	}
 
-	ctx.dots = utils.NewSet[Dot]()
-	for dot := range other.dots {
-		ctx.dots.Add(dot)
+	ctx.dotCloud = utils.NewSet[Dot]()
+	for dot := range other.dotCloud {
+		ctx.dotCloud.Add(dot)
 	}
 }
 
 func (ctx *DotContext) String() string {
-	return fmt.Sprintf("DotContext{compactContext: %v, dots: %v}", ctx.versionVector, ctx.dots)
+	return fmt.Sprintf("DotContext{compactContext: %v, dots: %v}", ctx.versionVector, ctx.dotCloud)
 }
 
 func (ctx *DotContext) ToProto() *g01.DotContext {
 	protoDots := []*g01.Dot{}
-	for dot := range ctx.dots {
+	for dot := range ctx.dotCloud {
 		protoDots = append(protoDots, dot.ToProto())
 	}
 
@@ -153,7 +153,7 @@ func DotContextFromProto(protoCtx *g01.DotContext) *DotContext {
 
 	for _, protoDot := range protoCtx.GetDots() {
 		dot := DotFromProto(protoDot)
-		ctx.dots.Add(dot)
+		ctx.dotCloud.Add(dot)
 	}
 
 	return ctx

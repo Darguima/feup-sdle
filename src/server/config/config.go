@@ -1,4 +1,4 @@
-package replication
+package config
 
 import (
 	"errors"
@@ -10,6 +10,7 @@ type Config struct {
 	W int // Write quorum
 	R int // Read quorum
 
+	RequestTimeout       time.Duration // Timeout for requests to other nodes
 	HintDeliveryInterval time.Duration // Interval between handoff tries
 }
 
@@ -19,6 +20,7 @@ func DefaultConfig() Config {
 		W:                    2,
 		R:                    2,
 		HintDeliveryInterval: 10 * time.Second,
+		RequestTimeout:       250 * time.Millisecond,
 	}
 }
 

@@ -4,8 +4,8 @@ import DotKernel from "./dot-kernel";
 import { StringDotKernel, StringMVReg } from "@/lib/proto/client";
 
 export default class MVReg<T> {
- 	id: string;
- 	dotKernel: DotKernel<T>;
+ 	private id: string;
+ 	private dotKernel: DotKernel<T>;
 
  	constructor(id: string) {
  		this.id = id;

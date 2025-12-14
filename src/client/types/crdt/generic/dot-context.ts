@@ -3,16 +3,16 @@ import { DotContext as DotContextProto, Dot as DotProto } from "@/lib/proto/glob
 
 export default class DotContext {
     private versionVector: Map<string, number>;
-    private dots: Set<string>;  // Using string representation, since objects do not work as Set keys
+    private dotCloud: Set<string>;  // Using string representation, since objects do not work as Set keys
 
     constructor() {
         this.versionVector = new Map<string, number>();
-        this.dots = new Set<string>();
+        this.dotCloud = new Set<string>();
     }
 
     public knows(dot: Dot): boolean {
         const localSeq = this.versionVector.get(dot.id) || 0;
-        return dot.seq <= localSeq || this.dots.has(dot.toKey());
+        return dot.seq <= localSeq || this.dotCloud.has(dot.toKey());
     }
 
     public makeDot(id: string): Dot {
@@ -24,7 +24,7 @@ export default class DotContext {
     }
 
     public insertDot(dot: Dot, compact: boolean = true): void {
-        this.dots.add(dot.toKey());
+        this.dotCloud.add(dot.toKey());
         if (compact) {
             this.compact();
         }
@@ -36,17 +36,17 @@ export default class DotContext {
         while (changed) {
             changed = false;
 
-            this.dots.forEach((dotKey) => {
+            this.dotCloud.forEach((dotKey) => {
                 const dot = Dot.fromKey(dotKey);
                 const localSeq = this.versionVector.get(dot.id) || 0;
 
                 if (dot.seq === localSeq + 1) {  // Sequential order, can be merged into version vector
                     this.versionVector.set(dot.id, dot.seq);
-                    this.dots.delete(dotKey);
+                    this.dotCloud.delete(dotKey);
                     changed = true;
 
                 } else if (dot.seq <= localSeq) {  // Already known, can be removed
-                    this.dots.delete(dotKey);
+                    this.dotCloud.delete(dotKey);
                     changed = true;
                 }
             });
@@ -65,7 +65,7 @@ export default class DotContext {
             this.versionVector.set(id, Math.max(localSeq, otherSeq));
         })
 
-        this.dots = this.dots.union(other.dots);
+        this.dotCloud = this.dotCloud.union(other.dotCloud);
         this.compact();
     }
 
@@ -76,8 +76,8 @@ export default class DotContext {
             newCtx.versionVector.set(id, seq);
         });
 
-        this.dots.forEach((dot) => {
-            newCtx.dots.add(dot);
+        this.dotCloud.forEach((dot) => {
+            newCtx.dotCloud.add(dot);
         });
 
         return newCtx;
@@ -89,11 +89,11 @@ export default class DotContext {
         }
 
         this.versionVector = new Map<string, number>(other.versionVector);
-        this.dots = new Set<string>(other.dots);
+        this.dotCloud = new Set<string>(other.dotCloud);
     }
 
     public toProto(): DotContextProto {
-        const protoDots = Array.from(this.dots).map(dotKey => {
+        const protoDots = Array.from(this.dotCloud).map(dotKey => {
             return Dot.fromKey(dotKey).toProto();
         });
 
@@ -117,7 +117,7 @@ export default class DotContext {
 
         for (const dotProto of proto.dots) {
             const dot = Dot.fromProto(dotProto as DotProto);
-            context.dots.add(dot.toKey());
+            context.dotCloud.add(dot.toKey());
         }
 
         return context;

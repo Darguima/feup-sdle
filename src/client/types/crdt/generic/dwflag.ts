@@ -4,8 +4,8 @@ import DotKernel from "./dot-kernel";
 import { EmptyDotKernel, DWFlag as DWFlagProto } from "@/lib/proto/client";
 
 export default class DWFlag {
-    replicaId: string;
-    dotKernel: DotKernel<null>;
+    private replicaId: string;
+    private dotKernel: DotKernel<null>;
 
     constructor(replicaId: string) {
         this.replicaId = replicaId;
