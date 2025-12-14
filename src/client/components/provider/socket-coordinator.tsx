@@ -12,7 +12,7 @@ interface SocketCoordinatorProviderProps {
 export const SocketCoordinatorProvider = ({
   children,
 }: SocketCoordinatorProviderProps) => {
-  const defaultUrls = process.env.NEXT_PUBLIC_SEED_ID?.split(",") || ["localhost:5000"];
+  const defaultUrls = process.env.NEXT_PUBLIC_SEEDERS_IDS?.split(",").map(id => id.trim()) || ["localhost:5000", "localhost:5001", "localhost:5002"];
 
   const coordinatorRef = useRef<SocketCoordinator | null>(null);
 

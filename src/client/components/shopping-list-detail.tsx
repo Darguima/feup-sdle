@@ -83,8 +83,6 @@ export function ShoppingListDetail({
 		setLoading(false);
 
 		return dbList;
-
-		return dbList;
 	}, [listId]);
 
 	const handleReceivedList = useCallback(async (listReceived: ShoppingList) => {

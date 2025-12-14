@@ -4,14 +4,12 @@ import (
 	"crypto/sha1"
 	"encoding/binary"
 	"maps"
+	"sdle-server/config"
 	"slices"
 	"sort"
 	"strconv"
 	"sync"
 )
-
-const N_TOKENS_PER_NODE = 3
-const HASH_SPACE_SIZE = 12
 
 type RingView struct {
 	tokens      []uint64          // sorted list of tokens
@@ -78,10 +76,10 @@ func (r *RingView) JoinToRing(nodeId string) (tokens []uint64, transferredHashSp
 	// If this is the first node, there will not be needed to transfer any hash space
 	isFirstNode := len(r.tokens) == 0
 
-	generated_tokens := make([]uint64, 0, N_TOKENS_PER_NODE)
-	transferredHashSpaces = make([]TransferredHashSpace, 0, N_TOKENS_PER_NODE)
+	generated_tokens := make([]uint64, 0, config.DefaultConfig().TokensPerNode)
+	transferredHashSpaces = make([]TransferredHashSpace, 0, config.DefaultConfig().TokensPerNode)
 
-	for range N_TOKENS_PER_NODE {
+	for range config.DefaultConfig().TokensPerNode {
 		newToken := r.generateNewToken(nodeId, generated_tokens)
 		generated_tokens = append(generated_tokens, newToken)
 	}
@@ -90,7 +88,7 @@ func (r *RingView) JoinToRing(nodeId string) (tokens []uint64, transferredHashSp
 	slices.Sort(generated_tokens)
 
 	// Calculate previous owners (loops can't be merged)
-	previousOwners := make([]string, 0, N_TOKENS_PER_NODE)
+	previousOwners := make([]string, 0, config.DefaultConfig().TokensPerNode)
 	if !isFirstNode {
 		for _, token := range generated_tokens {
 			nextDefinedTokenIdx, _ := r.getNextDefinedTokenIdx(token)
@@ -269,7 +267,7 @@ func (r *RingView) ToString() string {
 // Hashes a string key into the hash space
 func HashKey(s string) uint64 {
 	sum := sha1.Sum([]byte(s))
-	return binary.BigEndian.Uint64(sum[:8]) % HASH_SPACE_SIZE
+	return binary.BigEndian.Uint64(sum[:8]) % config.DefaultConfig().HashSpaceSize
 }
 
 // Generates a new unique token for a node based on the node ID and a counter (counter should be unique per node)
