@@ -3,7 +3,6 @@ package node
 import (
 	"context"
 	"fmt"
-	"log"
 	"net"
 	"net/http"
 	"path/filepath"
@@ -119,7 +118,7 @@ func (n *Node) Start(errCh chan<- error) {
 
 func (n *Node) startHTTPLoop(errCh chan<- error) {
 	defer n.wg.Done()
-	n.log("starting WebSocket server at " + n.wsAddr)
+	n.logInfo("starting WebSocket server at " + n.wsAddr)
 	if err := n.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		errCh <- fmt.Errorf("WebSocket server error: %w", err)
 	}
@@ -127,7 +126,7 @@ func (n *Node) startHTTPLoop(errCh chan<- error) {
 
 func (n *Node) StartPeriodicTasks(errCh chan<- error) {
 	defer n.wg.Done()
-	n.log("Periodic tasks started")
+	n.logInfo("Periodic tasks started")
 	ticker := time.NewTicker(10 * time.Second)
 
 	defer ticker.Stop()
@@ -135,7 +134,7 @@ func (n *Node) StartPeriodicTasks(errCh chan<- error) {
 	for {
 		select {
 		case <-n.stopCh:
-			n.log("Periodic tasks stopping.")
+			n.logInfo("Periodic tasks stopping.")
 			return
 		case <-ticker.C:
 			n.sendAllHintedHandoffs()
@@ -146,7 +145,7 @@ func (n *Node) StartPeriodicTasks(errCh chan<- error) {
 // ZMQ message receiving loop
 func (n *Node) startZMQLoop(errCh chan<- error) {
 	defer n.wg.Done()
-	n.log("ZMQ socket started at " + n.addr)
+	n.logInfo("ZMQ socket started at " + n.addr)
 
 	poller := zmq4.NewPoller()
 	poller.Add(n.repSock, zmq4.POLLIN)
@@ -154,7 +153,7 @@ func (n *Node) startZMQLoop(errCh chan<- error) {
 	for {
 		select {
 		case <-n.stopCh:
-			n.log("ZMQ receiver stopping.")
+			n.logInfo("ZMQ receiver stopping.")
 			return
 		default:
 		}
@@ -206,6 +205,8 @@ func (n *Node) startZMQLoop(errCh chan<- error) {
 			n.handleHas(&req)
 		case *pb.Request_ReplicaPut:
 			n.handleReplicaPut(&req)
+		case *pb.Request_ReplicaGet:
+			n.handleReplicaGet(&req)
 		case *pb.Request_StoreHint:
 			n.handleStoreHint(&req)
 		default:
@@ -222,7 +223,7 @@ func (n *Node) Stop() error {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if err := n.httpServer.Shutdown(ctx); err != nil {
-		log.Printf("WebSocket server shutdown error: %v", err)
+		n.logError("WebSocket server shutdown error: " + err.Error())
 	}
 
 	n.wg.Wait() // Wait for all goroutines to finish
@@ -251,14 +252,13 @@ func (n *Node) updateRingView(targetAddr string) error {
 
 	fetchRingResp := resp.GetFetchRing()
 	if fetchRingResp == nil {
+		n.logError("invalid FetchRing response from " + targetAddr)
 		return fmt.Errorf("invalid FetchRing response")
 	}
 
 	// Create new RingView from received tokenToNode map
 	newRingView := ringview.NewFromTokenMap(fetchRingResp.RingView.TokenToNode)
 	n.ringView = newRingView
-
-	n.log("Updated ring view: " + n.ringView.ToString())
 
 	return nil
 }
@@ -274,14 +274,14 @@ func (n *Node) JoinToRing(targetAddr string) error {
 	tokens, transferredHashSpaces, added := n.ringView.JoinToRing(n.GetID())
 
 	if !added {
-		n.log("already part of the ring, no action taken.")
+		n.logInfo("already part of the ring, no action taken.")
 		return nil
 	}
 
-	n.log("joined the ring with tokens: " + fmt.Sprint(tokens))
+	n.logInfo("joined the ring with tokens: " + fmt.Sprint(tokens))
 
 	for _, transferredHashSpace := range transferredHashSpaces {
-		n.log("importing data for token range " + fmt.Sprintf("[%d - %d]", transferredHashSpace.Start, transferredHashSpace.End) + " from " + transferredHashSpace.PreviousOwnerId)
+		n.logInfo("importing data for token range " + fmt.Sprintf("[%d - %d]", transferredHashSpace.Start, transferredHashSpace.End) + " from " + transferredHashSpace.PreviousOwnerId)
 
 		targetAddr := NodeIdToZMQAddr(transferredHashSpace.PreviousOwnerId)
 		hashSpaceResponse, error := n.sendGetHashSpace(targetAddr, transferredHashSpace.Start, transferredHashSpace.End)
@@ -296,29 +296,63 @@ func (n *Node) JoinToRing(targetAddr string) error {
 		for key, value := range valuesSpace {
 			err := n.store.Put([]byte(key), value)
 			if err != nil {
+				n.logError("failed to import key '" + key + "': " + err.Error())
 				return fmt.Errorf("failed to import key '%s': %w", key, err)
 			}
 		}
 
-		n.log("imported " + fmt.Sprint(len(valuesSpace)) + " key-value pairs for token range " + fmt.Sprintf("[%d - %d]", transferredHashSpace.Start, transferredHashSpace.End))
+		n.logInfo("imported " + fmt.Sprint(len(valuesSpace)) + " key-value pairs for token range " + fmt.Sprintf("[%d - %d]", transferredHashSpace.Start, transferredHashSpace.End))
 	}
 
 	neighborsGossip := n.ringView.GetGossipNeighborsNodes(n.GetID())
-	n.log("Starting gossip to inform other nodes about my joining. Neighbors: " + fmt.Sprint(neighborsGossip))
+	n.logInfo("Starting gossip to inform other nodes about my joining. Neighbors: " + fmt.Sprint(neighborsGossip))
 
 	for _, nodeId := range neighborsGossip {
 		nodeAddr := NodeIdToZMQAddr(nodeId)
 		resp, err := n.sendJoinGossip(nodeAddr, n.GetID(), tokens)
 
-		n.log("Gossip Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
+		n.logInfo("Gossip Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
 	}
 
 	return err
 }
 
-func (n *Node) log(msg string) {
+const (
+	colorReset  = "\033[0m"
+	colorRed    = "\033[31m"
+	colorGreen  = "\033[32m"
+	colorYellow = "\033[33m"
+	colorBlue   = "\033[34m"
+	colorCyan   = "\033[36m"
+	colorGray   = "\033[90m"
+)
+
+func (n *Node) logInfo(msg string) {
 	ts := time.Now().Format("15:04:05.000")
-	fmt.Printf("[%s] [Node %s]: %s\n", ts, n.id, msg)
+	fmt.Printf("%s[%s]%s %s[Node %s]%s %s[INFO]%s %s\n",
+		colorGray, ts, colorReset, colorCyan, n.id, colorReset, colorBlue, colorReset, msg)
+}
+
+func (n *Node) logSuccess(msg string) {
+	ts := time.Now().Format("15:04:05.000")
+	fmt.Printf("%s[%s]%s %s[Node %s]%s %s[SUCCESS]%s %s\n",
+		colorGray, ts, colorReset, colorCyan, n.id, colorReset, colorGreen, colorReset, msg)
+}
+
+func (n *Node) logWarning(msg string) {
+	ts := time.Now().Format("15:04:05.000")
+	fmt.Printf("%s[%s]%s %s[Node %s]%s %s[WARNING]%s %s\n",
+		colorGray, ts, colorReset, colorCyan, n.id, colorReset, colorYellow, colorReset, msg)
+}
+
+func (n *Node) logError(msg string) {
+	ts := time.Now().Format("15:04:05.000")
+	fmt.Printf("%s[%s]%s %s[Node %s]%s %s[ERROR]%s %s\n",
+		colorGray, ts, colorReset, colorCyan, n.id, colorReset, colorRed, colorReset, msg)
+}
+
+func (n *Node) log(msg string) {
+	n.logInfo(msg)
 }
 
 func NodeIdToZMQAddr(id string) string {

@@ -3,7 +3,6 @@ package node
 import (
 	"fmt"
 	"sdle-server/replication"
-	"sdle-server/ringview"
 )
 
 // coordinateReplicatedPut orchestrates a replicated write operation.
@@ -16,10 +15,11 @@ func (n *Node) coordinateReplicatedPut(key string, value []byte) error {
 	prefList := n.ringView.GetPreferenceList(key, n.replConfig.N)
 
 	if len(prefList.Nodes) == 0 {
+		n.logError("No nodes available for key '" + key + "'")
 		return fmt.Errorf("no nodes available for key")
 	}
 
-	n.log(fmt.Sprintf("Coordinating PUT for key '%s' to preference list: %v (N=%d, W=%d)",
+	n.logInfo(fmt.Sprintf("Coordinating PUT for key '%s' to preference list: %v (N=%d, W=%d)",
 		key, prefList.Nodes, n.replConfig.N, n.replConfig.W))
 
 	successCount := 0
@@ -34,17 +34,17 @@ func (n *Node) coordinateReplicatedPut(key string, value []byte) error {
 			// Write to local store
 			err = n.store.Put([]byte(key), value)
 			if err == nil {
-				n.log(fmt.Sprintf("✓ Local write successful for key '%s'", key))
+				n.logSuccess(fmt.Sprintf("Local write successful for key '%s'", key))
 			} else {
-				n.log(fmt.Sprintf("✗ Local write failed for key '%s': %v", key, err))
+				n.logError(fmt.Sprintf("Local write failed for key '%s': %v", key, err))
 			}
 		} else {
 			// Write to remote replica
 			err = n.sendReplicaPut(nodeId, key, value)
 			if err == nil {
-				n.log(fmt.Sprintf("✓ Replica write to %s successful for key '%s'", nodeId, key))
+				n.logSuccess(fmt.Sprintf("Replica write to %s successful for key '%s'", nodeId, key))
 			} else {
-				n.log(fmt.Sprintf("✗ Replica write to %s failed for key '%s': %v", nodeId, key, err))
+				n.logError(fmt.Sprintf("Replica write to %s failed for key '%s': %v", nodeId, key, err))
 			}
 		}
 
@@ -56,26 +56,28 @@ func (n *Node) coordinateReplicatedPut(key string, value []byte) error {
 		}
 	}
 
-	n.log(fmt.Sprintf("Preference list writes: %d/%d successful", successCount, n.replConfig.N))
+	n.logSuccess(fmt.Sprintf("Preference list writes: %d/%d successful", successCount, n.replConfig.N))
 
 	// STEP 2: Use hinted handoff for ALL failed nodes to ensure N total replicas
 	if len(failedNodes) > 0 {
-		n.log(fmt.Sprintf("Attempting hinted handoff for %d failed nodes: %v",
+		n.logInfo(fmt.Sprintf("Attempting hinted handoff for %d failed nodes: %v",
 			len(failedNodes), failedNodes))
 
 		hintsStored := n.attemptHintedHandoff(key, value, failedNodes)
 		successCount += hintsStored
 
-		n.log(fmt.Sprintf("Hinted handoff: stored %d/%d hints", hintsStored, len(failedNodes)))
+		n.logInfo(fmt.Sprintf("Hinted handoff: stored %d/%d hints", hintsStored, len(failedNodes)))
 	}
 
 	// STEP 3: Final check - did we achieve W replicas?
 	if successCount >= n.replConfig.W {
-		n.log(fmt.Sprintf("✓ SUCCESS: W=%d achieved with %d total replicas (N=%d)",
+		n.logSuccess(fmt.Sprintf("SUCCESS: W=%d achieved with %d total replicas (N=%d)",
 			n.replConfig.W, successCount, n.replConfig.N))
 		return nil
 	}
 
+	n.logError(fmt.Sprintf("FAILURE: W=%d not achieved - only %d/%d replicas stored",
+		n.replConfig.W, successCount, n.replConfig.N))
 	return fmt.Errorf("%w: only %d/%d replicas achieved (W=%d required)",
 		replication.ErrInsufficientReplicas, successCount, n.replConfig.N, n.replConfig.W)
 }
@@ -85,24 +87,24 @@ func (n *Node) sendAllHintedHandoffs() {
 	if len(hints) == 0 {
 		return
 	}
-	n.log(fmt.Sprintf("Starting hinted handoff delivery process - %d hints to deliver", len(hints)))
+	n.logInfo(fmt.Sprintf("Starting hinted handoff delivery process - %d hints to deliver", len(hints)))
 
 	for _, hintList := range hints {
 		for _, hint := range hintList {
-			n.log("Attempting to deliver hint for key " + hint.Key + " to node " + hint.IntendedNode)
+			n.logInfo("Attempting to deliver hint for key " + hint.Key + " to node " + hint.IntendedNode)
 			err := n.sendReplicaPut(hint.IntendedNode, hint.Key, hint.Value)
 
 			if err != nil {
-				n.log("Failed to deliver hint for key " + hint.Key + " to node " + hint.IntendedNode + ": " + err.Error())
+				n.logError("Failed to deliver hint for key " + hint.Key + " to node " + hint.IntendedNode + ": " + err.Error())
 				continue
 			}
 
-			n.log("Successfully delivered hint for key " + hint.Key + " to node " + hint.IntendedNode)
+			n.logSuccess("Successfully delivered hint for key " + hint.Key + " to node " + hint.IntendedNode)
 			_ =
 				n.hintStore.DeleteHint(hint.IntendedNode, hint.Key)
 		}
 	}
-	n.log("Completed hinted handoff delivery process")
+	n.logInfo("Completed hinted handoff delivery process")
 
 }
 
@@ -132,7 +134,7 @@ func (n *Node) attemptHintedHandoff(key string, value []byte, failedNodes []stri
 	}
 
 	if len(candidates) == 0 {
-		n.log("No candidates available for hinted handoff")
+		n.logError("No candidates available for hinted handoff")
 		return 0
 	}
 
@@ -157,11 +159,11 @@ func (n *Node) attemptHintedHandoff(key string, value []byte, failedNodes []stri
 		// Try to send hint to candidate node
 		err := n.sendHintToNode(candidateNodeId, hint)
 		if err == nil {
-			n.log(fmt.Sprintf("✓ Stored hint on %s for intended node %s (key: %s)",
+			n.logSuccess(fmt.Sprintf("Stored hint on %s for intended node %s (key: %s)",
 				candidateNodeId, failedNodeId, key))
 			successCount++
 		} else {
-			n.log(fmt.Sprintf("✗ Failed to store hint on %s: %v", candidateNodeId, err))
+			n.logError(fmt.Sprintf("✗ Failed to store hint on %s: %v", candidateNodeId, err))
 		}
 	}
 
@@ -192,12 +194,15 @@ func (n *Node) sendHintToNode(nodeId string, hint replication.Hint) error {
 // Orchestrates a replicated read operation.
 // This node acts as the coordinator and reads from R replicas.
 // Returns the value after reading from R nodes (quorum read).
-func (n *Node) coordinateReplicatedGet(key string, prefList ringview.PreferenceList) ([]byte, error) {
+func (n *Node) coordinateReplicatedGet(key string) ([]byte, error) {
+	prefList := n.ringView.GetPreferenceList(key, n.replConfig.N)
+
 	if len(prefList.Nodes) == 0 {
+		n.logError("No nodes available for key '" + key + "'")
 		return nil, fmt.Errorf("no nodes available for key")
 	}
 
-	n.log(fmt.Sprintf("Coordinating GET for key '%s' from preference list: %v (R=%d)",
+	n.logInfo(fmt.Sprintf("Coordinating GET for key '%s' from preference list: %v (R=%d)",
 		key, prefList.Nodes, n.replConfig.R))
 
 	type readResult struct {
@@ -217,17 +222,17 @@ func (n *Node) coordinateReplicatedGet(key string, prefList ringview.PreferenceL
 			// Read from local store
 			value, err = n.store.Get([]byte(key))
 			if err == nil {
-				n.log(fmt.Sprintf("✓ Local read successful for key '%s'", key))
+				n.logSuccess(fmt.Sprintf("Local read successful for key '%s'", key))
 			} else {
-				n.log(fmt.Sprintf("✗ Local read failed for key '%s': %v", key, err))
+				n.logError(fmt.Sprintf("Local read failed for key '%s': %v", key, err))
 			}
 		} else {
 			// Read from remote replica
 			value, err = n.sendReplicaGet(nodeId, key)
 			if err == nil {
-				n.log(fmt.Sprintf("✓ Replica read from %s successful for key '%s'", nodeId, key))
+				n.logSuccess(fmt.Sprintf("Replica read from %s successful for key '%s'", nodeId, key))
 			} else {
-				n.log(fmt.Sprintf("✗ Replica read from %s failed for key '%s': %v", nodeId, key, err))
+				n.logError(fmt.Sprintf("Replica read from %s failed for key '%s': %v", nodeId, key, err))
 			}
 		}
 
@@ -247,7 +252,7 @@ func (n *Node) coordinateReplicatedGet(key string, prefList ringview.PreferenceL
 		}
 
 		if successCount >= n.replConfig.R {
-			n.log(fmt.Sprintf("Read quorum R=%d achieved", n.replConfig.R))
+			n.logSuccess(fmt.Sprintf("Read quorum R=%d achieved", n.replConfig.R))
 
 			// Maybe we should do read repair here if values differ?
 			// For now, just return the first successful value
@@ -273,6 +278,8 @@ func (n *Node) coordinateReplicatedGet(key string, prefList ringview.PreferenceL
 		return lastValue, nil
 	}
 
+	n.logError(fmt.Sprintf("Read quorum R=%d not achieved - only %d/%d reads succeeded",
+		n.replConfig.R, successCount, n.replConfig.R))
 	return nil, fmt.Errorf("%w: only %d/%d reads succeeded",
 		replication.ErrQuorumNotMet, successCount, n.replConfig.R)
 }
@@ -281,10 +288,10 @@ func (n *Node) coordinateReplicatedGet(key string, prefList ringview.PreferenceL
 func (n *Node) sendReplicaGet(nodeId, key string) ([]byte, error) {
 	nodeAddr := NodeIdToZMQAddr(nodeId)
 
-	resp, err := n.sendGet(nodeAddr, key)
+	resp, err := n.sendReplicaGetRequest(nodeAddr, key)
 	if err != nil {
 		return nil, err
 	}
 
-	return resp.GetGet().Value, nil
+	return resp.GetReplicaGet().GetValue(), nil
 }

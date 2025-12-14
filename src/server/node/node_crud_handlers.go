@@ -6,36 +6,19 @@ import (
 )
 
 func (n *Node) handleGet(req *pb.Request) error {
-	n.log("Received GET from " + req.Origin)
+	n.logInfo("Received GET from " + req.Origin)
 	getReq := req.GetGet()
 	if getReq == nil {
+		n.logError("Invalid GET request from " + req.Origin)
 		return n.sendResponseError("invalid get request")
 	}
 
-	// Check if this node is the coordinator
-	prefList := n.ringView.GetPreferenceList(getReq.Key, n.replConfig.N)
-	if len(prefList.Nodes) > 0 && prefList.Nodes[0] == n.id {
-		// This node is coordinator orchestrate quorum read
-		value, err := n.coordinateReplicatedGet(getReq.Key, prefList)
-		if err != nil {
-			return n.sendResponseError(err.Error())
-		}
-
-		return n.sendResponseOK(&pb.Response{
-			Origin: n.id,
-			Ok:     true,
-			ResponseType: &pb.Response_Get{
-				Get: &pb.ResponseGet{Value: value},
-			},
-		})
-	}
-
-	// Not coordinator, do direct local read (for replica reads during quorum)
-	value, err := n.store.Get([]byte(getReq.Key))
+	// This node is coordinator orchestrate quorum read
+	value, err := n.coordinateReplicatedGet(getReq.Key)
 	if err != nil {
+		n.logError("Failed to coordinate replicated GET for key " + getReq.Key + ": " + err.Error())
 		return n.sendResponseError(err.Error())
 	}
-
 	return n.sendResponseOK(&pb.Response{
 		Origin: n.id,
 		Ok:     true,
@@ -46,15 +29,17 @@ func (n *Node) handleGet(req *pb.Request) error {
 }
 
 func (n *Node) handlePut(req *pb.Request) error {
-	n.log("Received PUT from " + req.Origin)
+	n.logInfo("Received PUT from " + req.Origin)
 	putReq := req.GetPut()
 	if putReq == nil {
+		n.logError("Invalid PUT request from " + req.Origin)
 		return n.sendResponseError("invalid put request")
 	}
 
 	// This node is coordinator, orchestrate replication
 	err := n.coordinateReplicatedPut(putReq.Key, putReq.Value)
 	if err != nil {
+		n.logError("Failed to coordinate replicated PUT for key " + putReq.Key + ": " + err.Error())
 		return n.sendResponseError(err.Error())
 	}
 
@@ -109,9 +94,10 @@ func (n *Node) handleHas(req *pb.Request) error {
 
 // Handles a direct replica write (bypasses coordinator logic)
 func (n *Node) handleReplicaPut(req *pb.Request) error {
-	n.log("Received REPLICA_PUT from " + req.Origin)
+	n.logInfo("Received REPLICA_PUT from " + req.Origin)
 	replicaReq := req.GetReplicaPut()
 	if replicaReq == nil {
+		n.logError("Invalid REPLICA_PUT request from " + req.Origin)
 		return n.sendResponseError("invalid replica put request")
 	}
 
@@ -129,11 +115,34 @@ func (n *Node) handleReplicaPut(req *pb.Request) error {
 	})
 }
 
+func (n *Node) handleReplicaGet(req *pb.Request) error {
+	n.logInfo("Received REPLICA_GET from " + req.Origin)
+	replicaReq := req.GetReplicaGet()
+	if replicaReq == nil {
+		n.logError("Invalid REPLICA_GET request from " + req.Origin)
+		return n.sendResponseError("invalid replica get request")
+	}
+
+	value, err := n.store.Get([]byte(replicaReq.Key))
+	if err != nil {
+		return n.sendResponseError(err.Error())
+	}
+
+	return n.sendResponseOK(&pb.Response{
+		Origin: n.id,
+		Ok:     true,
+		ResponseType: &pb.Response_ReplicaGet{
+			ReplicaGet: &pb.ResponseReplicaGet{Value: value},
+		},
+	})
+}
+
 // Handles a request to store a hint for another node
 func (n *Node) handleStoreHint(req *pb.Request) error {
-	n.log("Received STORE_HINT from " + req.Origin)
+	n.logInfo("Received STORE_HINT from " + req.Origin)
 	hintReq := req.GetStoreHint()
 	if hintReq == nil {
+		n.logError("Invalid STORE_HINT request from " + req.Origin)
 		return n.sendResponseError("invalid store hint request")
 	}
 
@@ -149,7 +158,7 @@ func (n *Node) handleStoreHint(req *pb.Request) error {
 		return n.sendResponseError(err.Error())
 	}
 
-	n.log("Stored hint for node " + hintReq.IntendedNode + " (key: " + hintReq.Key + ")")
+	n.logSuccess("Stored hint for node " + hintReq.IntendedNode + " (key: " + hintReq.Key + ")")
 
 	return n.sendResponseOK(&pb.Response{
 		Origin: n.id,

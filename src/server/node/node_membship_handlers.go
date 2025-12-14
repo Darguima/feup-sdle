@@ -6,7 +6,7 @@ import (
 )
 
 func (n *Node) handlePing(req *pb.Request) error {
-	n.log("Received Ping from " + req.Origin)
+	n.logInfo("Received Ping from " + req.Origin)
 
 	response := &pb.Response{
 		ResponseType: &pb.Response_Ping{
@@ -20,7 +20,7 @@ func (n *Node) handlePing(req *pb.Request) error {
 }
 
 func (n *Node) handleFetchRing(req *pb.Request) error {
-	n.log("Received FetchRing from " + req.Origin)
+	n.logInfo("Received FetchRing from " + req.Origin)
 
 	response := &pb.Response{
 		ResponseType: &pb.Response_FetchRing{
@@ -37,7 +37,7 @@ func (n *Node) handleFetchRing(req *pb.Request) error {
 
 func (n *Node) handleGossipJoin(req *pb.Request) error {
 	gossipReq := req.GetGossipJoin()
-	n.log("Received GossipJoin (start node: " + gossipReq.NewNodeId + "; received from: " + req.Origin + ")")
+	n.logInfo("Received GossipJoin (start node: " + gossipReq.NewNodeId + "; received from: " + req.Origin + ")")
 	success := n.ringView.AddNode(gossipReq.NewNodeId, gossipReq.Tokens)
 
 	if !success {
@@ -45,12 +45,12 @@ func (n *Node) handleGossipJoin(req *pb.Request) error {
 		return n.sendResponseError("Node already exists in ring view")
 	}
 
-	n.log("Node " + gossipReq.NewNodeId + " added to ring view successfully.")
+	n.logInfo("Node " + gossipReq.NewNodeId + " added to ring view successfully.")
 
-	n.log("New ring view: " + n.ringView.ToString())
+	n.logInfo("New ring view: " + n.ringView.ToString())
 
 	gossipAddrs := n.ringView.GetGossipNeighborsNodes(n.GetID())
-	n.log("Send gossip message from " + gossipReq.NewNodeId + " to neighbors " + fmt.Sprint(gossipAddrs))
+	n.logInfo("Send gossip message from " + gossipReq.NewNodeId + " to neighbors " + fmt.Sprint(gossipAddrs))
 
 	// Propagate gossip asynchronously so we don't block the response
 	go func() {
@@ -58,7 +58,7 @@ func (n *Node) handleGossipJoin(req *pb.Request) error {
 			nodeAddr := NodeIdToZMQAddr(nodeId)
 			resp, err := n.sendJoinGossip(nodeAddr, gossipReq.NewNodeId, gossipReq.Tokens)
 
-			n.log("Gossip (start node: " + gossipReq.NewNodeId + "; response from:" + nodeAddr + ") Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
+			n.logInfo("Gossip (start node: " + gossipReq.NewNodeId + "; response from:" + nodeAddr + ") Response: Ok=" + fmt.Sprint(resp.Ok) + ", Error='" + fmt.Sprint(err) + "'")
 		}
 	}()
 
@@ -66,10 +66,11 @@ func (n *Node) handleGossipJoin(req *pb.Request) error {
 }
 
 func (n *Node) handleGetHashSpace(req *pb.Request) error {
-	n.log("Received GET HASHSPACE from " + req.Origin)
+	n.logInfo("Received GET HASHSPACE from " + req.Origin)
 	getReq := req.GetGetHashSpace()
 
 	if getReq == nil {
+		n.logError("Invalid GET HASHSPACE request from " + req.Origin)
 		return n.sendResponseError("invalid get hash space request")
 	}
 

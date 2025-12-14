@@ -2,9 +2,7 @@ syntax = "proto3";
 
 option go_package = "gitlab.up.pt/classes/sdle/2025/t2/g01";
 
-message RingView {
-  map<uint64, string> token_to_node = 1;
-}
+message RingView { map<uint64, string> token_to_node = 1; }
 
 message Request {
   string origin = 1; // id of the node that sent the request
@@ -18,18 +16,16 @@ message Request {
     RequestDelete delete = 17;
     RequestHas has = 18;
     RequestReplicaPut replica_put = 19;
-    RequestStoreHint store_hint = 20;
+    RequestReplicaGet replica_get = 20;
+    RequestStoreHint store_hint = 21;
   }
 }
 
-
 // Membership requests
 
-message RequestPing {
-}
+message RequestPing {}
 
-message RequestFetchRing {
-}
+message RequestFetchRing {}
 
 message RequestGossipJoin {
   string new_node_id = 1;
@@ -43,22 +39,16 @@ message RequestGetHashSpace {
 
 // CRUD requests
 
-message RequestGet {
-  string key = 1;
-}
+message RequestGet { string key = 1; }
 
 message RequestPut {
   string key = 1;
   bytes value = 2;
 }
 
-message RequestDelete {
-  string key = 1;
-}
+message RequestDelete { string key = 1; }
 
-message RequestHas {
-  string key = 1;
-}
+message RequestHas { string key = 1; }
 
 // Replication requests
 
@@ -66,6 +56,8 @@ message RequestReplicaPut {
   string key = 1;
   bytes value = 2;
 }
+
+message RequestReplicaGet { string key = 1; }
 
 message RequestStoreHint {
   string intended_node = 1;
@@ -89,41 +81,29 @@ message Response {
     ResponseDelete delete = 17;
     ResponseHas has = 18;
     ResponseReplicaPut replica_put = 19;
-    ResponseStoreHint store_hint = 20;
+    ResponseReplicaGet replica_get = 20;
+    ResponseStoreHint store_hint = 21;
   }
 }
 
-message ResponsePing {
-  string pong_message = 1;
-}
+message ResponsePing { string pong_message = 1; }
 
-message ResponseFetchRing {
-  RingView ring_view = 1;
-}
+message ResponseFetchRing { RingView ring_view = 1; }
 
-message ResponseGossipJoin {
-}
+message ResponseGossipJoin {}
 
-message ResponseGetHashSpace {
-  map<string, bytes> hashSpaceValues = 1;
-}
+message ResponseGetHashSpace { map<string, bytes> hashSpaceValues = 1; }
 
-message ResponseGet {
-  bytes value = 1;
-}
+message ResponseGet { bytes value = 1; }
 
-message ResponsePut {
-}
+message ResponsePut {}
 
-message ResponseDelete {
-}
+message ResponseDelete {}
 
-message ResponseHas {
-  bool has_key = 1;
-}
+message ResponseHas { bool has_key = 1; }
 
-message ResponseReplicaPut {
-}
+message ResponseReplicaPut {}
 
-message ResponseStoreHint {
-}
+message ResponseReplicaGet { bytes value = 1; }
+
+message ResponseStoreHint {}

@@ -143,6 +143,16 @@ func (n *Node) sendReplicaPutRequest(peerAddr string, key string, value []byte) 
 	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
 }
 
+func (n *Node) sendReplicaGetRequest(peerAddr string, key string) (*pb.Response, error) {
+	req := &pb.Request{
+		Origin: n.id,
+		RequestType: &pb.Request_ReplicaGet{
+			ReplicaGet: &pb.RequestReplicaGet{Key: key},
+		},
+	}
+	return n.sendRequest(peerAddr, req, config.DefaultConfig().RequestTimeout)
+}
+
 func (n *Node) sendStoreHintRequest(peerAddr string, intendedNode string, key string, value []byte) (*pb.Response, error) {
 	req := &pb.Request{
 		Origin: n.id,

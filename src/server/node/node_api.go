@@ -8,6 +8,7 @@ import (
 func (n *Node) Get(key string) ([]byte, error) {
 	prefList := n.ringView.GetPreferenceList(key, n.replConfig.N)
 	if len(prefList.Nodes) == 0 {
+		n.logError("No node available for key '" + key + "'")
 		return nil, errors.New("no node available for key")
 	}
 
@@ -22,15 +23,13 @@ func (n *Node) Get(key string) ([]byte, error) {
 		}
 	}
 
-	n.log("Coordinator " + coordinatorId + " is responsible for key '" + key + "'")
-
 	if coordinatorId == n.id {
-		n.log("This node (" + n.id + ") is coordinator. Orchestrating quorum read.")
-		return n.coordinateReplicatedGet(key, prefList)
+		n.logInfo("This node is coordinator. Orchestrating quorum read.")
+		return n.coordinateReplicatedGet(key)
 	}
 
 	// Forward the request to the coordinator
-	n.log("Forwarding GET request for key '" + key + "' to coordinator " + coordinatorId + ".")
+	n.logInfo("Forwarding GET request for key '" + key + "' to coordinator " + coordinatorId + ".")
 	coordinatorAddr := NodeIdToZMQAddr(coordinatorId)
 	resp, err := n.sendGet(coordinatorAddr, key)
 
@@ -45,6 +44,7 @@ func (n *Node) Put(key string, value []byte) error {
 	// Get preference list to determine coordinator
 	prefList := n.ringView.GetPreferenceList(key, n.replConfig.N)
 	if len(prefList.Nodes) == 0 {
+		n.logError("No node available for key '" + key + "'")
 		return errors.New("no node available for key")
 	}
 
@@ -59,16 +59,14 @@ func (n *Node) Put(key string, value []byte) error {
 		}
 	}
 
-	n.log("Coordinator " + coordinatorId + " is responsible for key '" + key + "'")
-
 	if coordinatorId == n.id {
 		// This node is the coordinator, so orchestrate replication
-		n.log("This node (" + n.id + ") is coordinator. Orchestrating replication.")
+		n.logInfo("This node is coordinator. Orchestrating replication.")
 		return n.coordinateReplicatedPut(key, value)
 	}
 
 	// Forward the request to the coordinator
-	n.log("Forwarding PUT request for key '" + key + "' to coordinator " + coordinatorId + ".")
+	n.logInfo("Forwarding PUT request for key '" + key + "' to coordinator " + coordinatorId + ".")
 	coordinatorAddr := NodeIdToZMQAddr(coordinatorId)
 	_, err := n.sendPut(coordinatorAddr, key, value)
 	return err
