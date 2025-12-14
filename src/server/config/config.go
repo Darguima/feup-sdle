@@ -9,6 +9,8 @@ type Config struct {
 	N int // Replication factor
 	W int // Write quorum
 	R int // Read quorum
+	TokensPerNode int // Number of tokens per node
+	HashSpaceSize uint64 // Size of the hash space
 
 	RequestTimeout       time.Duration // Timeout for requests to other nodes
 	HintDeliveryInterval time.Duration // Interval between handoff tries
@@ -19,6 +21,8 @@ func DefaultConfig() Config {
 		N:                    3,
 		W:                    2,
 		R:                    2,
+		TokensPerNode:        3,
+		HashSpaceSize:        65536,
 		HintDeliveryInterval: 10 * time.Second,
 		RequestTimeout:       250 * time.Millisecond,
 	}

@@ -1,18 +1,5 @@
-.PHONY: client server
-
-client-dev:
-	cd client && npm run dev
-client:
-	cd client && npm run build && npm run start
-server:
-	cd server && go run main.go
-
-all:
-	make -j2 client server
-
 server-test:
 	cd server && go test ./...
-
 server-crdt-test:
 	cd server && go test ./crdt/...
 client-crdt-test:

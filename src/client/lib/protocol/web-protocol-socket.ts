@@ -43,7 +43,7 @@ class WebProtocolSocket implements ProtocolSocket {
     }
 
     private onClose(event: CloseEvent): void {
-        console.log("WebSocket connection closed on " + this.socket.url, event);
+        console.log("WebSocket connection closed on " + this.socket.url);
     }
 
     async send(request: ProtocolRequest, onRes: (response: ServerResponse) => Promise<boolean>): Promise<void> {
@@ -55,10 +55,10 @@ class WebProtocolSocket implements ProtocolSocket {
             return;
         }
 
+        console.log("Sending request via WebSocket:", request);
+
         const clientReq = request.toClientRequest();
         const buffer = ClientRequest.encode(clientReq).finish();
-
-        console.log("Sending entity via WebSocket:", buffer);
 
         this.resHandlers.set(clientReq.messageId!, onRes);
         this.socket.send(buffer);

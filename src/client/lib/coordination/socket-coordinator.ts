@@ -16,10 +16,19 @@ export default class SocketCoordinator {
     }
 
     this.knownNodeIds = seedIds;
+
+    // Initialize ring view with a simple mapping for the seeder nodes
+    // In case of error during updateMembership, we have at least seeder nodes to connect to
     this.ringView = {};
-    // Initialize with a simple mapping for the seed node
-    // In case of error during updateMembership, we at least have one node to connect to
-    this.ringView[this.knownTokens[0]] = this.knownNodeIds[0];
+    this.knownNodeIds.forEach((id, index) => {
+      const HASH_SPACE_SIZE = Number.parseInt(process.env.NEXT_PUBLIC_HASH_SPACE_SIZE || "65536", 10);
+      const token = Math.floor((index + 1) * (HASH_SPACE_SIZE / (this.knownNodeIds.length + 1)));
+      this.ringView[token] = id;
+      this.knownTokens.push(token);
+      this.knownTokens.sort((a, b) => a - b);
+    });
+
+    console.log("[Socket-Coordinator] - Initial faked ring view:", this.ringView);
 
     this.updateMembership()
   }
@@ -37,7 +46,6 @@ export default class SocketCoordinator {
 
           this.knownTokens = Object.keys(this.ringView).map(Number).sort((a, b) => a - b);
           this.knownNodeIds = Array.from(new Set(Object.values(this.ringView)));
-
           return true;
         } else {
           console.warn("Invalid ring view response:", response);
@@ -59,13 +67,38 @@ export default class SocketCoordinator {
   }
 
   // expected url format: ws://hostname:port/path
-  private async connectSocket(url: string): Promise<WebProtocolSocket> {
-    const ws = new WebSocket(url);
-    const socket = new WebProtocolSocket(ws, (event) => {
-      console.error("WebSocket error on " + url, event);
-    });
-    await socket.connect();
-    return socket;
+  private async connectSocket(url: string, timeoutMs: number = 500): Promise<WebProtocolSocket | null> {
+    let ws: WebSocket | null = null;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    if (this.socket instanceof WebProtocolSocket && this.socket.getUrl() === url && this.socket.isConnected()) {
+      return this.socket;
+    } else if (this.socket instanceof WebProtocolSocket && this.socket.isConnected()) {
+      this.socket.close();
+    }
+
+    try {
+      ws = new WebSocket(url);
+      const socket = new WebProtocolSocket(ws, () => { });
+
+      // Enforce timeout for the connect() promise
+      await Promise.race([
+        socket.connect(),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(new Error("CONNECT_TIMEOUT")), timeoutMs);
+        }),
+      ]);
+
+      if (timer) clearTimeout(timer);
+
+      this.socket = socket;
+      return socket;
+
+    } catch (error) {
+      if (timer) clearTimeout(timer);
+      try { ws?.close(); } catch { /* noop */ }
+      return null;
+    }
   }
 
   private async getRandomSocket(): Promise<WebProtocolSocket> {
@@ -73,7 +106,7 @@ export default class SocketCoordinator {
       return this.socket;
     }
 
-    // Shuffle knownNodeIds to randomize connection attempts (kinda a load balancing strategy; don;t overload first node)
+    // Shuffle knownNodeIds to randomize connection attempts (kinda a load balancing strategy to not overload first node)
     const shuffledIds = this.knownNodeIds
       .map(value => ({ value, sort: Math.random() }))
       .sort((a, b) => a.sort - b.sort)
@@ -84,17 +117,19 @@ export default class SocketCoordinator {
         const url = this.idToUrl(id);
 
         const socket = await this.connectSocket(url);
-        this.socket = socket;
-        return socket;
-      } catch (error) { }
+        if (socket) {
+          return socket;
+        }
+      } catch (error) {
+        // socket not reachable, try next
+      }
     }
 
     throw new Error("Unable to connect to any known URLs.");
   }
 
   private async hashKey(s: string): Promise<number> {
-    // Should match Go implementation
-    const HASH_SPACE_SIZE = 12;
+    const HASH_SPACE_SIZE = Number.parseInt(process.env.NEXT_PUBLIC_HASH_SPACE_SIZE || "65536", 10);
 
     // SHA-1 Hashing (20 bytes)
     const encoder = new TextEncoder();
@@ -109,39 +144,62 @@ export default class SocketCoordinator {
     return finalHashKey;
   }
 
-  private async getResponsibleNodes(listId: string): Promise<string> {
-    // replicate Go Code behavior
+  private async getResponsibleNodes(listId: string): Promise<string[]> {
+    const PREFERENCE_LIST_SIZE = Number.parseInt(process.env.NEXT_PUBLIC_PREFERENCE_LIST_SIZE || "3", 10);
+    
     listId = `shoppinglist_${listId}`;
 
     const listHashKey = await this.hashKey(listId);
 
-    // Find the first token greater than or equal to listHashKey
-    for (const token of this.knownTokens) {
-      if (token >= listHashKey) {
-        // Return the corresponding node ID
-        return this.ringView[token];
+    // Find first responsible node
+    let startIdx = 0;
+    for (let i = 0; i < this.knownTokens.length; i++) {
+      if (this.knownTokens[i] >= listHashKey) {
+        startIdx = i;
+        break;
       }
     }
 
-    return this.ringView[this.knownTokens[0]];
+    const nodes: string[] = [];
+    const seen: Record<string, boolean> = {};
+
+    // Iterate around the ring collecting distinct node IDs
+    for (let i = 0; nodes.length < PREFERENCE_LIST_SIZE && i < this.knownTokens.length; i++) {
+      const idx = (startIdx + i) % this.knownTokens.length;
+      const token = this.knownTokens[idx];
+      const nodeId = this.ringView[token];
+
+      if (nodeId && !seen[nodeId]) {
+        nodes.push(nodeId);
+        seen[nodeId] = true;
+      }
+    }
+
+    return nodes;
   }
 
   public async getBestSocketForList(listId: string): Promise<ProtocolSocket> {
-    const currentUrl = this.socket.isConnected() ? this.socket.getUrl() : null;
-    const responsibleNode = await this.getResponsibleNodes(listId);
-    console.log("[Socket-Coordinator] - Trying to connect to best sockets:", responsibleNode);
-    const responsibleNodeUrl = this.idToUrl(responsibleNode);
+    const preferenceListUrls = (await this.getResponsibleNodes(listId)).map(id => this.idToUrl(id));
+    console.log("[Socket-Coordinator] - Preference nodes list:", preferenceListUrls);
 
-    if (currentUrl && currentUrl === responsibleNodeUrl) {
-      return this.socket;
+    if (preferenceListUrls.length === 0) {
+      throw new Error("No responsible nodes available");
     }
 
-    try {
-      const newSocket = await this.connectSocket(responsibleNodeUrl);
-      this.socket = newSocket;
-      return newSocket;
-    } catch (error) {
-      console.error("Failed to connect to responsible node:", responsibleNodeUrl, error);
+    for (const nodeUrl of preferenceListUrls) {
+      try {
+        const newSocket = await this.connectSocket(nodeUrl);
+
+        if (!newSocket) {
+          continue;
+        }
+
+        console.log(`[Socket-Coordinator] - Connected to node at preference list index ${preferenceListUrls.indexOf(nodeUrl)}: ${nodeUrl}`);
+
+        return newSocket;
+      } catch (error) {
+        // try next node
+      }
     }
 
     throw new Error("Unable to connect to any responsible nodes for list: " + listId);
