@@ -52,26 +52,8 @@ func (n *Node) handlePut(req *pb.Request) error {
 		return n.sendResponseError("invalid put request")
 	}
 
-	// Check if this node is the coordinator
-	prefList := n.ringView.GetPreferenceList(putReq.Key, n.replConfig.N)
-	if len(prefList.Nodes) > 0 && prefList.Nodes[0] == n.id {
-		// This node is coordinator, orchestrate replication
-		err := n.coordinateReplicatedPut(putReq.Key, putReq.Value)
-		if err != nil {
-			return n.sendResponseError(err.Error())
-		}
-
-		return n.sendResponseOK(&pb.Response{
-			Origin: n.id,
-			Ok:     true,
-			ResponseType: &pb.Response_Put{
-				Put: &pb.ResponsePut{},
-			},
-		})
-	}
-
-	// Not coordinator, do direct local write (for replica writes)
-	err := n.store.Put([]byte(putReq.Key), putReq.Value)
+	// This node is coordinator, orchestrate replication
+	err := n.coordinateReplicatedPut(putReq.Key, putReq.Value)
 	if err != nil {
 		return n.sendResponseError(err.Error())
 	}

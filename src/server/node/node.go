@@ -31,8 +31,8 @@ type Node struct {
 	httpServer    *http.Server
 	stopCh        chan struct{}
 	wg            sync.WaitGroup
-	replConfig replication.Config
-	hintStore  *replication.HintStore
+	replConfig    replication.Config
+	hintStore     *replication.HintStore
 	subController *SubController
 }
 
@@ -338,4 +338,13 @@ func (n *Node) GetID() string {
 
 func (n *Node) GetRingView() *ringview.RingView {
 	return n.ringView
+}
+
+func (n *Node) isNodeAlive(nodeId string) bool {
+	nodeAddr := NodeIdToZMQAddr(nodeId)
+	resp, err := n.sendPing(nodeAddr)
+	if err != nil || resp == nil || !resp.Ok {
+		return false
+	}
+	return true
 }

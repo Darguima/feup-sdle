@@ -11,7 +11,16 @@ func (n *Node) Get(key string) ([]byte, error) {
 		return nil, errors.New("no node available for key")
 	}
 
+	// Find the position on the preference list. If the node is not in the preference list, forward to coordinator. Otherwise, try to find the first alive node in the preference list. If the current node is the first alive node, it becomes the coordinator.
 	coordinatorId := prefList.Nodes[0] // First node is coordinator
+
+	// Find the earliest alive node in the preference list
+	for _, nodeId := range prefList.Nodes {
+		if n.isNodeAlive(nodeId) || nodeId == n.id {
+			coordinatorId = nodeId
+			break
+		}
+	}
 
 	n.log("Coordinator " + coordinatorId + " is responsible for key '" + key + "'")
 
@@ -39,7 +48,16 @@ func (n *Node) Put(key string, value []byte) error {
 		return errors.New("no node available for key")
 	}
 
+	// Find the position on the preference list. If the node is not in the preference list, forward to coordinator. Otherwise, try to find the first alive node in the preference list. If the current node is the first alive node, it becomes the coordinator.
 	coordinatorId := prefList.Nodes[0] // First node is coordinator
+
+	// Find the earliest alive node in the preference list
+	for _, nodeId := range prefList.Nodes {
+		if n.isNodeAlive(nodeId) || nodeId == n.id {
+			coordinatorId = nodeId
+			break
+		}
+	}
 
 	n.log("Coordinator " + coordinatorId + " is responsible for key '" + key + "'")
 
@@ -56,6 +74,7 @@ func (n *Node) Put(key string, value []byte) error {
 	return err
 }
 
+// TODO: delete this later
 func (n *Node) Delete(key string) error {
 	responsibleNodeId, ok := n.ringView.Lookup(key)
 	if !ok {
