@@ -81,8 +81,11 @@ func (n *Node) coordinateReplicatedPut(key string, value []byte) error {
 }
 
 func (n *Node) sendAllHintedHandoffs() {
-	n.log("Starting hinted handoff delivery process")
 	hints, _ := n.hintStore.GetAllHints()
+	if len(hints) == 0 {
+		return
+	}
+	n.log(fmt.Sprintf("Starting hinted handoff delivery process - %d hints to deliver", len(hints)))
 
 	for _, hintList := range hints {
 		for _, hint := range hintList {
