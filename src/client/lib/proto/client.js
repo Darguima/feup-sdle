@@ -4274,6 +4274,7 @@ export const Request = $root.Request = (() => {
      * @property {IRequestDelete|null} ["delete"] Request delete
      * @property {IRequestHas|null} [has] Request has
      * @property {IRequestReplicaPut|null} [replicaPut] Request replicaPut
+     * @property {IRequestReplicaGet|null} [replicaGet] Request replicaGet
      * @property {IRequestStoreHint|null} [storeHint] Request storeHint
      */
 
@@ -4373,6 +4374,14 @@ export const Request = $root.Request = (() => {
     Request.prototype.replicaPut = null;
 
     /**
+     * Request replicaGet.
+     * @member {IRequestReplicaGet|null|undefined} replicaGet
+     * @memberof Request
+     * @instance
+     */
+    Request.prototype.replicaGet = null;
+
+    /**
      * Request storeHint.
      * @member {IRequestStoreHint|null|undefined} storeHint
      * @memberof Request
@@ -4385,12 +4394,12 @@ export const Request = $root.Request = (() => {
 
     /**
      * Request requestType.
-     * @member {"ping"|"fetchRing"|"gossipJoin"|"getHashSpace"|"get"|"put"|"delete"|"has"|"replicaPut"|"storeHint"|undefined} requestType
+     * @member {"ping"|"fetchRing"|"gossipJoin"|"getHashSpace"|"get"|"put"|"delete"|"has"|"replicaPut"|"replicaGet"|"storeHint"|undefined} requestType
      * @memberof Request
      * @instance
      */
     Object.defineProperty(Request.prototype, "requestType", {
-        get: $util.oneOfGetter($oneOfFields = ["ping", "fetchRing", "gossipJoin", "getHashSpace", "get", "put", "delete", "has", "replicaPut", "storeHint"]),
+        get: $util.oneOfGetter($oneOfFields = ["ping", "fetchRing", "gossipJoin", "getHashSpace", "get", "put", "delete", "has", "replicaPut", "replicaGet", "storeHint"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -4438,8 +4447,10 @@ export const Request = $root.Request = (() => {
             $root.RequestHas.encode(message.has, writer.uint32(/* id 18, wireType 2 =*/146).fork()).ldelim();
         if (message.replicaPut != null && Object.hasOwnProperty.call(message, "replicaPut"))
             $root.RequestReplicaPut.encode(message.replicaPut, writer.uint32(/* id 19, wireType 2 =*/154).fork()).ldelim();
+        if (message.replicaGet != null && Object.hasOwnProperty.call(message, "replicaGet"))
+            $root.RequestReplicaGet.encode(message.replicaGet, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
         if (message.storeHint != null && Object.hasOwnProperty.call(message, "storeHint"))
-            $root.RequestStoreHint.encode(message.storeHint, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
+            $root.RequestStoreHint.encode(message.storeHint, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
         return writer;
     };
 
@@ -4517,6 +4528,10 @@ export const Request = $root.Request = (() => {
                     break;
                 }
             case 20: {
+                    message.replicaGet = $root.RequestReplicaGet.decode(reader, reader.uint32());
+                    break;
+                }
+            case 21: {
                     message.storeHint = $root.RequestStoreHint.decode(reader, reader.uint32());
                     break;
                 }
@@ -4647,6 +4662,16 @@ export const Request = $root.Request = (() => {
                     return "replicaPut." + error;
             }
         }
+        if (message.replicaGet != null && message.hasOwnProperty("replicaGet")) {
+            if (properties.requestType === 1)
+                return "requestType: multiple values";
+            properties.requestType = 1;
+            {
+                let error = $root.RequestReplicaGet.verify(message.replicaGet);
+                if (error)
+                    return "replicaGet." + error;
+            }
+        }
         if (message.storeHint != null && message.hasOwnProperty("storeHint")) {
             if (properties.requestType === 1)
                 return "requestType: multiple values";
@@ -4719,6 +4744,11 @@ export const Request = $root.Request = (() => {
                 throw TypeError(".Request.replicaPut: object expected");
             message.replicaPut = $root.RequestReplicaPut.fromObject(object.replicaPut);
         }
+        if (object.replicaGet != null) {
+            if (typeof object.replicaGet !== "object")
+                throw TypeError(".Request.replicaGet: object expected");
+            message.replicaGet = $root.RequestReplicaGet.fromObject(object.replicaGet);
+        }
         if (object.storeHint != null) {
             if (typeof object.storeHint !== "object")
                 throw TypeError(".Request.storeHint: object expected");
@@ -4788,6 +4818,11 @@ export const Request = $root.Request = (() => {
             object.replicaPut = $root.RequestReplicaPut.toObject(message.replicaPut, options);
             if (options.oneofs)
                 object.requestType = "replicaPut";
+        }
+        if (message.replicaGet != null && message.hasOwnProperty("replicaGet")) {
+            object.replicaGet = $root.RequestReplicaGet.toObject(message.replicaGet, options);
+            if (options.oneofs)
+                object.requestType = "replicaGet";
         }
         if (message.storeHint != null && message.hasOwnProperty("storeHint")) {
             object.storeHint = $root.RequestStoreHint.toObject(message.storeHint, options);
@@ -6791,6 +6826,211 @@ export const RequestReplicaPut = $root.RequestReplicaPut = (() => {
     return RequestReplicaPut;
 })();
 
+export const RequestReplicaGet = $root.RequestReplicaGet = (() => {
+
+    /**
+     * Properties of a RequestReplicaGet.
+     * @exports IRequestReplicaGet
+     * @interface IRequestReplicaGet
+     * @property {string|null} [key] RequestReplicaGet key
+     */
+
+    /**
+     * Constructs a new RequestReplicaGet.
+     * @exports RequestReplicaGet
+     * @classdesc Represents a RequestReplicaGet.
+     * @implements IRequestReplicaGet
+     * @constructor
+     * @param {IRequestReplicaGet=} [properties] Properties to set
+     */
+    function RequestReplicaGet(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * RequestReplicaGet key.
+     * @member {string} key
+     * @memberof RequestReplicaGet
+     * @instance
+     */
+    RequestReplicaGet.prototype.key = "";
+
+    /**
+     * Creates a new RequestReplicaGet instance using the specified properties.
+     * @function create
+     * @memberof RequestReplicaGet
+     * @static
+     * @param {IRequestReplicaGet=} [properties] Properties to set
+     * @returns {RequestReplicaGet} RequestReplicaGet instance
+     */
+    RequestReplicaGet.create = function create(properties) {
+        return new RequestReplicaGet(properties);
+    };
+
+    /**
+     * Encodes the specified RequestReplicaGet message. Does not implicitly {@link RequestReplicaGet.verify|verify} messages.
+     * @function encode
+     * @memberof RequestReplicaGet
+     * @static
+     * @param {IRequestReplicaGet} message RequestReplicaGet message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    RequestReplicaGet.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.key != null && Object.hasOwnProperty.call(message, "key"))
+            writer.uint32(/* id 1, wireType 2 =*/10).string(message.key);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified RequestReplicaGet message, length delimited. Does not implicitly {@link RequestReplicaGet.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof RequestReplicaGet
+     * @static
+     * @param {IRequestReplicaGet} message RequestReplicaGet message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    RequestReplicaGet.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a RequestReplicaGet message from the specified reader or buffer.
+     * @function decode
+     * @memberof RequestReplicaGet
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {RequestReplicaGet} RequestReplicaGet
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    RequestReplicaGet.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.RequestReplicaGet();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.key = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a RequestReplicaGet message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof RequestReplicaGet
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {RequestReplicaGet} RequestReplicaGet
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    RequestReplicaGet.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a RequestReplicaGet message.
+     * @function verify
+     * @memberof RequestReplicaGet
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    RequestReplicaGet.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.key != null && message.hasOwnProperty("key"))
+            if (!$util.isString(message.key))
+                return "key: string expected";
+        return null;
+    };
+
+    /**
+     * Creates a RequestReplicaGet message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof RequestReplicaGet
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {RequestReplicaGet} RequestReplicaGet
+     */
+    RequestReplicaGet.fromObject = function fromObject(object) {
+        if (object instanceof $root.RequestReplicaGet)
+            return object;
+        let message = new $root.RequestReplicaGet();
+        if (object.key != null)
+            message.key = String(object.key);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a RequestReplicaGet message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof RequestReplicaGet
+     * @static
+     * @param {RequestReplicaGet} message RequestReplicaGet
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    RequestReplicaGet.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            object.key = "";
+        if (message.key != null && message.hasOwnProperty("key"))
+            object.key = message.key;
+        return object;
+    };
+
+    /**
+     * Converts this RequestReplicaGet to JSON.
+     * @function toJSON
+     * @memberof RequestReplicaGet
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    RequestReplicaGet.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for RequestReplicaGet
+     * @function getTypeUrl
+     * @memberof RequestReplicaGet
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    RequestReplicaGet.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/RequestReplicaGet";
+    };
+
+    return RequestReplicaGet;
+})();
+
 export const RequestStoreHint = $root.RequestStoreHint = (() => {
 
     /**
@@ -7070,6 +7310,7 @@ export const Response = $root.Response = (() => {
      * @property {IResponseDelete|null} ["delete"] Response delete
      * @property {IResponseHas|null} [has] Response has
      * @property {IResponseReplicaPut|null} [replicaPut] Response replicaPut
+     * @property {IResponseReplicaGet|null} [replicaGet] Response replicaGet
      * @property {IResponseStoreHint|null} [storeHint] Response storeHint
      */
 
@@ -7185,6 +7426,14 @@ export const Response = $root.Response = (() => {
     Response.prototype.replicaPut = null;
 
     /**
+     * Response replicaGet.
+     * @member {IResponseReplicaGet|null|undefined} replicaGet
+     * @memberof Response
+     * @instance
+     */
+    Response.prototype.replicaGet = null;
+
+    /**
      * Response storeHint.
      * @member {IResponseStoreHint|null|undefined} storeHint
      * @memberof Response
@@ -7197,12 +7446,12 @@ export const Response = $root.Response = (() => {
 
     /**
      * Response responseType.
-     * @member {"ping"|"fetchRing"|"gossipJoin"|"getHashSpace"|"get"|"put"|"delete"|"has"|"replicaPut"|"storeHint"|undefined} responseType
+     * @member {"ping"|"fetchRing"|"gossipJoin"|"getHashSpace"|"get"|"put"|"delete"|"has"|"replicaPut"|"replicaGet"|"storeHint"|undefined} responseType
      * @memberof Response
      * @instance
      */
     Object.defineProperty(Response.prototype, "responseType", {
-        get: $util.oneOfGetter($oneOfFields = ["ping", "fetchRing", "gossipJoin", "getHashSpace", "get", "put", "delete", "has", "replicaPut", "storeHint"]),
+        get: $util.oneOfGetter($oneOfFields = ["ping", "fetchRing", "gossipJoin", "getHashSpace", "get", "put", "delete", "has", "replicaPut", "replicaGet", "storeHint"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -7254,8 +7503,10 @@ export const Response = $root.Response = (() => {
             $root.ResponseHas.encode(message.has, writer.uint32(/* id 18, wireType 2 =*/146).fork()).ldelim();
         if (message.replicaPut != null && Object.hasOwnProperty.call(message, "replicaPut"))
             $root.ResponseReplicaPut.encode(message.replicaPut, writer.uint32(/* id 19, wireType 2 =*/154).fork()).ldelim();
+        if (message.replicaGet != null && Object.hasOwnProperty.call(message, "replicaGet"))
+            $root.ResponseReplicaGet.encode(message.replicaGet, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
         if (message.storeHint != null && Object.hasOwnProperty.call(message, "storeHint"))
-            $root.ResponseStoreHint.encode(message.storeHint, writer.uint32(/* id 20, wireType 2 =*/162).fork()).ldelim();
+            $root.ResponseStoreHint.encode(message.storeHint, writer.uint32(/* id 21, wireType 2 =*/170).fork()).ldelim();
         return writer;
     };
 
@@ -7341,6 +7592,10 @@ export const Response = $root.Response = (() => {
                     break;
                 }
             case 20: {
+                    message.replicaGet = $root.ResponseReplicaGet.decode(reader, reader.uint32());
+                    break;
+                }
+            case 21: {
                     message.storeHint = $root.ResponseStoreHint.decode(reader, reader.uint32());
                     break;
                 }
@@ -7477,6 +7732,16 @@ export const Response = $root.Response = (() => {
                     return "replicaPut." + error;
             }
         }
+        if (message.replicaGet != null && message.hasOwnProperty("replicaGet")) {
+            if (properties.responseType === 1)
+                return "responseType: multiple values";
+            properties.responseType = 1;
+            {
+                let error = $root.ResponseReplicaGet.verify(message.replicaGet);
+                if (error)
+                    return "replicaGet." + error;
+            }
+        }
         if (message.storeHint != null && message.hasOwnProperty("storeHint")) {
             if (properties.responseType === 1)
                 return "responseType: multiple values";
@@ -7552,6 +7817,11 @@ export const Response = $root.Response = (() => {
             if (typeof object.replicaPut !== "object")
                 throw TypeError(".Response.replicaPut: object expected");
             message.replicaPut = $root.ResponseReplicaPut.fromObject(object.replicaPut);
+        }
+        if (object.replicaGet != null) {
+            if (typeof object.replicaGet !== "object")
+                throw TypeError(".Response.replicaGet: object expected");
+            message.replicaGet = $root.ResponseReplicaGet.fromObject(object.replicaGet);
         }
         if (object.storeHint != null) {
             if (typeof object.storeHint !== "object")
@@ -7629,6 +7899,11 @@ export const Response = $root.Response = (() => {
             object.replicaPut = $root.ResponseReplicaPut.toObject(message.replicaPut, options);
             if (options.oneofs)
                 object.responseType = "replicaPut";
+        }
+        if (message.replicaGet != null && message.hasOwnProperty("replicaGet")) {
+            object.replicaGet = $root.ResponseReplicaGet.toObject(message.replicaGet, options);
+            if (options.oneofs)
+                object.responseType = "replicaGet";
         }
         if (message.storeHint != null && message.hasOwnProperty("storeHint")) {
             object.storeHint = $root.ResponseStoreHint.toObject(message.storeHint, options);
@@ -9450,6 +9725,220 @@ export const ResponseReplicaPut = $root.ResponseReplicaPut = (() => {
     };
 
     return ResponseReplicaPut;
+})();
+
+export const ResponseReplicaGet = $root.ResponseReplicaGet = (() => {
+
+    /**
+     * Properties of a ResponseReplicaGet.
+     * @exports IResponseReplicaGet
+     * @interface IResponseReplicaGet
+     * @property {Uint8Array|null} [value] ResponseReplicaGet value
+     */
+
+    /**
+     * Constructs a new ResponseReplicaGet.
+     * @exports ResponseReplicaGet
+     * @classdesc Represents a ResponseReplicaGet.
+     * @implements IResponseReplicaGet
+     * @constructor
+     * @param {IResponseReplicaGet=} [properties] Properties to set
+     */
+    function ResponseReplicaGet(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * ResponseReplicaGet value.
+     * @member {Uint8Array} value
+     * @memberof ResponseReplicaGet
+     * @instance
+     */
+    ResponseReplicaGet.prototype.value = $util.newBuffer([]);
+
+    /**
+     * Creates a new ResponseReplicaGet instance using the specified properties.
+     * @function create
+     * @memberof ResponseReplicaGet
+     * @static
+     * @param {IResponseReplicaGet=} [properties] Properties to set
+     * @returns {ResponseReplicaGet} ResponseReplicaGet instance
+     */
+    ResponseReplicaGet.create = function create(properties) {
+        return new ResponseReplicaGet(properties);
+    };
+
+    /**
+     * Encodes the specified ResponseReplicaGet message. Does not implicitly {@link ResponseReplicaGet.verify|verify} messages.
+     * @function encode
+     * @memberof ResponseReplicaGet
+     * @static
+     * @param {IResponseReplicaGet} message ResponseReplicaGet message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    ResponseReplicaGet.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.value != null && Object.hasOwnProperty.call(message, "value"))
+            writer.uint32(/* id 1, wireType 2 =*/10).bytes(message.value);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified ResponseReplicaGet message, length delimited. Does not implicitly {@link ResponseReplicaGet.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof ResponseReplicaGet
+     * @static
+     * @param {IResponseReplicaGet} message ResponseReplicaGet message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    ResponseReplicaGet.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a ResponseReplicaGet message from the specified reader or buffer.
+     * @function decode
+     * @memberof ResponseReplicaGet
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {ResponseReplicaGet} ResponseReplicaGet
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    ResponseReplicaGet.decode = function decode(reader, length, error) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.ResponseReplicaGet();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            if (tag === error)
+                break;
+            switch (tag >>> 3) {
+            case 1: {
+                    message.value = reader.bytes();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a ResponseReplicaGet message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof ResponseReplicaGet
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {ResponseReplicaGet} ResponseReplicaGet
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    ResponseReplicaGet.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a ResponseReplicaGet message.
+     * @function verify
+     * @memberof ResponseReplicaGet
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    ResponseReplicaGet.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.value != null && message.hasOwnProperty("value"))
+            if (!(message.value && typeof message.value.length === "number" || $util.isString(message.value)))
+                return "value: buffer expected";
+        return null;
+    };
+
+    /**
+     * Creates a ResponseReplicaGet message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof ResponseReplicaGet
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {ResponseReplicaGet} ResponseReplicaGet
+     */
+    ResponseReplicaGet.fromObject = function fromObject(object) {
+        if (object instanceof $root.ResponseReplicaGet)
+            return object;
+        let message = new $root.ResponseReplicaGet();
+        if (object.value != null)
+            if (typeof object.value === "string")
+                $util.base64.decode(object.value, message.value = $util.newBuffer($util.base64.length(object.value)), 0);
+            else if (object.value.length >= 0)
+                message.value = object.value;
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a ResponseReplicaGet message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof ResponseReplicaGet
+     * @static
+     * @param {ResponseReplicaGet} message ResponseReplicaGet
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    ResponseReplicaGet.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults)
+            if (options.bytes === String)
+                object.value = "";
+            else {
+                object.value = [];
+                if (options.bytes !== Array)
+                    object.value = $util.newBuffer(object.value);
+            }
+        if (message.value != null && message.hasOwnProperty("value"))
+            object.value = options.bytes === String ? $util.base64.encode(message.value, 0, message.value.length) : options.bytes === Array ? Array.prototype.slice.call(message.value) : message.value;
+        return object;
+    };
+
+    /**
+     * Converts this ResponseReplicaGet to JSON.
+     * @function toJSON
+     * @memberof ResponseReplicaGet
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    ResponseReplicaGet.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for ResponseReplicaGet
+     * @function getTypeUrl
+     * @memberof ResponseReplicaGet
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    ResponseReplicaGet.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/ResponseReplicaGet";
+    };
+
+    return ResponseReplicaGet;
 })();
 
 export const ResponseStoreHint = $root.ResponseStoreHint = (() => {

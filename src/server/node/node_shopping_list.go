@@ -5,12 +5,12 @@ import (
 	crdt "sdle-server/crdt/shopping"
 	pb "sdle-server/proto"
 
-	"google.golang.org/protobuf/proto"
 	"github.com/gorilla/websocket"
+	"google.golang.org/protobuf/proto"
 )
 
 func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
-	n.log(fmt.Sprintf("received shopping list %s", delta.ListID()))
+	n.logInfo(fmt.Sprintf("Received shopping list %s", delta.ListID()))
 
 	var oldList *crdt.ShoppingList
 
@@ -44,7 +44,7 @@ func (n *Node) HandleShoppingList(delta *crdt.ShoppingList) error {
 }
 
 func (n *Node) GetShoppingList(listID string) (*pb.ShoppingList, error) {
-	n.log(fmt.Sprintf("get shopping list %s", listID))
+	n.logInfo(fmt.Sprintf("Getting shopping list %s", listID))
 
 	// Use distributed GET instead of direct store access
 	listData, err := n.Get("shoppinglist_" + listID)
@@ -61,13 +61,13 @@ func (n *Node) GetShoppingList(listID string) (*pb.ShoppingList, error) {
 }
 
 func (n *Node) SubscribeShoppingList(listID string, messageID string, conn *websocket.Conn) error {
-	n.log(fmt.Sprintf("handle subscribe shopping list %s", listID))
+	n.logInfo(fmt.Sprintf("Handling subscribe shopping list %s", listID))
 	n.subController.AddSubscriber(listID, messageID, conn)
 	return nil
 }
 
 func (n *Node) UnsubscribeShoppingList(listID string, messageID string) error {
-	n.log(fmt.Sprintf("handle unsubscribe shopping list %s", listID))
+	n.logInfo(fmt.Sprintf("Handling unsubscribe shopping list %s", listID))
 	n.subController.RemoveSubscriber(listID, messageID)
 	return nil
 }
