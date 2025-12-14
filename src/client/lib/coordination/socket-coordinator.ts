@@ -33,6 +33,7 @@ export default class SocketCoordinator {
       return await socket.send(req, async (response) => {
         if (response.ringView && response.ringView.tokenToNode) {
           this.ringView = response.ringView.tokenToNode;
+          console.log("[Socket-Coordinator] - Updated ring view:", this.ringView);
 
           this.knownTokens = Object.keys(this.ringView).map(Number).sort((a, b) => a - b);
           this.knownNodeIds = Array.from(new Set(Object.values(this.ringView)));
@@ -92,6 +93,7 @@ export default class SocketCoordinator {
   }
 
   private async hashKey(s: string): Promise<number> {
+    // Should match Go implementation
     const HASH_SPACE_SIZE = 12;
 
     // SHA-1 Hashing (20 bytes)
@@ -108,6 +110,9 @@ export default class SocketCoordinator {
   }
 
   private async getResponsibleNodes(listId: string): Promise<string> {
+    // replicate Go Code behavior
+    listId = `shoppinglist_${listId}`;
+
     const listHashKey = await this.hashKey(listId);
 
     // Find the first token greater than or equal to listHashKey
@@ -124,6 +129,7 @@ export default class SocketCoordinator {
   public async getBestSocketForList(listId: string): Promise<ProtocolSocket> {
     const currentUrl = this.socket.isConnected() ? this.socket.getUrl() : null;
     const responsibleNode = await this.getResponsibleNodes(listId);
+    console.log("[Socket-Coordinator] - Trying to connect to best sockets:", responsibleNode);
     const responsibleNodeUrl = this.idToUrl(responsibleNode);
 
     if (currentUrl && currentUrl === responsibleNodeUrl) {
